@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Meditations</title>
+    
+    <!-- Google Fonts: Playfair Display (Serif) & Lato (Sans for Titles) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Light Mode (Marble) */
+            --bg-color: #f4f1ea;
+            --text-color: #2c2c2c;
+            --accent-color: #8c7b75;
+            --card-bg: #fffbf6;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+            --input-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Mode (Slate) */
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --accent-color: #a89f91;
+            --card-bg: #262626;
+            --shadow: 0 10px 30px rgba(0,0,0,0.4);
+            --input-bg: #333333;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Playfair Display', serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.5s ease, color 0.5s ease;
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden; /* Prevents scroll bounce on mobile */
+        }
+
+        .container {
+            padding: 1.5rem;
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* App Title */
+        h1 {
+            font-family: 'Lato', sans-serif;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--accent-color);
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+
+        /* The Card */
+        .quote-card {
+            background: var(--card-bg);
+            padding: 3rem 2rem;
+            border-radius: 4px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            width: 100%;
+            min-height: 200px; /* Gives it presence */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-sizing: border-box;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .quote-card:active {
+            transform: scale(0.98);
+        }
+
+        /* Inner Content */
+        #quote-title {
+            font-family: 'Lato', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-color);
+            margin-bottom: 1.5rem;
+            display: none; /* Hidden if empty */
+        }
+
+        #quote-body {
+            font-size: 1.5rem;
+            line-height: 1.5;
+            font-style: italic;
+        }
+
+        /* Buttons */
+        .controls {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        button {
+            background: none;
+            border: 1px solid var(--text-color);
+            color: var(--text-color);
+            padding: 12px 24px;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        button.secondary {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+        
+        button.secondary:hover {
+            background: var(--accent-color);
+            color: var(--bg-color);
+        }
+
+        /* Input Form */
+        #add-form {
+            display: none;
+            margin-top: 20px;
+            width: 100%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-bottom: 2px solid var(--accent-color);
+            background: var(--input-bg);
+            color: var(--text-color);
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border-radius: 4px;
+        }
+
+        input {
+            font-family: 'Lato', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        textarea {
+            resize: none;
+            min-height: 80px;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-bottom-color: var(--text-color);
+        }
+
+        /* Theme Toggle */
+        .theme-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            opacity: 0.5;
+            z-index: 100;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="theme-switch" onclick="toggleTheme()">â—‘</div>
+
+    <div class="container">
+        <h1>Meditations</h1>
+        
+        <div class="quote-card" onclick="displayRandomQuote()">
+            <div id="quote-title">Loading...</div>
+            <div id="quote-body"></div>
+        </div>
+
+        <div class="controls">
+            <button onclick="displayRandomQuote()">Next</button>
+            <button class="secondary" onclick="toggleAddForm()">+ Add</button>
+        </div>
+
+        <div id="add-form">
+            <input type="text" id="new-title" placeholder="Title (Optional)">
+            <textarea id="new-body" rows="3" placeholder="Your meditation..."></textarea>
+            <button onclick="submitQuote()" style="width: 100%;">Scribe to Cloud</button>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        // REPLACE THIS URL WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
+        const API_URL = "https://script.google.com/macros/s AKfycbyeAgXo2SCcJOToWgbM2O3qdhsxz67NrMotSWjDWbEJafKJ7tLSMm7siu0t278bPqxe/exec"; 
+        // ---------------------
+
+        let meditations = [];
+
+        // 1. Fetch from Google Sheet
+        async function fetchQuotes() {
+            const titleEl = document.getElementById('quote-title');
+            const bodyEl = document.getElementById('quote-body');
+            
+            titleEl.innerText = "";
+            bodyEl.innerText = "Consulting the archives...";
+            
+            try {
+                const response = await fetch(API_URL);
+                meditations = await response.json();
+                displayRandomQuote();
+            } catch (error) {
+                bodyEl.innerText = "The silence is deafening. (Error connecting).";
+                console.error(error);
+            }
+        }
+
+        // 2. Display Random
+        function displayRandomQuote() {
+            if (meditations.length === 0) return;
+
+            const randomObj = meditations[Math.floor(Math.random() * meditations.length)];
+            const titleEl = document.getElementById('quote-title');
+            const bodyEl = document.getElementById('quote-body');
+            const card = document.querySelector('.quote-card');
+
+            // Fade out
+            card.style.opacity = 0.5;
+            
+            setTimeout(() => {
+                // Update Text
+                if (randomObj.title) {
+                    titleEl.innerText = randomObj.title;
+                    titleEl.style.display = 'block';
+                } else {
+                    titleEl.style.display = 'none';
+                }
+                bodyEl.innerText = randomObj.body;
+                
+                // Fade in
+                card.style.opacity = 1;
+            }, 150);
+        }
+
+        // 3. UI Toggles
+        function toggleAddForm() {
+            const form = document.getElementById('add-form');
+            form.style.display = form.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // 4. Submit New Note
+        async function submitQuote() {
+            const titleInput = document.getElementById('new-title');
+            const bodyInput = document.getElementById('new-body');
+            
+            const titleVal = titleInput.value;
+            const bodyVal = bodyInput.value;
+
+            if (!bodyVal) return; // Don't submit empty notes
+
+            // Optimistic Update (Show it immediately)
+            meditations.push({ title: titleVal, body: bodyVal });
+            
+            // Force display the one we just wrote
+            document.getElementById('quote-title').innerText = titleVal;
+            document.getElementById('quote-title').style.display = titleVal ? 'block' : 'none';
+            document.getElementById('quote-body').innerText = bodyVal;
+
+            // Clear inputs and hide form
+            titleInput.value = "";
+            bodyInput.value = "";
+            toggleAddForm();
+
+            // Send to Cloud (Fire and forget)
+            await fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: titleVal, body: bodyVal })
+            });
+        }
+
+        // 5. Theme Handling
+        function toggleTheme() {
+            const body = document.body;
+            const newTheme = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Initialize
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        
+        // Start
+        fetchQuotes();
+
+    </script>
+</body>
+</html>
