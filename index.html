@@ -24,6 +24,7 @@
             --shadow: 0 10px 30px rgba(0,0,0,0.08);
             --border-color: #dcd6ce;
             --tag-bg: #e6e2d8;
+            --danger-color: #a35d5d;
         }
 
         [data-theme="dark"] {
@@ -34,6 +35,7 @@
             --shadow: 0 10px 30px rgba(0,0,0,0.4);
             --border-color: #444;
             --tag-bg: #333;
+            --danger-color: #d97575;
         }
 
         body {
@@ -57,7 +59,7 @@
         }
 
         h1 {
-            font-family: 'Cinzel', serif; /* Roman style font */
+            font-family: 'Cinzel', serif;
             font-size: 1.1rem;
             text-transform: uppercase;
             letter-spacing: 2px;
@@ -91,7 +93,7 @@
             border-bottom-color: var(--accent-color);
         }
 
-        /* --- MAIN VIEW CONTAINER --- */
+        /* --- VIEW CONTAINER --- */
         .view-container {
             flex-grow: 1;
             position: relative;
@@ -101,42 +103,36 @@
 
         .view {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex; /* Flex for centering */
-            flex-direction: column;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center;
+            opacity: 0; pointer-events: none;
             transition: opacity 0.3s ease;
             box-sizing: border-box;
             padding: 0 1.5rem 1.5rem 1.5rem;
         }
 
         .view.active {
-            opacity: 1;
-            pointer-events: all;
+            opacity: 1; pointer-events: all;
         }
 
-        /* --- CARD VIEW (HOME) --- */
+        /* --- CARD VIEW --- */
         #card-view {
             justify-content: center;
         }
 
         .quote-card {
             background: var(--card-bg);
-            padding: 2.5rem 2rem;
+            padding: 2.5rem 1.5rem 1.5rem 1.5rem; /* Reduced bottom padding */
             border-radius: 4px;
             box-shadow: var(--shadow);
             width: 100%;
             max-width: 500px;
-            min-height: 250px;
+            /* Fixed height constraints for scrolling */
+            height: 60vh;
+            max-height: 500px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             text-align: center;
             position: relative;
             box-sizing: border-box;
@@ -144,208 +140,185 @@
         }
 
         #quote-date {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-family: 'Lato', sans-serif;
-            font-size: 0.7rem;
-            opacity: 0.5;
-            text-transform: uppercase;
+            position: absolute; top: 15px; right: 20px;
+            font-family: 'Lato', sans-serif; font-size: 0.7rem;
+            opacity: 0.5; text-transform: uppercase;
         }
+
+        /* Edit Button */
+        .edit-btn {
+            position: absolute; top: 15px; left: 20px;
+            background: none; border: none; padding: 5px;
+            font-size: 1.2rem; cursor: pointer; opacity: 0.3;
+            color: var(--text-color);
+        }
+        .edit-btn:hover { opacity: 1; }
 
         #quote-title {
-            font-family: 'Lato', sans-serif;
-            font-weight: 700;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--accent-color);
-            margin-bottom: 1.5rem;
-            margin-top: 1rem;
+            font-family: 'Lato', sans-serif; font-weight: 700;
+            font-size: 0.9rem; text-transform: uppercase;
+            letter-spacing: 2px; color: var(--accent-color);
+            margin-bottom: 1rem; margin-top: 1rem;
+            flex-shrink: 0;
         }
 
+        /* Scrollable Body */
         #quote-body {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             line-height: 1.5;
             font-style: italic;
+            overflow-y: auto; /* Enable scroll */
+            width: 100%;
+            flex-grow: 1;
+            /* Pretty Scrollbar */
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-color) transparent;
+            padding: 0 10px; /* Space for scrollbar */
         }
 
+        /* Webkit Scrollbar styling */
+        #quote-body::-webkit-scrollbar { width: 4px; }
+        #quote-body::-webkit-scrollbar-track { background: transparent; }
+        #quote-body::-webkit-scrollbar-thumb { background-color: var(--accent-color); border-radius: 4px; }
+
         .tags-container {
-            margin-top: 2rem;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
+            margin-top: 1.5rem;
+            display: flex; gap: 8px; flex-wrap: wrap;
             justify-content: center;
+            flex-shrink: 0;
         }
 
         .tag {
-            font-family: 'Lato', sans-serif;
-            font-size: 0.65rem;
-            background: var(--tag-bg);
-            padding: 4px 10px;
-            border-radius: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-color);
+            font-family: 'Lato', sans-serif; font-size: 0.65rem;
+            background: var(--tag-bg); padding: 4px 10px;
+            border-radius: 12px; text-transform: uppercase;
+            letter-spacing: 1px; color: var(--text-color);
             opacity: 0.7;
         }
 
         .controls {
-            margin-top: 2rem;
-            display: flex;
-            gap: 15px;
+            margin-top: 2rem; display: flex; gap: 15px; flex-shrink: 0;
         }
 
         /* --- LIBRARY VIEW --- */
         #library-view {
-            justify-content: flex-start;
-            padding-top: 10px;
+            justify-content: flex-start; padding-top: 10px;
         }
 
+        /* Prettier Filters */
         .library-controls {
-            width: 100%;
-            max-width: 600px;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            font-family: 'Lato', sans-serif;
-            font-size: 0.8rem;
+            width: 100%; max-width: 600px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px; gap: 10px;
+        }
+
+        .custom-select-wrapper {
+            position: relative; flex: 1;
         }
         
         select {
-            background: var(--tag-bg);
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            color: var(--text-color);
-            font-family: inherit;
+            width: 100%; appearance: none;
+            background: transparent; border: none;
+            border-bottom: 1px solid var(--border-color);
+            padding: 8px 0; color: var(--text-color);
+            font-family: 'Lato', sans-serif; font-size: 0.8rem;
+            text-transform: uppercase; letter-spacing: 1px;
+            cursor: pointer; border-radius: 0;
         }
+        
+        select:focus { outline: none; border-bottom-color: var(--accent-color); }
 
         .library-list {
-            width: 100%;
-            max-width: 600px;
-            overflow-y: auto;
-            padding-bottom: 100px; /* Space for fab */
+            width: 100%; max-width: 600px;
+            overflow-y: auto; padding-bottom: 100px;
         }
 
         .library-item {
-            background: var(--card-bg);
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 4px;
+            background: var(--card-bg); padding: 15px;
+            margin-bottom: 10px; border-radius: 4px;
             border-left: 3px solid var(--accent-color);
             cursor: pointer;
         }
 
         .lib-meta {
-            display: flex;
-            justify-content: space-between;
-            font-family: 'Lato', sans-serif;
-            font-size: 0.7rem;
-            opacity: 0.6;
-            margin-bottom: 5px;
+            display: flex; justify-content: space-between;
+            font-family: 'Lato', sans-serif; font-size: 0.7rem;
+            opacity: 0.6; margin-bottom: 5px;
         }
 
         .lib-title {
-            font-family: 'Lato', sans-serif;
-            font-weight: 700;
-            font-size: 0.9rem;
-            margin-bottom: 5px;
+            font-family: 'Lato', sans-serif; font-weight: 700;
+            font-size: 0.9rem; margin-bottom: 5px;
         }
 
         .lib-preview {
-            font-size: 1rem;
-            opacity: 0.9;
-            white-space: nowrap;
-            overflow: hidden;
+            font-size: 1rem; opacity: 0.9;
+            white-space: nowrap; overflow: hidden;
             text-overflow: ellipsis;
         }
 
         /* --- BUTTONS --- */
-        button {
-            background: none;
-            border: 1px solid var(--text-color);
-            color: var(--text-color);
-            padding: 12px 24px;
-            font-family: 'Lato', sans-serif;
-            font-size: 0.75rem;
-            font-weight: 700;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        button.main-btn {
+            background: none; border: 1px solid var(--text-color);
+            color: var(--text-color); padding: 12px 24px;
+            font-family: 'Lato', sans-serif; font-size: 0.75rem;
+            font-weight: 700; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 1px;
             border-radius: 50px;
         }
 
-        button:hover {
-            background: var(--text-color);
-            color: var(--bg-color);
+        button.main-btn:hover {
+            background: var(--text-color); color: var(--bg-color);
         }
 
-        /* Add Button (Floating Action Button style for Library) */
+        button.delete-btn {
+            border-color: var(--danger-color); color: var(--danger-color);
+        }
+        button.delete-btn:hover {
+            background: var(--danger-color); color: white;
+        }
+
+        /* Floating Add Button */
         .fab {
-            position: absolute;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--text-color);
-            color: var(--bg-color);
-            font-size: 1.5rem;
-            border: none;
+            position: absolute; bottom: 30px; right: 30px;
+            width: 50px; height: 50px; border-radius: 50%;
+            background: var(--text-color); color: var(--bg-color);
+            font-size: 1.5rem; border: none;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 100; cursor: pointer;
         }
 
-        /* --- ADD MODAL --- */
-        #add-modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 200;
-            display: none;
-            align-items: center;
-            justify-content: center;
+        /* --- MODAL --- */
+        #modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 200;
+            display: none; align-items: center; justify-content: center;
         }
 
         .modal-content {
-            background: var(--bg-color);
-            padding: 2rem;
-            width: 85%;
-            max-width: 400px;
-            border-radius: 4px;
+            background: var(--bg-color); padding: 2rem;
+            width: 85%; max-width: 400px; border-radius: 4px;
+            position: relative;
         }
 
         input, textarea {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            background: var(--tag-bg);
-            border: none;
-            border-radius: 4px;
-            color: var(--text-color);
-            box-sizing: border-box;
-            font-family: 'Lato', sans-serif;
+            width: 100%; padding: 12px; margin-bottom: 15px;
+            background: var(--tag-bg); border: none;
+            border-radius: 4px; color: var(--text-color);
+            box-sizing: border-box; font-family: 'Lato', sans-serif;
         }
         
         textarea {
             font-family: 'Playfair Display', serif;
-            min-height: 100px;
-            resize: none;
+            min-height: 120px; resize: none;
         }
 
         /* Theme Toggle */
         .theme-switch {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            cursor: pointer;
-            font-size: 1.2rem;
-            opacity: 0.5;
-            z-index: 100;
+            position: absolute; top: 20px; right: 20px;
+            cursor: pointer; font-size: 1.2rem;
+            opacity: 0.5; z-index: 100;
         }
 
     </style>
@@ -367,59 +340,72 @@
         
         <!-- CARD VIEW -->
         <div id="card-view" class="view active">
-            <div class="quote-card" onclick="displayRandomQuote()">
+            <div class="quote-card">
+                <!-- Edit Icon (Pencil) -->
+                <button class="edit-btn" onclick="openEditModal(currentQuoteIndex)" title="Edit this note">âœŽ</button>
+                
                 <div id="quote-date"></div>
                 <div id="quote-title"></div>
                 <div id="quote-body">Consulting the archives...</div>
                 <div class="tags-container" id="quote-tags"></div>
             </div>
             <div class="controls">
-                <button onclick="displayRandomQuote()">Next Wisdom</button>
+                <button class="main-btn" onclick="displayRandomQuote()">Next Wisdom</button>
             </div>
         </div>
 
         <!-- LIBRARY VIEW -->
         <div id="library-view" class="view">
             <div class="library-controls">
-                <select id="sort-select" onchange="renderLibrary()">
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                </select>
-                <select id="tag-filter" onchange="renderLibrary()">
-                    <option value="all">All Tags</option>
-                </select>
+                <div class="custom-select-wrapper">
+                    <select id="sort-select" onchange="renderLibrary()">
+                        <option value="newest">Sort: Newest</option>
+                        <option value="oldest">Sort: Oldest</option>
+                    </select>
+                </div>
+                <div class="custom-select-wrapper">
+                    <select id="tag-filter" onchange="renderLibrary()">
+                        <option value="all">Filter: All Tags</option>
+                    </select>
+                </div>
             </div>
-            <div class="library-list" id="library-list">
-                <!-- Items injected here -->
-            </div>
+            <div class="library-list" id="library-list"></div>
         </div>
     </div>
 
     <!-- Floating Add Button -->
-    <button class="fab" onclick="toggleAddModal()">+</button>
+    <button class="fab" onclick="openAddModal()">+</button>
 
-    <!-- ADD MODAL -->
-    <div id="add-modal">
+    <!-- UNIFIED MODAL (Add & Edit) -->
+    <div id="modal">
         <div class="modal-content">
-            <h3 style="font-family:'Lato'; text-transform:uppercase; font-size:0.9rem; margin-top:0;">New Meditation</h3>
-            <input type="text" id="new-title" placeholder="Title (e.g., On Morning Coffee)">
-            <textarea id="new-body" placeholder="Write your thought..."></textarea>
-            <input type="text" id="new-tags" placeholder="Tags (comma separated, e.g., stoic, uni)">
-            <div style="display:flex; gap:10px;">
-                <button onclick="submitQuote()" style="flex:1;">Scribe</button>
-                <button onclick="toggleAddModal()" style="flex:1; border-color:transparent; opacity:0.6;">Cancel</button>
+            <h3 id="modal-title" style="font-family:'Lato'; text-transform:uppercase; font-size:0.9rem; margin-top:0;">New Meditation</h3>
+            
+            <input type="text" id="input-title" placeholder="Title (e.g., On Morning Coffee)">
+            <textarea id="input-body" placeholder="Write your thought..."></textarea>
+            <input type="text" id="input-tags" placeholder="Tags (comma separated)">
+            
+            <div style="display:flex; gap:10px; margin-bottom: 10px;">
+                <button id="modal-submit-btn" class="main-btn" style="flex:1;">Scribe</button>
+                <button class="main-btn" onclick="toggleModal()" style="flex:1; border-color:transparent; opacity:0.6;">Cancel</button>
             </div>
+            
+            <!-- Delete button only shows when editing -->
+            <button id="modal-delete-btn" class="main-btn delete-btn" style="width:100%; display:none;" onclick="deleteCurrentQuote()">Delete Note</button>
         </div>
     </div>
 
     <script>
         // --- CONFIGURATION ---
         // REPLACE WITH YOUR DEPLOYED WEB APP URL
-        const API_URL = "https://script.google.com/macros/s/AKfycbyeAgXo2SCcJOToWgbM2O3qdhsxz67NrMotSWjDWbEJafKJ7tLSMm7siu0t278bPqxe/exec"; 
+        const API_URL = "Yhttps://script.google.com/macros/library/d/1LKyMhLNqdF6-cyrrLqMqspsbG7tOfdz6unLtZK5xKIIcS-9b10xDk0fX/3"; 
         // ---------------------
 
         let meditations = [];
         let allTags = new Set();
+        let currentQuoteIndex = -1; // Track which quote is currently shown
+        let isEditing = false;      // Track modal state
+        let editId = null;          // ID of note being edited
 
         // --- INITIALIZATION ---
         async function fetchQuotes() {
@@ -427,18 +413,13 @@
                 const response = await fetch(API_URL);
                 const data = await response.json();
                 
-                // Process dates
                 meditations = data.map(item => ({
                     ...item,
                     dateObj: new Date(item.date),
                     tagArray: item.tags ? item.tags.split(',').map(t => t.trim()) : []
                 }));
 
-                // Extract all unique tags for filter
-                meditations.forEach(m => m.tagArray.forEach(t => allTags.add(t)));
-                updateTagFilterDropdown();
-
-                // Initial Render
+                refreshTags();
                 displayRandomQuote();
                 renderLibrary();
 
@@ -448,22 +429,35 @@
             }
         }
 
+        function refreshTags() {
+            allTags.clear();
+            meditations.forEach(m => m.tagArray.forEach(t => allTags.add(t)));
+            updateTagFilterDropdown();
+        }
+
         // --- CARD VIEW LOGIC ---
         function displayRandomQuote() {
             if (meditations.length === 0) return;
-            const item = meditations[Math.floor(Math.random() * meditations.length)];
-            renderCard(item);
+            // Pick random index
+            const newIndex = Math.floor(Math.random() * meditations.length);
+            renderCard(newIndex);
         }
 
-        function renderCard(item) {
-            const dateStr = item.dateObj.toLocaleDateString('en-GB'); // British format
+        function renderCard(index) {
+            currentQuoteIndex = index;
+            const item = meditations[index];
+            if(!item) return;
+
+            const dateStr = item.dateObj.toLocaleDateString('en-GB');
             
             document.getElementById('quote-date').innerText = dateStr;
             document.getElementById('quote-title').innerText = item.title;
             document.getElementById('quote-title').style.display = item.title ? 'block' : 'none';
             document.getElementById('quote-body').innerText = item.body;
             
-            // Render Tags
+            // Scroll to top of new quote
+            document.getElementById('quote-body').scrollTop = 0;
+
             const tagsContainer = document.getElementById('quote-tags');
             tagsContainer.innerHTML = '';
             item.tagArray.forEach(tag => {
@@ -484,11 +478,12 @@
             
             list.innerHTML = '';
 
+            let displayItems = meditations.map((item, index) => ({...item, originalIndex: index}));
+
             // Filter
-            let displayItems = meditations.filter(m => {
-                if (filterTag === 'all') return true;
-                return m.tagArray.includes(filterTag);
-            });
+            if (filterTag !== 'all') {
+                displayItems = displayItems.filter(m => m.tagArray.includes(filterTag));
+            }
 
             // Sort
             displayItems.sort((a, b) => {
@@ -502,7 +497,7 @@
                 const div = document.createElement('div');
                 div.className = 'library-item';
                 div.onclick = () => {
-                    renderCard(item);
+                    renderCard(item.originalIndex);
                     switchView('card');
                 };
                 
@@ -522,8 +517,8 @@
 
         function updateTagFilterDropdown() {
             const select = document.getElementById('tag-filter');
-            // Keep "All Tags"
-            select.innerHTML = '<option value="all">All Tags</option>';
+            const currentVal = select.value;
+            select.innerHTML = '<option value="all">Filter: All Tags</option>';
             Array.from(allTags).sort().forEach(tag => {
                 if(tag) {
                     const option = document.createElement('option');
@@ -532,73 +527,147 @@
                     select.appendChild(option);
                 }
             });
+            select.value = currentVal; // Maintain selection if possible
         }
 
-        // --- NAVIGATION ---
-        function switchView(viewName) {
-            // Update Tab styles
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            const activeTab = Array.from(document.querySelectorAll('.nav-item'))
-                .find(el => el.innerText.toLowerCase().includes(viewName === 'card' ? 'oracle' : 'library'));
-            if(activeTab) activeTab.classList.add('active');
-
-            // Update View visibility
-            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-            document.getElementById(viewName + '-view').classList.add('active');
-        }
-
-        // --- ADD / SUBMIT LOGIC ---
-        function toggleAddModal() {
-            const modal = document.getElementById('add-modal');
+        // --- MODAL & FORM LOGIC ---
+        function toggleModal() {
+            const modal = document.getElementById('modal');
             modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
         }
 
-        async function submitQuote() {
-            const titleVal = document.getElementById('new-title').value;
-            const bodyVal = document.getElementById('new-body').value;
-            const tagsVal = document.getElementById('new-tags').value;
+        function openAddModal() {
+            isEditing = false;
+            document.getElementById('modal-title').innerText = "New Meditation";
+            document.getElementById('input-title').value = "";
+            document.getElementById('input-body').value = "";
+            document.getElementById('input-tags').value = "";
+            document.getElementById('modal-submit-btn').innerText = "Scribe";
+            document.getElementById('modal-submit-btn').onclick = submitCreate;
+            document.getElementById('modal-delete-btn').style.display = 'none';
+            toggleModal();
+        }
 
-            if (!bodyVal) return;
+        function openEditModal(index) {
+            if(index < 0 || !meditations[index]) return;
+            const item = meditations[index];
+            
+            isEditing = true;
+            editId = item.id; // Store ID for backend
+            
+            document.getElementById('modal-title').innerText = "Edit Meditation";
+            document.getElementById('input-title').value = item.title;
+            document.getElementById('input-body').value = item.body;
+            document.getElementById('input-tags').value = item.tags; // raw string
+            
+            document.getElementById('modal-submit-btn').innerText = "Update";
+            document.getElementById('modal-submit-btn').onclick = submitUpdate;
+            document.getElementById('modal-delete-btn').style.display = 'block';
+            toggleModal();
+        }
 
-            // Optimistic Update
+        // --- SERVER ACTIONS ---
+
+        async function submitCreate() {
+            const title = document.getElementById('input-title').value;
+            const body = document.getElementById('input-body').value;
+            const tags = document.getElementById('input-tags').value;
+            if (!body) return;
+
+            toggleModal(); // Close immediately
+            
+            // Optimistic UI Update (Create temp item)
             const newItem = {
-                title: titleVal,
-                body: bodyVal,
-                tags: tagsVal,
-                date: new Date().toISOString(), // Temp date
+                id: new Date().toISOString(), // Temporary ID
+                title, body, tags,
+                date: new Date().toISOString(),
                 dateObj: new Date(),
-                tagArray: tagsVal.split(',').map(t => t.trim())
+                tagArray: tags.split(',').map(t => t.trim())
             };
-            
             meditations.push(newItem);
-            
-            // Update UI
-            newItem.tagArray.forEach(t => allTags.add(t));
-            updateTagFilterDropdown();
+            refreshTags();
             renderLibrary();
-            renderCard(newItem);
-            switchView('card');
-            toggleAddModal();
-
-            // Clear inputs
-            document.getElementById('new-title').value = "";
-            document.getElementById('new-body').value = "";
-            document.getElementById('new-tags').value = "";
+            renderCard(meditations.length - 1); // Show new one
 
             // Send to Cloud
             await fetch(API_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'create', title, body, tags })
+            });
+        }
+
+        async function submitUpdate() {
+            const title = document.getElementById('input-title').value;
+            const body = document.getElementById('input-body').value;
+            const tags = document.getElementById('input-tags').value;
+            if (!body) return;
+
+            toggleModal();
+
+            // Local Update
+            const item = meditations[currentQuoteIndex];
+            item.title = title;
+            item.body = body;
+            item.tags = tags;
+            item.tagArray = tags.split(',').map(t => t.trim());
+            
+            refreshTags();
+            renderCard(currentQuoteIndex); // Re-render card
+            renderLibrary();
+
+            // Cloud Update
+            await fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    title: titleVal, 
-                    body: bodyVal, 
-                    tags: tagsVal 
+                    action: 'update', 
+                    id: editId, // Use the ID we stored
+                    originalDate: item.id, // For fallback matching
+                    title, body, tags 
                 })
             });
         }
 
-        // --- THEME ---
+        async function deleteCurrentQuote() {
+            if(!confirm("Are you sure you want to delete this wisdom?")) return;
+            
+            const item = meditations[currentQuoteIndex];
+            const idToDelete = item.id;
+            
+            toggleModal();
+
+            // Local Delete
+            meditations.splice(currentQuoteIndex, 1);
+            refreshTags();
+            displayRandomQuote(); // Show another one
+            renderLibrary();
+
+            // Cloud Delete
+            await fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    action: 'delete', 
+                    id: idToDelete 
+                })
+            });
+        }
+
+        // --- NAVIGATION & THEME ---
+        function switchView(viewName) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const activeTab = Array.from(document.querySelectorAll('.nav-item'))
+                .find(el => el.innerText.toLowerCase().includes(viewName === 'card' ? 'oracle' : 'library'));
+            if(activeTab) activeTab.classList.add('active');
+
+            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewName + '-view').classList.add('active');
+        }
+
         function toggleTheme() {
             const body = document.body;
             const newTheme = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -609,7 +678,6 @@
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.body.setAttribute('data-theme', savedTheme);
 
-        // Start
         fetchQuotes();
 
     </script>
