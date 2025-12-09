@@ -10,16 +10,16 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Pinyon+Script&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=GFS+Didot&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Pinyon+Script&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            /* Base Colors (Light/Marble Default) */
+            /* Base Colors */
             --bg-color: #f4f1ea;
             --text-color: #2c2c2c;
             --accent-color: #8c7b75;
             --card-bg: #fffbf6;
-            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+            --shadow: 0 15px 40px rgba(0,0,0,0.12);
             --border-color: #dcd6ce;
             --tag-bg: #e6e2d8;
             --danger-color: #a35d5d;
@@ -31,58 +31,57 @@
             --font-style: normal;
         }
 
-        /* --- THEME MODES --- */
         [data-theme="dark"] {
             --bg-color: #1a1a1a;
             --text-color: #e0e0e0;
             --accent-color: #a89f91;
             --card-bg: #262626;
-            --shadow: 0 10px 30px rgba(0,0,0,0.4);
+            --shadow: 0 15px 40px rgba(0,0,0,0.5);
             --border-color: #444;
             --tag-bg: #333;
             --danger-color: #d97575;
         }
 
-        /* --- FONT MODES --- */
+        /* Font Modes */
         [data-font="grand"] { --font-main: 'Pinyon Script', cursive; }
-        [data-font="greek"] { --font-main: 'Times New Roman', serif; }
+        [data-font="greek"] { 
+            --font-main: 'GFS Didot', serif; 
+            --font-style: normal !important; /* Stone is never italic */
+            text-transform: uppercase;       /* Forces the 'Monumental' look */
+            letter-spacing: 2px;             /* Adds breathing room like inscriptions */
+        }
         [data-style="italic"] { --font-style: italic; }
 
-        /* --- IONIC DECORATION LAYER --- */
+        /* Ionic Layer */
         [data-decoration="ionic"] .quote-card {
-            border-left: 4px double var(--accent-color);
-            border-right: 4px double var(--accent-color);
-            background-image: linear-gradient(to bottom, var(--card-bg), var(--card-bg));
-            /* Ionic Pillars */
+            border-left: 5px double var(--accent-color);
+            border-right: 5px double var(--accent-color);
         }
-        [data-decoration="ionic"] .quote-card::before,
-        [data-decoration="ionic"] .quote-card::after {
-            content: ''; display: block; height: 8px; width: 80%;
+        [data-decoration="ionic"] .quote-card::before {
+            content: ''; display: block; height: 4px; width: 80%;
             margin: 0 auto; border-top: 1px solid var(--accent-color);
-            border-bottom: 1px solid var(--accent-color);
-            margin-bottom: 15px; opacity: 0.5; pointer-events: none;
+            border-bottom: 2px solid var(--accent-color);
+            margin-bottom: 20px; opacity: 0.6; pointer-events: none;
         }
         [data-decoration="ionic"] .quote-card::after {
-            margin-bottom: 0; margin-top: 15px;
+            content: ''; display: block; height: 4px; width: 80%;
+            margin: 20px auto 0 auto; border-top: 2px solid var(--accent-color);
+            border-bottom: 1px solid var(--accent-color);
+            opacity: 0.6; pointer-events: none;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: var(--font-main);
-            margin: 0; height: 100vh;
-            display: flex; flex-direction: column;
-            overflow: hidden;
+            background-color: var(--bg-color); color: var(--text-color);
+            font-family: var(--font-main); margin: 0; height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
             transition: background-color 0.5s ease, color 0.5s ease;
-            user-select: none; /* Prevent text highlighting during drags */
-            -webkit-user-select: none;
+            user-select: none; -webkit-user-select: none;
         }
 
-        /* --- HEADER --- */
         header {
-            padding: 1rem 1.5rem; text-align: center;
-            flex-shrink: 0; position: relative; z-index: 20;
-            display: flex; justify-content: center; align-items: center;
+            padding: 1rem 1.5rem; text-align: center; flex-shrink: 0;
+            position: relative; z-index: 20; display: flex;
+            justify-content: center; align-items: center;
         }
 
         h1 {
@@ -92,36 +91,26 @@
         }
 
         .settings-btn {
-            position: absolute; right: 20px;
-            background: none; border: none; color: var(--text-color);
-            cursor: pointer; opacity: 0.5; padding: 5px;
+            position: absolute; right: 20px; background: none; border: none;
+            color: var(--text-color); cursor: pointer; opacity: 0.5; padding: 5px;
         }
-
         .icon {
-            width: 20px; height: 20px;
-            stroke: currentColor; stroke-width: 2;
+            width: 20px; height: 20px; stroke: currentColor; stroke-width: 2;
             stroke-linecap: round; stroke-linejoin: round; fill: none;
         }
 
-        /* --- NAVIGATION --- */
         .nav-bar {
             display: flex; justify-content: center; gap: 25px;
             margin-bottom: 10px; flex-shrink: 0; z-index: 20;
         }
-
         .nav-item {
             font-family: var(--font-ui); font-size: 0.75rem;
-            text-transform: uppercase; letter-spacing: 1px;
-            cursor: pointer; padding-bottom: 5px; opacity: 0.4;
-            border-bottom: 2px solid transparent; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
+            padding-bottom: 5px; opacity: 0.4; border-bottom: 2px solid transparent; font-weight: 700;
         }
         .nav-item.active { opacity: 1; border-bottom-color: var(--accent-color); }
 
-        /* --- VIEW CONTAINER --- */
-        .view-container {
-            flex-grow: 1; position: relative; width: 100%; overflow: hidden;
-        }
-
+        .view-container { flex-grow: 1; position: relative; width: 100%; overflow: hidden; }
         .view {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; align-items: center;
@@ -130,91 +119,54 @@
         }
         .view.active { opacity: 1; pointer-events: all; }
 
-        /* --- CARD STACK (The Magic Part) --- */
+        /* --- CARD STACK --- */
         #card-stack {
-            position: relative;
-            width: 100%; max-width: 500px;
-            height: 65vh; max-height: 550px;
-            margin: 0 auto;
-            perspective: 1000px; /* For 3D feel */
+            position: relative; width: 100%; max-width: 500px;
+            height: 65vh; max-height: 550px; margin: 0 auto; perspective: 1500px;
         }
 
         .quote-card {
-            background: var(--card-bg);
-            padding: 2.5rem 1.5rem 1.5rem 1.5rem;
-            border-radius: 4px;
-            box-shadow: var(--shadow);
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            box-sizing: border-box;
-            border: 1px solid var(--border-color);
-            display: flex; flex-direction: column;
-            align-items: center; text-align: center;
-            /* Physics properties */
-            will-change: transform;
-            transform-origin: 50% 100%; /* Rotate from bottom like holding a card */
+            background: var(--card-bg); padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+            border-radius: 4px; box-shadow: var(--shadow);
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            box-sizing: border-box; border: 1px solid var(--border-color);
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            will-change: transform; transform-origin: center center;
         }
 
-        /* State: The card behind */
         .quote-card.next {
-            transform: scale(0.95) translateY(10px);
-            opacity: 0.6;
-            z-index: 1;
-            pointer-events: none; /* Can't touch bottom card */
+            transform: scale(0.92) translateY(25px); opacity: 0.5; z-index: 1;
+            filter: blur(0.5px); pointer-events: none;
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
-
-        /* State: The active card */
         .quote-card.current {
-            transform: scale(1) translateY(0);
-            opacity: 1;
-            z-index: 2;
-            cursor: grab;
+            transform: scale(1) translate(0, 0); opacity: 1; z-index: 2;
+            cursor: grab; filter: blur(0);
+        }
+        .quote-card.moving { transition: none !important; cursor: grabbing; }
+        .quote-card.resetting { transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .quote-card.thrown {
+            transition: transform 0.5s ease-out, opacity 0.3s ease-in; opacity: 0;
         }
 
-        /* State: Being dragged (remove transition for instant follow) */
-        .quote-card.moving {
-            transition: none;
-            cursor: grabbing;
-        }
-
-        /* State: Returning to center (smooth snap back) */
-        .quote-card.resetting {
-            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-
-        /* State: Flying away */
-        .quote-card.fly-left {
-            transition: transform 0.4s ease-in, opacity 0.4s ease-in;
-            transform: translateX(-150%) rotate(-20deg) !important;
-            opacity: 0;
-        }
-        .quote-card.fly-right {
-            transition: transform 0.4s ease-in, opacity 0.4s ease-in;
-            transform: translateX(150%) rotate(20deg) !important;
-            opacity: 0;
-        }
-
-        /* State: Promoting next to current */
-        .quote-card.promote {
-            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease;
-            transform: scale(1) translateY(0) !important;
-            opacity: 1 !important;
-        }
-
-        /* Card Internals */
         .card-date {
             position: absolute; top: 15px; right: 20px;
-            font-family: var(--font-ui); font-size: 0.7rem;
-            opacity: 0.5; text-transform: uppercase;
+            font-family: var(--font-ui); font-size: 0.65rem;
+            opacity: 0.5; text-transform: uppercase; letter-spacing: 0.5px;
         }
 
         .edit-btn {
             position: absolute; top: 15px; left: 20px;
-            background: none; border: none; padding: 10px; /* Larger hit area */
-            cursor: pointer; opacity: 0.3; color: var(--text-color);
-            z-index: 10;
+            background: none; border: none; padding: 10px;
+            cursor: pointer; opacity: 0.3; color: var(--text-color); z-index: 10;
         }
         .edit-btn:hover { opacity: 1; }
+        
+        /* Private Indicator */
+        .private-icon {
+            position: absolute; top: 15px; left: 50px;
+            opacity: 0.3; color: var(--text-color); width: 14px; height: 14px;
+        }
 
         .card-title {
             font-family: var(--font-ui); font-weight: 700;
@@ -224,23 +176,18 @@
         }
 
         .card-body {
-            font-size: 1.35rem; line-height: 1.5;
-            font-style: var(--font-style);
+            font-size: 1.35rem; line-height: 1.6; font-style: var(--font-style);
             overflow-y: auto; width: 100%; flex-grow: 1;
-            scrollbar-width: thin;
-            scrollbar-color: var(--accent-color) transparent;
-            padding: 0 10px;
-            /* Allow scrolling text without dragging card */
-            touch-action: pan-y; 
+            scrollbar-width: thin; scrollbar-color: var(--accent-color) transparent;
+            padding: 0 10px; touch-action: pan-y;
         }
-
         [data-font="grand"] .card-body { font-size: 1.8rem; line-height: 1.4; }
+        [data-font="greek"] .card-body { font-size: 1.45rem; line-height: 1.5; }
 
         .tags-container {
-            margin-top: 1.5rem; display: flex; gap: 8px; 
+            margin-top: 1.5rem; display: flex; gap: 8px;
             flex-wrap: wrap; justify-content: center; flex-shrink: 0;
         }
-
         .tag {
             font-family: var(--font-ui); font-size: 0.6rem;
             background: var(--tag-bg); padding: 4px 10px;
@@ -248,7 +195,7 @@
             letter-spacing: 1px; color: var(--text-color); opacity: 0.8;
         }
 
-        /* --- LIBRARY VIEW --- */
+        /* --- LIBRARY --- */
         #library-view { justify-content: flex-start; padding-top: 10px; }
         .library-controls { width: 100%; max-width: 600px; display: flex; gap: 10px; margin-bottom: 15px; }
         .custom-select-wrapper { flex: 1; position: relative; }
@@ -260,8 +207,8 @@
         }
         .library-list { width: 100%; max-width: 600px; overflow-y: auto; padding-bottom: 100px; }
         .library-item {
-            background: var(--card-bg); padding: 15px; margin-bottom: 10px; border-radius: 2px;
-            border-left: 3px solid var(--accent-color); cursor: pointer;
+            background: var(--card-bg); padding: 15px; margin-bottom: 10px;
+            border-radius: 2px; border-left: 3px solid var(--accent-color); cursor: pointer;
         }
         .lib-meta {
             display: flex; justify-content: space-between; font-family: var(--font-ui);
@@ -272,8 +219,8 @@
             margin-bottom: 6px; color: var(--accent-color);
         }
         .lib-preview {
-            font-size: 0.95rem; opacity: 0.9; white-space: nowrap; overflow: hidden;
-            text-overflow: ellipsis; font-family: var(--font-ui);
+            font-size: 0.95rem; opacity: 0.9; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis; font-family: var(--font-ui);
         }
 
         /* --- BUTTONS --- */
@@ -323,11 +270,17 @@
         .modal-actions button {
             flex: 1; padding: 10px; border: 1px solid var(--text-color);
             background: none; color: var(--text-color); font-family: var(--font-ui);
-            text-transform: uppercase; font-size: 0.7rem; font-weight: 700; cursor: pointer;
-            border-radius: 4px;
+            text-transform: uppercase; font-size: 0.7rem; font-weight: 700; cursor: pointer; border-radius: 4px;
         }
         .modal-actions button.primary { background: var(--text-color); color: var(--bg-color); }
         .modal-actions button.danger { border-color: var(--danger-color); color: var(--danger-color); }
+
+        /* Checkbox Style */
+        .checkbox-container {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
+            font-family: var(--font-ui); font-size: 0.8rem; cursor: pointer;
+        }
+        .checkbox-container input { width: auto; margin: 0; }
 
         /* --- SETTINGS --- */
         .settings-group { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
@@ -345,6 +298,12 @@
         }
         .option-btn.selected {
             background: var(--accent-color); color: #fff; border-color: var(--accent-color);
+        }
+
+        #mode-indicator {
+            position: absolute; bottom: -30px; left: 0; width: 100%;
+            text-align: center; font-family: var(--font-ui); font-size: 0.6rem;
+            opacity: 0.4; text-transform: uppercase; letter-spacing: 2px;
         }
 
     </style>
@@ -368,13 +327,14 @@
 
     <div class="view-container">
         
-        <!-- CARD VIEW - Now contains a Stack -->
+        <!-- CARD VIEW -->
         <div id="card-view" class="view active">
             <div id="card-stack">
-                <!-- Cards are injected here by JS -->
+                <!-- Stack Injected Here -->
             </div>
+            <div id="mode-indicator">Random Mode</div>
             <div class="controls">
-                <button class="main-btn" onclick="forceSwipe()">Next Wisdom</button>
+                <button class="main-btn" onclick="forceThrow()">Next Wisdom</button>
             </div>
         </div>
 
@@ -397,7 +357,6 @@
         </div>
     </div>
 
-    <!-- FAB -->
     <button class="fab" onclick="openAddModal()">
         <svg class="icon" viewBox="0 0 24 24" style="width:24px; height:24px;">
             <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -409,6 +368,15 @@
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 class="modal-header">Settings</h3>
+            
+            <div class="settings-group">
+                <span class="settings-label">Privacy</span>
+                <div class="option-grid">
+                    <div class="option-btn" onclick="togglePrivateMode(false)" id="private-off">Hide Private</div>
+                    <div class="option-btn" onclick="togglePrivateMode(true)" id="private-on">Show Private</div>
+                </div>
+            </div>
+
             <div class="settings-group">
                 <span class="settings-label">Stone (Base Theme)</span>
                 <div class="option-grid">
@@ -417,6 +385,7 @@
                     <div class="option-btn" onclick="setTheme('auto')" id="theme-auto">Auto</div>
                 </div>
             </div>
+            
             <div class="settings-group">
                 <span class="settings-label">Architecture</span>
                 <div class="option-grid">
@@ -424,12 +393,13 @@
                     <div class="option-btn" onclick="setDecoration('ionic')" id="deco-ionic">Ionic</div>
                 </div>
             </div>
+            
             <div class="settings-group">
                 <span class="settings-label">Script Style</span>
                 <div class="option-grid">
                     <div class="option-btn" onclick="setFont('standard')" id="font-standard">Std</div>
                     <div class="option-btn" onclick="setFont('grand')" id="font-grand" style="font-family:'Pinyon Script'">Grand</div>
-                    <div class="option-btn" onclick="setFont('greek')" id="font-greek">ΓΡΕΕΚ</div>
+                    <div class="option-btn" onclick="setFont('greek')" id="font-greek" style="font-family:'GFS Didot'">ΓΡΕΕΚ</div>
                 </div>
                 <span class="settings-label" style="margin-top:10px;">Emphasis</span>
                 <div class="option-grid">
@@ -437,11 +407,13 @@
                     <div class="option-btn" onclick="setStyle('italic')" id="style-italic" style="font-style:italic">Italic</div>
                 </div>
             </div>
+            
             <div class="settings-group">
                 <span class="settings-label">Archives</span>
-                <input type="text" id="sheet-url-input" placeholder="sheets url here" style="font-size:0.7rem;">
+                <input type="text" id="sheet-url-input" placeholder="Paste Google Sheet Edit URL..." style="font-size:0.7rem;">
                 <button onclick="saveSheetUrl()" class="main-btn" style="width:100%; margin-top:5px; padding:8px; font-size:0.7rem;">Open Spreadsheet</button>
             </div>
+            
             <div class="modal-actions">
                 <button onclick="toggleSettingsModal()">Close</button>
             </div>
@@ -455,6 +427,12 @@
             <input type="text" id="input-title" placeholder="Title (e.g., On Morning Coffee)">
             <textarea id="input-body" placeholder="Write your thought..."></textarea>
             <input type="text" id="input-tags" placeholder="Tags (comma separated)">
+            
+            <label class="checkbox-container">
+                <input type="checkbox" id="input-private">
+                <span>Mark as Private (Inner Citadel)</span>
+            </label>
+
             <div class="modal-actions">
                 <button onclick="toggleEditorModal()">Cancel</button>
                 <button id="modal-submit-btn" class="primary">Scribe</button>
@@ -467,28 +445,69 @@
 
     <script>
         // --- CONFIGURATION ---
-        // PASTE YOUR /exec URL HERE
         const API_URL = "https://script.google.com/macros/s/AKfycbyeAgXo2SCcJOToWgbM2O3qdhsxz67NrMotSWjDWbEJafKJ7tLSMm7siu0t278bPqxe/exec"; 
         // ---------------------
 
-        let meditations = [];
+        let allMeditations = []; // The raw dump
+        let filteredMeditations = []; // The active list based on privacy settings
         let allTags = new Set();
-        let currentIndex = 0; // The index of the top card
-        let nextIndex = 1;    // The index of the card beneath
         
+        let activeQueue = []; 
+        let queuePointer = 0; 
+        
+        let showPrivate = false;
+
         let isEditing = false;
         let editId = null;
-        let editIndexRef = -1;
 
-        const greekMap = {
-            'a': 'α', 'b': 'β', 'c': 'χ', 'd': 'δ', 'e': 'ε', 'f': 'φ', 'g': 'γ', 'h': 'η', 'i': 'ι', 'j': 'φ', 'k': 'κ', 'l': 'λ', 'm': 'μ', 'n': 'ν', 'o': 'ο', 'p': 'π', 'q': 'θ', 'r': 'ρ', 's': 'σ', 't': 'τ', 'u': 'υ', 'v': 'υ', 'w': 'ω', 'x': 'ξ', 'y': 'ψ', 'z': 'ζ', 'A': 'Α', 'B': 'Β', 'C': 'Χ', 'D': 'Δ', 'E': 'Ε', 'F': 'Φ', 'G': 'Γ', 'H': 'Η', 'I': 'Ι', 'J': 'Φ', 'K': 'Κ', 'L': 'Λ', 'M': 'Μ', 'N': 'Ν', 'O': 'Ο', 'P': 'Π', 'Q': 'Θ', 'R': 'Ρ', 'S': 'Σ', 'T': 'Τ', 'U': 'Υ', 'V': 'Υ', 'W': 'Ω', 'X': 'Ξ', 'Y': 'Ψ', 'Z': 'Ζ'
+        // MONUMENTAL GREEK MAPPING
+        // Maps English letters to their closest Classical Uppercase equivalent
+        const monumentalMap = {
+            'A': 'Α', 'B': 'Β', 'C': 'Κ', 'D': 'Δ', 'E': 'Ε', 
+            'F': 'Φ', 'G': 'Γ', 'H': '', 'I': 'Ι', 'J': 'Ι', 
+            'K': 'Κ', 'L': 'Λ', 'M': 'Μ', 'N': 'Ν', 'O': 'Ο', 
+            'P': 'Π', 'Q': 'Κ', 'R': 'Ρ', 'S': 'Σ', 'T': 'Τ', 
+            'u': 'Υ', 'U': 'Υ', 'V': 'Β', 'W': 'Ω', 'X': 'Ξ', 
+            'Y': 'Υ', 'Z': 'Ζ'
         };
+
+        function toGreekCipher(text) {
+            // 1. Convert to Uppercase immediately (Monumental style)
+            let output = text.toUpperCase();
+
+            // 2. Remove Punctuation (Authentic inscriptions generally lack them)
+            // We keep spaces for readability, though strictly they didn't use them.
+            output = output.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+
+            // 3. Handle Digraphs (The 'Two Letter' sounds)
+            // We swap these before mapping single letters to avoid errors.
+            // TH -> Theta (Θ), PH -> Phi (Φ), CH -> Chi (Χ), PS -> Psi (Ψ), KS -> Xi (Ξ)
+            const digraphs = {
+                'TH': 'Θ', 'PH': 'Φ', 'CH': 'Χ', 'PS': 'Ψ', 'KS': 'Ξ'
+            };
+
+            for (const [eng, grk] of Object.entries(digraphs)) {
+                output = output.replaceAll(eng, grk);
+            }
+
+            // 4. Map the remaining single letters
+            return output.split('').map(char => {
+                // If it's already a Greek char (from step 3), keep it
+                if (Object.values(digraphs).includes(char)) return char;
+                // Map the rest, or keep the space
+                return monumentalMap[char] || char; 
+            }).join('');
+        }
 
         function init() {
             setTheme(localStorage.getItem('theme') || 'auto');
             setDecoration(localStorage.getItem('decoration') || 'none');
             setFont(localStorage.getItem('font') || 'standard');
             setStyle(localStorage.getItem('style') || 'roman');
+            
+            // Privacy
+            const savedPrivate = localStorage.getItem('showPrivate');
+            togglePrivateMode(savedPrivate === 'true'); // Loads setting
 
             const savedSheetUrl = localStorage.getItem('sheetUrl');
             if(savedSheetUrl) document.getElementById('sheet-url-input').value = savedSheetUrl;
@@ -501,72 +520,125 @@
             try {
                 const response = await fetch(API_URL);
                 const data = await response.json();
-                meditations = data.map(item => ({
+                allMeditations = data.map(item => ({
                     ...item,
                     dateObj: new Date(item.date),
                     tagArray: item.tags ? item.tags.split(',').map(t => t.trim()) : []
                 }));
                 
-                // Randomize starting order slightly or just start from 0?
-                // Let's shuffle the array for true randomness on reload
-                meditations = meditations.sort(() => Math.random() - 0.5);
-
-                refreshTags();
-                initStack(); // Start the card stack
-                renderLibrary();
+                applyFilters(); // Filter -> Queue -> Stack
+                
             } catch (error) {
-                document.getElementById('card-stack').innerHTML = `<div style="text-align:center; padding:20px;">The archives are unreachable.</div>`;
+                document.getElementById('card-stack').innerHTML = `<div style="text-align:center; padding-top:100px;">The archives are unreachable.</div>`;
                 console.error(error);
             }
         }
 
+        function applyFilters() {
+            // Filter allMeditations into filteredMeditations based on privacy
+            filteredMeditations = allMeditations.filter(m => {
+                if (m.isPrivate && !showPrivate) return false;
+                return true;
+            });
+
+            refreshTags();
+            generateRandomQueue(); 
+            initStack();
+            renderLibrary();
+        }
+
         function refreshTags() {
             allTags.clear();
-            meditations.forEach(m => m.tagArray.forEach(t => allTags.add(t)));
+            filteredMeditations.forEach(m => m.tagArray.forEach(t => allTags.add(t)));
             updateTagFilterDropdown();
         }
 
-        // --- STACK LOGIC ---
+        function togglePrivateMode(allow) {
+            showPrivate = allow;
+            localStorage.setItem('showPrivate', allow);
+            
+            // UI Toggle
+            document.getElementById('private-on').classList.toggle('selected', allow);
+            document.getElementById('private-off').classList.toggle('selected', !allow);
+
+            // Re-filter if data exists
+            if (allMeditations.length > 0) applyFilters();
+        }
+
+        // --- QUEUE LOGIC ---
+        function generateRandomQueue() {
+            document.getElementById('mode-indicator').innerText = "Oracle Mode";
+            activeQueue = filteredMeditations.map((_, i) => i);
+            for (let i = activeQueue.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [activeQueue[i], activeQueue[j]] = [activeQueue[j], activeQueue[i]];
+            }
+            queuePointer = 0;
+        }
+
+        function generateChronologicalQueue(startIndexInFiltered) {
+            document.getElementById('mode-indicator').innerText = "History Mode";
+            const sortedIndices = filteredMeditations.map((_, i) => i).sort((a, b) => {
+                return filteredMeditations[b].dateObj - filteredMeditations[a].dateObj;
+            });
+            activeQueue = sortedIndices;
+            const foundPtr = activeQueue.indexOf(startIndexInFiltered);
+            queuePointer = foundPtr !== -1 ? foundPtr : 0;
+        }
+
+        function getNextCardIndex() { return activeQueue[(queuePointer + 1) % activeQueue.length]; }
+        function getCurrentCardIndex() { return activeQueue[queuePointer]; }
+        function advanceQueue() { queuePointer = (queuePointer + 1) % activeQueue.length; }
+
+        function formatOxfordDate(dateObj) {
+            const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            const dayName = days[dateObj.getDay()];
+            const dayNum = dateObj.getDate();
+            const monthName = months[dateObj.getMonth()];
+            const year = dateObj.getFullYear();
+            const nth = (d) => { if(d>3 && d<21) return 'th'; switch(d%10){case 1:return "st";case 2:return "nd";case 3:return "rd";default:return "th";} };
+            const timeStr = dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+            return `${dayName}, ${dayNum}${nth(dayNum)} ${monthName} ${year} — ${timeStr}`;
+        }
+
+        // --- STACK RENDER ---
         function initStack() {
             const container = document.getElementById('card-stack');
             container.innerHTML = '';
-            
-            if(meditations.length === 0) {
-                container.innerHTML = '<div style="text-align:center; padding-top:100px;">Silence.</div>';
+            if(filteredMeditations.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding-top:100px; opacity:0.6;">Silence.<br>No wisdom found.</div>';
                 return;
             }
-
-            // Create Bottom Card (Index + 1)
-            createCardElement(getNextIndex(currentIndex), 'next');
-            
-            // Create Top Card (Index)
-            createCardElement(currentIndex, 'current');
-        }
-
-        function getNextIndex(idx) {
-            return (idx + 1) % meditations.length;
+            createCardElement(getNextCardIndex(), 'next');
+            createCardElement(getCurrentCardIndex(), 'current');
         }
 
         function createCardElement(index, type) {
-            const item = meditations[index];
+            const item = filteredMeditations[index];
+            if (!item) return;
+
             const card = document.createElement('div');
             card.className = `quote-card ${type}`;
-            card.dataset.index = index; // Store index for editing
+            card.dataset.index = index;
             
-            // Content
-            const dateStr = item.dateObj.toLocaleDateString('en-GB');
+            const dateStr = formatOxfordDate(item.dateObj);
             const currentFont = localStorage.getItem('font');
             const displayText = currentFont === 'greek' ? toGreekCipher(item.body) : item.body;
             
             let tagsHtml = '';
-            item.tagArray.forEach(tag => {
-                if(tag) tagsHtml += `<span class="tag">${tag}</span>`;
-            });
+            item.tagArray.forEach(tag => { if(tag) tagsHtml += `<span class="tag">${tag}</span>`; });
+
+            // Private Icon
+            const lockIcon = item.isPrivate ? 
+                `<svg class="private-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>` 
+                : '';
 
             card.innerHTML = `
                 <button class="edit-btn" ontouchstart="event.stopPropagation()" onmousedown="event.stopPropagation()" onclick="openEditModal(${index})">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                 </button>
+                ${lockIcon}
                 <div class="card-date">${dateStr}</div>
                 <div class="card-title" style="display:${item.title ? 'block' : 'none'}">${item.title}</div>
                 <div class="card-body">${displayText}</div>
@@ -574,138 +646,122 @@
             `;
 
             document.getElementById('card-stack').appendChild(card);
-            
-            // If it's the current card, attach drag listeners
-            if(type === 'current') {
-                attachDragListeners(card);
+            if(type === 'current') attachPhysics(card);
+        }
+
+        // --- PHYSICS (Drag & Throw) ---
+        function attachPhysics(card) {
+            let startX = 0, startY = 0;
+            let isDragging = false;
+            let startTime = 0;
+
+            const onStart = (e) => {
+                isDragging = true;
+                startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+                startTime = Date.now();
+                card.classList.add('moving');
+            };
+
+            const onMove = (e) => {
+                if (!isDragging) return;
+                const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+                const deltaX = clientX - startX;
+                const deltaY = clientY - startY;
+                const rotate = deltaX * 0.05; 
+                card.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${rotate}deg) scale(1.02)`;
+            };
+
+            const onEnd = (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                card.classList.remove('moving');
+                const clientX = e.type.includes('mouse') ? e.clientX : e.changedTouches[0].clientX;
+                const clientY = e.type.includes('mouse') ? e.clientY : e.changedTouches[0].clientY;
+                const deltaX = clientX - startX;
+                const deltaY = clientY - startY;
+                const velocityX = deltaX / (Date.now() - startTime);
+
+                if (Math.abs(deltaX) > 100 || Math.abs(velocityX) > 0.5) {
+                    const dirX = deltaX > 0 ? 1 : -1;
+                    const throwX = dirX * window.innerWidth * 1.5;
+                    const throwY = deltaY * 2;
+                    card.style.transition = "transform 0.5s ease-out";
+                    card.style.transform = `translate(${throwX}px, ${throwY}px) rotate(${dirX * 45}deg)`;
+                    setTimeout(() => completeSwipe(), 300);
+                } else {
+                    card.classList.add('resetting');
+                    card.style.transform = '';
+                    setTimeout(() => card.classList.remove('resetting'), 500);
+                }
+            };
+
+            card.addEventListener('mousedown', onStart);
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onEnd);
+            card.addEventListener('touchstart', onStart, {passive: true});
+            card.addEventListener('touchmove', onMove, {passive: true});
+            card.addEventListener('touchend', onEnd, {passive: true});
+        }
+
+        function forceThrow() {
+            const card = document.querySelector('.quote-card.current');
+            if (card) {
+                card.classList.add('thrown');
+                card.style.transform = `translate(-150%, -50px) rotate(-20deg)`;
+                setTimeout(() => completeSwipe(), 300);
             }
         }
 
-        // --- DRAG PHYSICS ---
-        function attachDragListeners(card) {
-            let startX = 0;
-            let currentX = 0;
-            let isDragging = false;
-
-            // Touch
-            card.addEventListener('touchstart', (e) => {
-                startX = e.touches[0].clientX;
-                isDragging = true;
-                card.classList.add('moving');
-            }, {passive: true});
-
-            card.addEventListener('touchmove', (e) => {
-                if (!isDragging) return;
-                currentX = e.touches[0].clientX;
-                const deltaX = currentX - startX;
-                // Rotate based on distance: max 15 deg
-                const rotate = deltaX * 0.05; 
-                card.style.transform = `translate(${deltaX}px, 0) rotate(${rotate}deg)`;
-            }, {passive: true});
-
-            card.addEventListener('touchend', (e) => {
-                if (!isDragging) return;
-                isDragging = false;
-                card.classList.remove('moving');
-                const deltaX = currentX - startX;
-                
-                // Threshold to fly away
-                if (Math.abs(deltaX) > 100) {
-                    flyAway(card, deltaX > 0 ? 'right' : 'left');
-                } else {
-                    resetCard(card);
-                }
-            }, {passive: true});
-
-            // Mouse (for desktop testing)
-            card.addEventListener('mousedown', (e) => {
-                startX = e.clientX;
-                isDragging = true;
-                card.classList.add('moving');
-            });
-            window.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                currentX = e.clientX;
-                const deltaX = currentX - startX;
-                const rotate = deltaX * 0.05;
-                card.style.transform = `translate(${deltaX}px, 0) rotate(${rotate}deg)`;
-            });
-            window.addEventListener('mouseup', () => {
-                if (!isDragging) return;
-                isDragging = false;
-                card.classList.remove('moving');
-                const deltaX = currentX - startX;
-                if (Math.abs(deltaX) > 150) {
-                    flyAway(card, deltaX > 0 ? 'right' : 'left');
-                } else {
-                    resetCard(card);
-                }
-            });
-        }
-
-        function resetCard(card) {
-            card.classList.add('resetting');
-            card.style.transform = '';
-            setTimeout(() => card.classList.remove('resetting'), 300);
-        }
-
-        function flyAway(card, direction) {
-            // 1. Animate Top Card Away
-            card.classList.add(direction === 'right' ? 'fly-right' : 'fly-left');
+        function completeSwipe() {
+            const oldCard = document.querySelector('.quote-card.current');
+            if (oldCard) oldCard.remove();
+            advanceQueue();
             
-            // 2. Animate Bottom Card Up
             const nextCard = document.querySelector('.quote-card.next');
             if (nextCard) {
                 nextCard.classList.remove('next');
-                nextCard.classList.add('promote'); // Add smooth transition class
-                // Force reflow
-                void nextCard.offsetWidth;
+                nextCard.classList.add('resetting');
+                void nextCard.offsetWidth; 
                 nextCard.classList.add('current');
-                // Remove promote class after animation so it's clean
-                setTimeout(() => {
-                    nextCard.classList.remove('promote');
-                    attachDragListeners(nextCard);
-                }, 400);
+                nextCard.style.transform = '';
+                nextCard.style.filter = '';
+                attachPhysics(nextCard);
+                setTimeout(() => nextCard.classList.remove('resetting'), 500);
             }
-
-            // 3. Cleanup & Spawn New Bottom Card
-            setTimeout(() => {
-                card.remove();
-                // Update Index
-                currentIndex = getNextIndex(currentIndex);
-                // Create new bottom card
-                createCardElement(getNextIndex(currentIndex), 'next');
-            }, 300);
+            createCardElement(getNextCardIndex(), 'next');
         }
 
-        function forceSwipe() {
-            const card = document.querySelector('.quote-card.current');
-            if(card) flyAway(card, 'left');
-        }
-
-        // --- LIBRARY & SETTINGS (Same as before) ---
+        // --- LIBRARY ---
         function renderLibrary() {
             const list = document.getElementById('library-list');
             const sortMode = document.getElementById('sort-select').value;
             const filterTag = document.getElementById('tag-filter').value;
             list.innerHTML = '';
-            let displayItems = meditations.map((item, index) => ({...item, originalIndex: index}));
+            
+            let displayItems = filteredMeditations.map((item, index) => ({...item, originalIndex: index}));
+            
             if (filterTag !== 'all') displayItems = displayItems.filter(m => m.tagArray.includes(filterTag));
+            
             displayItems.sort((a, b) => {
                 return sortMode === 'newest' ? b.dateObj - a.dateObj : a.dateObj - b.dateObj;
             });
+
             displayItems.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'library-item';
                 div.onclick = () => {
-                    // Clicking library item sets it as top card
-                    currentIndex = item.originalIndex;
+                    generateChronologicalQueue(item.originalIndex);
                     initStack();
                     switchView('card');
                 };
+                
+                const lockIcon = item.isPrivate ? 'â€¢ <span style="font-size:0.8em">ðŸ”’</span>' : '';
+                
                 div.innerHTML = `
                     <div class="lib-meta">
-                        <span>${item.dateObj.toLocaleDateString('en-GB')}</span>
+                        <span>${item.dateObj.toLocaleDateString('en-GB')} ${lockIcon}</span>
                         <span>${item.tagArray.join(', ')}</span>
                     </div>
                     <div class="lib-title">${item.title}</div>
@@ -715,6 +771,7 @@
             });
         }
 
+        // --- UTILS ---
         function updateTagFilterDropdown() {
             const select = document.getElementById('tag-filter');
             const currentVal = select.value;
@@ -722,13 +779,22 @@
             Array.from(allTags).sort().forEach(tag => {
                 if(tag) {
                     const option = document.createElement('option');
-                    option.value = tag; option.innerText = tag;
-                    select.appendChild(option);
+                    option.value = tag; option.innerText = tag; select.appendChild(option);
                 }
             });
             select.value = currentVal;
         }
 
+        function switchView(viewName) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const activeTab = Array.from(document.querySelectorAll('.nav-item'))
+                .find(el => el.innerText.toLowerCase().includes(viewName === 'card' ? 'oracle' : 'library'));
+            if(activeTab) activeTab.classList.add('active');
+            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewName + '-view').classList.add('active');
+        }
+
+        // --- MODALS ---
         function toggleSettingsModal() {
             const el = document.getElementById('settings-modal');
             el.style.display = el.style.display === 'flex' ? 'none' : 'flex';
@@ -744,22 +810,21 @@
             document.getElementById('input-title').value = "";
             document.getElementById('input-body').value = "";
             document.getElementById('input-tags').value = "";
+            document.getElementById('input-private').checked = false;
             document.getElementById('modal-submit-btn').innerText = "Scribe";
             document.getElementById('modal-submit-btn').onclick = submitCreate;
             document.getElementById('delete-container').style.display = 'none';
             toggleEditorModal();
         }
         function openEditModal(index) {
-            // Find item by index
-            const item = meditations[index];
+            const item = filteredMeditations[index]; // Use filtered array to find item
             if(!item) return;
-            isEditing = true;
-            editId = item.id;
-            editIndexRef = index;
+            isEditing = true; editId = item.id;
             document.getElementById('editor-title').innerText = "Edit Meditation";
             document.getElementById('input-title').value = item.title;
             document.getElementById('input-body').value = item.body;
             document.getElementById('input-tags').value = item.tags;
+            document.getElementById('input-private').checked = item.isPrivate;
             document.getElementById('modal-submit-btn').innerText = "Update";
             document.getElementById('modal-submit-btn').onclick = submitUpdate;
             document.getElementById('delete-container').style.display = 'block';
@@ -771,79 +836,57 @@
             const title = document.getElementById('input-title').value;
             const body = document.getElementById('input-body').value;
             const tags = document.getElementById('input-tags').value;
+            const isPrivate = document.getElementById('input-private').checked;
             if (!body) return;
             toggleEditorModal();
-            const newItem = {
-                id: new Date().toISOString(), title, body, tags,
-                date: new Date().toISOString(), dateObj: new Date(),
-                tagArray: tags.split(',').map(t => t.trim())
-            };
-            meditations.push(newItem);
-            refreshTags();
-            // Force new item to top
-            currentIndex = meditations.length - 1;
-            initStack();
+            
+            // Add to Cloud
             await fetch(API_URL, {
                 method: 'POST', mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'create', title, body, tags })
+                body: JSON.stringify({ action: 'create', title, body, tags, isPrivate })
             });
+
+            // Reload all data to be safe (simplifies filtering logic)
+            fetchQuotes();
         }
 
         async function submitUpdate() {
             const title = document.getElementById('input-title').value;
             const body = document.getElementById('input-body').value;
             const tags = document.getElementById('input-tags').value;
+            const isPrivate = document.getElementById('input-private').checked;
             if (!body) return;
             toggleEditorModal();
-            const item = meditations[editIndexRef];
-            item.title = title; item.body = body; item.tags = tags;
-            item.tagArray = tags.split(',').map(t => t.trim());
-            refreshTags();
-            // Re-render current stack to show changes
-            initStack();
-            renderLibrary();
+
             await fetch(API_URL, {
                 method: 'POST', mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'update', id: editId, title, body, tags })
+                body: JSON.stringify({ action: 'update', id: editId, title, body, tags, isPrivate })
             });
+            fetchQuotes();
         }
 
         async function deleteCurrentQuote() {
             if(!confirm("Are you sure you want to delete this wisdom?")) return;
-            const idToDelete = meditations[editIndexRef].id;
+            const idToDelete = filteredMeditations[getCurrentCardIndex()].id;
             toggleEditorModal();
-            meditations.splice(editIndexRef, 1);
-            refreshTags();
-            currentIndex = currentIndex % meditations.length; // Safety wrap
-            initStack();
-            renderLibrary();
+
             await fetch(API_URL, {
                 method: 'POST', mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'delete', id: idToDelete })
             });
+            fetchQuotes();
         }
 
-        function switchView(viewName) {
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            const activeTab = Array.from(document.querySelectorAll('.nav-item'))
-                .find(el => el.innerText.toLowerCase().includes(viewName === 'card' ? 'oracle' : 'library'));
-            if(activeTab) activeTab.classList.add('active');
-            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-            document.getElementById(viewName + '-view').classList.add('active');
-        }
-
-        function toGreekCipher(text) { return text.split('').map(char => greekMap[char] || char).join(''); }
+        // --- HELPERS ---
         function setTheme(theme) {
             localStorage.setItem('theme', theme);
             if (theme === 'auto') {
                 const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
                 document.body.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-            } else {
-                document.body.setAttribute('data-theme', theme);
-            }
+            } else { document.body.setAttribute('data-theme', theme); }
             document.querySelectorAll('[id^="theme-"]').forEach(el => el.classList.remove('selected'));
             document.getElementById('theme-' + theme).classList.add('selected');
         }
@@ -858,7 +901,6 @@
             localStorage.setItem('font', font);
             document.querySelectorAll('[id^="font-"]').forEach(el => el.classList.remove('selected'));
             document.getElementById('font-' + font).classList.add('selected');
-            initStack(); // Re-render to apply fonts to JS-generated content
         }
         function setStyle(style) {
             document.body.setAttribute('data-style', style);
@@ -868,10 +910,7 @@
         }
         function saveSheetUrl() {
             const url = document.getElementById('sheet-url-input').value;
-            if(url) {
-                localStorage.setItem('sheetUrl', url);
-                window.open(url, '_blank');
-            }
+            if(url) { localStorage.setItem('sheetUrl', url); window.open(url, '_blank'); }
         }
 
         init();
