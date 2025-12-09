@@ -460,45 +460,51 @@
         let isEditing = false;
         let editId = null;
 
-        // MONUMENTAL GREEK MAPPING
-        // Maps English letters to their closest Classical Uppercase equivalent
-        const monumentalMap = {
+        // AUTHENTIC PHONETIC MAP
+        // Sounds only. Visuals are irrelevant.
+        const phoneticMap = {
             'A': 'Α', 'B': 'Β', 'C': 'Κ', 'D': 'Δ', 'E': 'Ε', 
-            'F': 'Φ', 'G': 'Γ', 'H': '', 'I': 'Ι', 'J': 'Ι', 
-            'K': 'Κ', 'L': 'Λ', 'M': 'Μ', 'N': 'Ν', 'O': 'Ο', 
-            'P': 'Π', 'Q': 'Κ', 'R': 'Ρ', 'S': 'Σ', 'T': 'Τ', 
-            'u': 'Υ', 'U': 'Υ', 'V': 'Β', 'W': 'Ω', 'X': 'Ξ', 
-            'Y': 'Υ', 'Z': 'Ζ'
+            'F': 'Φ', 'G': 'Γ', 'H': '', // DELETED: H is a breathing mark, not a letter
+            'I': 'Ι', 'J': 'Ι', 'K': 'Κ', 'L': 'Λ', 'M': 'Μ', 
+            'N': 'Ν', 'O': 'Ο', 'P': 'Π', 'Q': 'Κ', 'R': 'Ρ', 
+            'S': 'Σ', 'T': 'Τ', 'U': 'Υ', 'V': 'Β', 'W': 'Ϝ', // Digamma for W
+            'X': 'Ξ', 'Y': 'Υ', 'Z': 'Ζ' 
         };
-
+        
         function toGreekCipher(text) {
-            // 1. Convert to Uppercase immediately (Monumental style)
             let output = text.toUpperCase();
-
-            // 2. Remove Punctuation (Authentic inscriptions generally lack them)
-            // We keep spaces for readability, though strictly they didn't use them.
+        
+            // 1. Clean non-Classical junk
+            // Remove punctuation to mimic stone inscriptions
             output = output.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-
-            // 3. Handle Digraphs (The 'Two Letter' sounds)
-            // We swap these before mapping single letters to avoid errors.
-            // TH -> Theta (Θ), PH -> Phi (Φ), CH -> Chi (Χ), PS -> Psi (Ψ), KS -> Xi (Ξ)
+        
+            // 2. PHONETIC DIGRAPHS (The "One Sound" Rules)
+            // We must swap these BEFORE standard mapping, or 'PH' becomes 'P' (because H is deleted)
             const digraphs = {
-                'TH': 'Θ', 'PH': 'Φ', 'CH': 'Χ', 'PS': 'Ψ', 'KS': 'Ξ'
+                'TH': 'Θ', // Theta
+                'PH': 'Φ', // Phi
+                'CH': 'Χ', // Chi
+                'PS': 'Ψ', // Psi
+                'KS': 'Ξ', // Xi (redundant check for KS sound)
+                'QU': 'Κ'  // Q is K, U is usually silent or part of the K sound here
             };
-
+        
             for (const [eng, grk] of Object.entries(digraphs)) {
                 output = output.replaceAll(eng, grk);
             }
-
-            // 4. Map the remaining single letters
+        
+            // 3. Map single letters
             return output.split('').map(char => {
-                // If it's already a Greek char (from step 3), keep it
+                // If it's already a Greek char (from digraphs), keep it
                 if (Object.values(digraphs).includes(char)) return char;
-                // Map the rest, or keep the space
-                return monumentalMap[char] || char; 
+                
+                // Use map. If char isn't in map (like spaces), keep it.
+                // Note: We check if the map explicitly returns undefined (for things not in map)
+                // or empty string (for H).
+                const mapped = phoneticMap[char];
+                return mapped !== undefined ? mapped : char;
             }).join('');
         }
-
         function init() {
             setTheme(localStorage.getItem('theme') || 'auto');
             setDecoration(localStorage.getItem('decoration') || 'none');
