@@ -14,7 +14,6 @@
 
     <style>
         :root {
-            /* Base Colors */
             --bg-color: #f4f1ea;
             --text-color: #2c2c2c;
             --accent-color: #8c7b75;
@@ -23,8 +22,10 @@
             --border-color: #dcd6ce;
             --tag-bg: #e6e2d8;
             --danger-color: #a35d5d;
+            --input-bg: #e6e2d8;
+            --link-color: #a05a2c;
+            --seal-color: #b94e48; /* Wax Red */
             
-            /* Fonts */
             --font-main: 'Playfair Display', serif;
             --font-ui: 'Lato', sans-serif;
             --font-header: 'Cinzel', serif;
@@ -40,35 +41,15 @@
             --border-color: #444;
             --tag-bg: #333;
             --danger-color: #d97575;
+            --input-bg: #333;
+            --link-color: #d4a373;
+            --seal-color: #8a3b36;
         }
 
         /* Font Modes */
         [data-font="grand"] { --font-main: 'Pinyon Script', cursive; }
-        [data-font="greek"] { 
-            --font-main: 'GFS Didot', serif; 
-            --font-style: normal !important; /* Stone is never italic */
-            text-transform: uppercase;       /* Forces the 'Monumental' look */
-            letter-spacing: 2px;             /* Adds breathing room like inscriptions */
-        }
+        [data-font="greek"] { --font-main: 'GFS Didot', serif; }
         [data-style="italic"] { --font-style: italic; }
-
-        /* Ionic Layer */
-        [data-decoration="ionic"] .quote-card {
-            border-left: 5px double var(--accent-color);
-            border-right: 5px double var(--accent-color);
-        }
-        [data-decoration="ionic"] .quote-card::before {
-            content: ''; display: block; height: 4px; width: 80%;
-            margin: 0 auto; border-top: 1px solid var(--accent-color);
-            border-bottom: 2px solid var(--accent-color);
-            margin-bottom: 20px; opacity: 0.6; pointer-events: none;
-        }
-        [data-decoration="ionic"] .quote-card::after {
-            content: ''; display: block; height: 4px; width: 80%;
-            margin: 20px auto 0 auto; border-top: 2px solid var(--accent-color);
-            border-bottom: 1px solid var(--accent-color);
-            opacity: 0.6; pointer-events: none;
-        }
 
         body {
             background-color: var(--bg-color); color: var(--text-color);
@@ -78,6 +59,14 @@
             user-select: none; -webkit-user-select: none;
         }
 
+        /* --- MEMENTO MORI BAR --- */
+        #memento-mori {
+            position: absolute; top: 0; left: 0; height: 3px; 
+            background: var(--accent-color); opacity: 0; width: 0%;
+            transition: width 1s ease, opacity 0.5s ease; z-index: 1000;
+        }
+
+        /* --- HEADER --- */
         header {
             padding: 1rem 1.5rem; text-align: center; flex-shrink: 0;
             position: relative; z-index: 20; display: flex;
@@ -99,6 +88,7 @@
             stroke-linecap: round; stroke-linejoin: round; fill: none;
         }
 
+        /* --- NAVIGATION --- */
         .nav-bar {
             display: flex; justify-content: center; gap: 25px;
             margin-bottom: 10px; flex-shrink: 0; z-index: 20;
@@ -132,6 +122,26 @@
             box-sizing: border-box; border: 1px solid var(--border-color);
             display: flex; flex-direction: column; align-items: center; text-align: center;
             will-change: transform; transform-origin: center center;
+            /* Parallax base transition */
+            transition: transform 0.1s ease-out; 
+        }
+
+        /* Ionic Decoration */
+        [data-decoration="ionic"] .quote-card {
+            border-left: 5px double var(--accent-color);
+            border-right: 5px double var(--accent-color);
+        }
+        [data-decoration="ionic"] .quote-card::before {
+            content: ''; display: block; height: 4px; width: 80%;
+            margin: 0 auto; border-top: 1px solid var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
+            margin-bottom: 20px; opacity: 0.6; pointer-events: none;
+        }
+        [data-decoration="ionic"] .quote-card::after {
+            content: ''; display: block; height: 4px; width: 80%;
+            margin: 20px auto 0 auto; border-top: 2px solid var(--accent-color);
+            border-bottom: 1px solid var(--accent-color);
+            opacity: 0.6; pointer-events: none;
         }
 
         .quote-card.next {
@@ -145,33 +155,39 @@
         }
         .quote-card.moving { transition: none !important; cursor: grabbing; }
         .quote-card.resetting { transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .quote-card.thrown {
-            transition: transform 0.5s ease-out, opacity 0.3s ease-in; opacity: 0;
+        .quote-card.thrown-left { transition: 0.5s ease-out; transform: translateX(-150%) rotate(-20deg); opacity: 0; }
+        .quote-card.thrown-right { transition: 0.5s ease-out; transform: translateX(150%) rotate(20deg); opacity: 0; }
+
+        /* Card Internals */
+        .card-actions {
+            position: absolute; top: 15px; left: 20px; z-index: 10;
+            display: flex; gap: 10px; align-items: center;
         }
+        .action-btn {
+            background: none; border: none; padding: 5px; cursor: pointer; opacity: 0.3;
+            color: var(--text-color); transition: 0.3s;
+        }
+        .action-btn:hover { opacity: 1; }
+        .action-btn.active { opacity: 1; color: var(--seal-color); } /* For Sealed */
+        .action-btn.locked { opacity: 0.8; color: var(--danger-color); }
+
+        /* Wax Seal Graphic */
+        .wax-seal {
+            position: absolute; bottom: 20px; right: 20px; width: 80px; height: 80px;
+            opacity: 0; pointer-events: none; z-index: 5; transition: opacity 0.5s, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: scale(1.5);
+        }
+        .wax-seal.stamped { opacity: 0.8; transform: scale(1) rotate(-10deg); }
+        .wax-seal svg { fill: var(--seal-color); filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2)); }
 
         .card-date {
-            position: absolute; top: 15px; right: 20px;
-            font-family: var(--font-ui); font-size: 0.65rem;
-            opacity: 0.5; text-transform: uppercase; letter-spacing: 0.5px;
-        }
-
-        .edit-btn {
-            position: absolute; top: 15px; left: 20px;
-            background: none; border: none; padding: 10px;
-            cursor: pointer; opacity: 0.3; color: var(--text-color); z-index: 10;
-        }
-        .edit-btn:hover { opacity: 1; }
-        
-        /* Private Indicator */
-        .private-icon {
-            position: absolute; top: 15px; left: 50px;
-            opacity: 0.3; color: var(--text-color); width: 14px; height: 14px;
+            position: absolute; top: 15px; right: 20px; font-family: var(--font-ui);
+            font-size: 0.65rem; opacity: 0.5; text-transform: uppercase;
         }
 
         .card-title {
-            font-family: var(--font-ui); font-weight: 700;
-            font-size: 0.9rem; text-transform: uppercase;
-            letter-spacing: 2px; color: var(--accent-color);
+            font-family: var(--font-ui); font-weight: 700; font-size: 0.9rem;
+            text-transform: uppercase; letter-spacing: 2px; color: var(--accent-color);
             margin-bottom: 1rem; margin-top: 1rem; flex-shrink: 0;
         }
 
@@ -179,25 +195,40 @@
             font-size: 1.35rem; line-height: 1.6; font-style: var(--font-style);
             overflow-y: auto; width: 100%; flex-grow: 1;
             scrollbar-width: thin; scrollbar-color: var(--accent-color) transparent;
-            padding: 0 10px; touch-action: pan-y;
+            padding: 0 10px; touch-action: pan-y; white-space: pre-wrap;
+            transition: filter 0.3s ease;
         }
+        /* Blind Wisdom Mode */
+        .blind-mode .card-date, .blind-mode .card-title { opacity: 0; transition: opacity 0.5s; }
+        .blind-mode .card-body { filter: blur(0); } /* Body remains visible? Prompt said hide context */
+        /* Let's interpret Blind Wisdom as: Hide Author/Date context, just show text. */
+        
         [data-font="grand"] .card-body { font-size: 1.8rem; line-height: 1.4; }
         [data-font="greek"] .card-body { font-size: 1.45rem; line-height: 1.5; }
 
+        .wiki-link {
+            color: var(--link-color); border-bottom: 1px solid var(--link-color);
+            cursor: pointer; font-weight: 700;
+        }
+
         .tags-container {
-            margin-top: 1.5rem; display: flex; gap: 8px;
-            flex-wrap: wrap; justify-content: center; flex-shrink: 0;
+            margin-top: 1.5rem; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; flex-shrink: 0;
         }
         .tag {
-            font-family: var(--font-ui); font-size: 0.6rem;
-            background: var(--tag-bg); padding: 4px 10px;
-            border-radius: 4px; text-transform: uppercase;
+            font-family: var(--font-ui); font-size: 0.6rem; background: var(--tag-bg);
+            padding: 4px 10px; border-radius: 4px; text-transform: uppercase;
             letter-spacing: 1px; color: var(--text-color); opacity: 0.8;
         }
 
-        /* --- LIBRARY --- */
+        /* --- LIBRARY VIEWS --- */
         #library-view { justify-content: flex-start; padding-top: 10px; }
-        .library-controls { width: 100%; max-width: 600px; display: flex; gap: 10px; margin-bottom: 15px; }
+        .library-controls-group { width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; z-index: 10; }
+        .library-search-input {
+            width: 100%; padding: 10px; border: none; background: var(--input-bg);
+            border-radius: 4px; font-family: var(--font-ui); color: var(--text-color);
+            box-sizing: border-box; font-size: 0.85rem;
+        }
+        .library-filters { display: flex; gap: 10px; width: 100%; }
         .custom-select-wrapper { flex: 1; position: relative; }
         select {
             width: 100%; appearance: none; background: transparent; border: none;
@@ -205,46 +236,50 @@
             font-family: var(--font-ui); font-size: 0.75rem; text-transform: uppercase;
             letter-spacing: 1px; font-weight: 700; cursor: pointer; border-radius: 0;
         }
+        
         .library-list { width: 100%; max-width: 600px; overflow-y: auto; padding-bottom: 100px; }
         .library-item {
             background: var(--card-bg); padding: 15px; margin-bottom: 10px;
             border-radius: 2px; border-left: 3px solid var(--accent-color); cursor: pointer;
         }
-        .lib-meta {
-            display: flex; justify-content: space-between; font-family: var(--font-ui);
-            font-size: 0.7rem; opacity: 0.6; margin-bottom: 6px;
+        .library-item.catacomb-item { opacity: 0.6; border-left-color: var(--text-color); filter: grayscale(1); }
+        
+        .lib-meta { display: flex; justify-content: space-between; font-family: var(--font-ui); font-size: 0.7rem; opacity: 0.6; margin-bottom: 6px; }
+        .lib-title { font-family: var(--font-ui); font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; color: var(--accent-color); }
+        .lib-preview { font-size: 0.95rem; opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--font-ui); }
+
+        /* Constellation View */
+        #constellation-container {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; /* Hidden by default */
         }
-        .lib-title {
-            font-family: var(--font-ui); font-weight: 700; font-size: 0.85rem;
-            margin-bottom: 6px; color: var(--accent-color);
+        .star-tag {
+            position: absolute; background: var(--text-color); border-radius: 50%;
+            cursor: pointer; transition: transform 0.3s;
+            box-shadow: 0 0 10px var(--accent-color);
         }
-        .lib-preview {
-            font-size: 0.95rem; opacity: 0.9; white-space: nowrap;
-            overflow: hidden; text-overflow: ellipsis; font-family: var(--font-ui);
+        .star-tag:hover::after {
+            content: attr(data-label); position: absolute; bottom: 10px; left: 50%;
+            transform: translateX(-50%); background: var(--bg-color); padding: 2px 5px;
+            font-size: 0.7rem; white-space: nowrap; pointer-events: none;
         }
 
-        /* --- BUTTONS --- */
+        /* --- CONTROLS & MODALS --- */
         .controls { margin-top: 2rem; }
         button.main-btn {
-            background: none; border: 1px solid var(--text-color);
-            color: var(--text-color); padding: 12px 28px;
-            font-family: var(--font-ui); font-size: 0.7rem;
-            font-weight: 700; cursor: pointer; text-transform: uppercase;
-            letter-spacing: 1px; border-radius: 50px; transition: all 0.2s;
+            background: none; border: 1px solid var(--text-color); color: var(--text-color);
+            padding: 12px 28px; font-family: var(--font-ui); font-size: 0.7rem; font-weight: 700;
+            cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-radius: 50px;
         }
         button.main-btn:hover { background: var(--text-color); color: var(--bg-color); }
 
         .fab {
-            position: absolute; bottom: 30px; right: 30px;
-            width: 56px; height: 56px; border-radius: 50%;
-            background: var(--text-color); color: var(--bg-color);
-            border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: flex; align-items: center; justify-content: center;
-            z-index: 100; cursor: pointer; transition: transform 0.2s;
+            position: absolute; bottom: 30px; right: 30px; width: 56px; height: 56px;
+            border-radius: 50%; background: var(--text-color); color: var(--bg-color);
+            border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex;
+            align-items: center; justify-content: center; z-index: 100; cursor: pointer;
         }
-        .fab:active { transform: scale(0.95); }
 
-        /* --- MODALS --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);
@@ -252,71 +287,47 @@
         }
         .modal-content {
             background: var(--bg-color); padding: 2rem; width: 85%; max-width: 400px;
-            border-radius: 4px; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-            max-height: 80vh; overflow-y: auto;
+            border-radius: 4px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); max-height: 80vh; overflow-y: auto;
         }
         .modal-header {
             font-family: var(--font-ui); text-transform: uppercase; font-size: 0.9rem;
-            margin-top: 0; margin-bottom: 1.5rem; text-align: center;
-            letter-spacing: 1px; font-weight: 700;
+            margin-top: 0; margin-bottom: 1.5rem; text-align: center; letter-spacing: 1px; font-weight: 700;
         }
-        input, textarea {
-            width: 100%; padding: 12px; margin-bottom: 15px; background: var(--tag-bg);
-            border: none; border-radius: 4px; color: var(--text-color);
-            box-sizing: border-box; font-family: var(--font-ui);
-        }
+        input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; background: var(--input-bg); border: none; border-radius: 4px; color: var(--text-color); box-sizing: border-box; font-family: var(--font-ui); }
         textarea { font-family: var(--font-main); min-height: 120px; resize: none; line-height: 1.5; }
         .modal-actions { display: flex; gap: 10px; margin-top: 10px; }
-        .modal-actions button {
-            flex: 1; padding: 10px; border: 1px solid var(--text-color);
-            background: none; color: var(--text-color); font-family: var(--font-ui);
-            text-transform: uppercase; font-size: 0.7rem; font-weight: 700; cursor: pointer; border-radius: 4px;
-        }
+        .modal-actions button { flex: 1; padding: 10px; border: 1px solid var(--text-color); background: none; color: var(--text-color); font-family: var(--font-ui); text-transform: uppercase; font-size: 0.7rem; font-weight: 700; cursor: pointer; border-radius: 4px; }
         .modal-actions button.primary { background: var(--text-color); color: var(--bg-color); }
-        .modal-actions button.danger { border-color: var(--danger-color); color: var(--danger-color); }
-
-        /* Checkbox Style */
-        .checkbox-container {
-            display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
-            font-family: var(--font-ui); font-size: 0.8rem; cursor: pointer;
-        }
+        .checkbox-container { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; font-family: var(--font-ui); font-size: 0.8rem; cursor: pointer; }
         .checkbox-container input { width: auto; margin: 0; }
 
-        /* --- SETTINGS --- */
+        /* Settings Groups */
         .settings-group { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
-        .settings-group:last-child { border-bottom: none; }
-        .settings-label {
-            font-family: var(--font-ui); font-size: 0.7rem; text-transform: uppercase;
-            opacity: 0.6; margin-bottom: 8px; display: block; letter-spacing: 1px;
-        }
-        .option-grid { display: flex; gap: 5px; margin-bottom: 8px;}
+        .settings-label { font-family: var(--font-ui); font-size: 0.7rem; text-transform: uppercase; opacity: 0.6; margin-bottom: 8px; display: block; letter-spacing: 1px; }
+        .option-grid { display: flex; gap: 5px; margin-bottom: 8px; flex-wrap: wrap; }
         .option-btn {
-            flex: 1; padding: 8px; border: 1px solid var(--border-color);
-            background: var(--card-bg); color: var(--text-color); cursor: pointer;
-            font-family: var(--font-ui); font-size: 0.65rem; text-align: center;
-            border-radius: 4px; transition: 0.2s; display: flex; align-items: center; justify-content: center;
+            flex: 1; padding: 8px; border: 1px solid var(--border-color); background: var(--card-bg);
+            color: var(--text-color); cursor: pointer; font-family: var(--font-ui); font-size: 0.65rem;
+            text-align: center; border-radius: 4px; display: flex; align-items: center; justify-content: center; min-width: 60px;
         }
-        .option-btn.selected {
-            background: var(--accent-color); color: #fff; border-color: var(--accent-color);
-        }
+        .option-btn.selected { background: var(--accent-color); color: #fff; border-color: var(--accent-color); }
 
-        #mode-indicator {
-            position: absolute; bottom: -30px; left: 0; width: 100%;
-            text-align: center; font-family: var(--font-ui); font-size: 0.6rem;
-            opacity: 0.4; text-transform: uppercase; letter-spacing: 2px;
-        }
+        #mode-indicator { position: absolute; bottom: -30px; left: 0; width: 100%; text-align: center; font-family: var(--font-ui); font-size: 0.6rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 2px; }
+        #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text-color); color: var(--bg-color); padding: 10px 20px; border-radius: 30px; font-family: var(--font-ui); font-size: 0.8rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 300; }
 
     </style>
 </head>
 <body>
 
+    <!-- 7. Memento Mori -->
+    <div id="memento-mori"></div>
+
+    <div id="toast">Copied to Scriptorium</div>
+
     <header>
         <h1>The Meditations of<br>Marston Aurelius</h1>
         <button class="settings-btn" onclick="openSettings()" title="Settings">
-            <svg class="icon" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-            </svg>
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         </button>
     </header>
 
@@ -329,39 +340,44 @@
         
         <!-- CARD VIEW -->
         <div id="card-view" class="view active">
-            <div id="card-stack">
-                <!-- Stack Injected Here -->
-            </div>
+            <div id="card-stack"></div>
             <div id="mode-indicator">Random Mode</div>
             <div class="controls">
-                <button class="main-btn" onclick="forceThrow()">Next Wisdom</button>
+                <button class="main-btn" onclick="forceThrow(1)">Next Wisdom</button>
             </div>
         </div>
 
         <!-- LIBRARY VIEW -->
         <div id="library-view" class="view">
-            <div class="library-controls">
-                <div class="custom-select-wrapper">
-                    <select id="sort-select" onchange="renderLibrary()">
-                        <option value="newest">Sort: Newest</option>
-                        <option value="oldest">Sort: Oldest</option>
-                    </select>
-                </div>
-                <div class="custom-select-wrapper">
-                    <select id="tag-filter" onchange="renderLibrary()">
-                        <option value="all">Filter: All Tags</option>
-                    </select>
+            <div class="library-controls-group">
+                <input type="text" id="library-search" class="library-search-input" placeholder="Search wisdom..." onkeyup="renderLibrary()">
+                
+                <div class="library-filters">
+                    <div class="custom-select-wrapper">
+                        <select id="sort-select" onchange="renderLibrary()">
+                            <option value="newest">Sort: Newest</option>
+                            <option value="oldest">Sort: Oldest</option>
+                        </select>
+                    </div>
+                    <div class="custom-select-wrapper">
+                        <select id="tag-filter" onchange="renderLibrary()">
+                            <option value="all">Filter: All Tags</option>
+                            <option value="sealed">Sealed Only</option>
+                            <option value="catacombs">The Catacombs</option>
+                        </select>
+                    </div>
+                    <button class="option-btn" onclick="toggleConstellationView()" title="Constellation View" style="flex:0; width:40px;">âœ§</button>
                 </div>
             </div>
+            
             <div class="library-list" id="library-list"></div>
+            <!-- 10. Constellation View -->
+            <div id="constellation-container"></div>
         </div>
     </div>
 
     <button class="fab" onclick="openAddModal()">
-        <svg class="icon" viewBox="0 0 24 24" style="width:24px; height:24px;">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
+        <svg class="icon" viewBox="0 0 24 24" style="width:24px; height:24px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
     </button>
 
     <!-- SETTINGS MODAL -->
@@ -369,6 +385,25 @@
         <div class="modal-content">
             <h3 class="modal-header">Settings</h3>
             
+            <div class="settings-group">
+                <span class="settings-label">Immersive Effects</span>
+                <div class="option-grid">
+                    <div class="option-btn" id="toggle-parallax" onclick="toggleSetting('parallax')">Parallax</div>
+                    <div class="option-btn" id="toggle-haptics" onclick="toggleSetting('haptics')">Haptics</div>
+                    <div class="option-btn" id="toggle-memento" onclick="toggleSetting('memento')">Memento</div>
+                    <div class="option-btn" id="toggle-blind" onclick="toggleSetting('blind')">Blind</div>
+                </div>
+            </div>
+
+            <!-- 3. The Agora -->
+            <div class="settings-group">
+                <span class="settings-label">The Agora (Audio)</span>
+                <div class="option-grid">
+                    <div class="option-btn" id="audio-off" onclick="setAudio('off')">Off</div>
+                    <div class="option-btn" id="audio-rain" onclick="setAudio('rain')">The Stoa</div>
+                </div>
+            </div>
+
             <div class="settings-group">
                 <span class="settings-label">Privacy</span>
                 <div class="option-grid">
@@ -378,17 +413,13 @@
             </div>
 
             <div class="settings-group">
-                <span class="settings-label">Stone (Base Theme)</span>
+                <span class="settings-label">Stone & Style</span>
                 <div class="option-grid">
                     <div class="option-btn" onclick="setTheme('light')" id="theme-light">Marble</div>
                     <div class="option-btn" onclick="setTheme('dark')" id="theme-dark">Slate</div>
                     <div class="option-btn" onclick="setTheme('auto')" id="theme-auto">Auto</div>
                 </div>
-            </div>
-            
-            <div class="settings-group">
-                <span class="settings-label">Architecture</span>
-                <div class="option-grid">
+                <div class="option-grid" style="margin-top:5px;">
                     <div class="option-btn" onclick="setDecoration('none')" id="deco-none">Minimal</div>
                     <div class="option-btn" onclick="setDecoration('ionic')" id="deco-ionic">Ionic</div>
                 </div>
@@ -399,17 +430,13 @@
                 <div class="option-grid">
                     <div class="option-btn" onclick="setFont('standard')" id="font-standard">Std</div>
                     <div class="option-btn" onclick="setFont('grand')" id="font-grand" style="font-family:'Pinyon Script'">Grand</div>
-                    <div class="option-btn" onclick="setFont('greek')" id="font-greek" style="font-family:'GFS Didot'">ΓΡΕΕΚ</div>
-                </div>
-                <span class="settings-label" style="margin-top:10px;">Emphasis</span>
-                <div class="option-grid">
-                    <div class="option-btn" onclick="setStyle('roman')" id="style-roman">Roman</div>
-                    <div class="option-btn" onclick="setStyle('italic')" id="style-italic" style="font-style:italic">Italic</div>
+                    <div class="option-btn" onclick="setFont('greek')" id="font-greek" style="font-family:'GFS Didot'">Î“Î¡Î•Î•Îš</div>
                 </div>
             </div>
             
             <div class="settings-group">
                 <span class="settings-label">Archives</span>
+                <button onclick="downloadScroll()" class="main-btn" style="width:100%; margin-bottom:5px; padding:8px; font-size:0.7rem;">Export Scroll (.md)</button>
                 <input type="text" id="sheet-url-input" placeholder="Paste Google Sheet Edit URL..." style="font-size:0.7rem;">
                 <button onclick="saveSheetUrl()" class="main-btn" style="width:100%; margin-top:5px; padding:8px; font-size:0.7rem;">Open Spreadsheet</button>
             </div>
@@ -425,6 +452,7 @@
         <div class="modal-content">
             <h3 id="editor-title" class="modal-header">New Meditation</h3>
             <input type="text" id="input-title" placeholder="Title (e.g., On Morning Coffee)">
+            <!-- 5. Socratic Prompt will be inserted here -->
             <textarea id="input-body" placeholder="Write your thought..."></textarea>
             <input type="text" id="input-tags" placeholder="Tags (comma separated)">
             
@@ -438,85 +466,84 @@
                 <button id="modal-submit-btn" class="primary">Scribe</button>
             </div>
             <div id="delete-container" style="margin-top:10px; display:none;">
-                <button class="main-btn" onclick="deleteCurrentQuote()" style="width:100%; border-color:var(--danger-color); color:var(--danger-color);">Delete Note</button>
+                <button class="main-btn" id="delete-btn-text" onclick="deleteCurrentQuote()" style="width:100%; border-color:var(--danger-color); color:var(--danger-color);">Delete Note</button>
             </div>
         </div>
     </div>
 
     <script>
         // --- CONFIGURATION ---
+        // PASTE YOUR /exec URL HERE
         const API_URL = "https://script.google.com/macros/s/AKfycbyeAgXo2SCcJOToWgbM2O3qdhsxz67NrMotSWjDWbEJafKJ7tLSMm7siu0t278bPqxe/exec"; 
         // ---------------------
 
-        let allMeditations = []; // The raw dump
-        let filteredMeditations = []; // The active list based on privacy settings
+        let allMeditations = [];
+        let filteredMeditations = [];
         let allTags = new Set();
         
         let activeQueue = []; 
         let queuePointer = 0; 
         
-        let showPrivate = false;
+        // App State
+        let settings = {
+            showPrivate: false,
+            parallax: false,
+            haptics: false,
+            memento: false,
+            blind: false,
+            audio: 'off'
+        };
 
         let isEditing = false;
         let editId = null;
+        let audioCtx = null; // Web Audio Context
 
-        // AUTHENTIC PHONETIC MAP
-        // Sounds only. Visuals are irrelevant.
-        const phoneticMap = {
-            'A': 'Α', 'B': 'Β', 'C': 'Κ', 'D': 'Δ', 'E': 'Ε', 
-            'F': 'Φ', 'G': 'Γ', 'H': '', // DELETED: H is a breathing mark, not a letter
-            'I': 'Ι', 'J': 'Ι', 'K': 'Κ', 'L': 'Λ', 'M': 'Μ', 
-            'N': 'Ν', 'O': 'Ο', 'P': 'Π', 'Q': 'Κ', 'R': 'Ρ', 
-            'S': 'Σ', 'T': 'Τ', 'U': 'Υ', 'V': 'Β', 'W': 'Ϝ', // Digamma for W
-            'X': 'Ξ', 'Y': 'Υ', 'Z': 'Ζ' 
+        // 5. Socratic Prompts
+        const prompts = [
+            "What is outside my control today?",
+            "Who annoyed me, and why is it my fault?",
+            "What would a stricter man do?",
+            "If I died tonight, is this note enough?",
+            "Am I acting for the hive, or just the bee?",
+            "What virtue did I neglect today?"
+        ];
+
+        const greekMap = {
+            'a': 'Î±', 'b': 'Î²', 'c': 'Ï‡', 'd': 'Î´', 'e': 'Îµ', 'f': 'Ï†', 'g': 'Î³', 'h': 'Î·', 'i': 'Î¹', 'j': 'Ï†', 'k': 'Îº', 'l': 'Î»', 'm': 'Î¼', 'n': 'Î½', 'o': 'Î¿', 'p': 'Ï€', 'q': 'Î¸', 'r': 'Ï ', 's': 'Ïƒ', 't': 'Ï„', 'u': 'Ï…', 'v': 'Ï…', 'w': 'Ï‰', 'x': 'Î¾', 'y': 'Ïˆ', 'z': 'Î¶', 'A': 'Î‘', 'B': 'Î’', 'C': 'Î§', 'D': 'Î”', 'E': 'Î•', 'F': 'Î¦', 'G': 'Î“', 'H': 'Î—', 'I': 'Î™', 'J': 'Î¦', 'K': 'Îš', 'L': 'Î›', 'M': 'Îœ', 'N': 'Î ', 'O': 'ÎŸ', 'P': 'Î ', 'Q': 'Î˜', 'R': 'Î¡', 'S': 'Î£', 'T': 'Î¤', 'U': 'Î¥', 'V': 'Î¥', 'W': 'Î©', 'X': 'Îž', 'Y': 'Î¨', 'Z': 'Î–'
         };
-        
-        function toGreekCipher(text) {
-            let output = text.toUpperCase();
-        
-            // 1. Clean non-Classical junk
-            // Remove punctuation to mimic stone inscriptions
-            output = output.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-        
-            // 2. PHONETIC DIGRAPHS (The "One Sound" Rules)
-            // We must swap these BEFORE standard mapping, or 'PH' becomes 'P' (because H is deleted)
-            const digraphs = {
-                'TH': 'Θ', // Theta
-                'PH': 'Φ', // Phi
-                'CH': 'Χ', // Chi
-                'PS': 'Ψ', // Psi
-                'KS': 'Ξ', // Xi (redundant check for KS sound)
-                'QU': 'Κ'  // Q is K, U is usually silent or part of the K sound here
-            };
-        
-            for (const [eng, grk] of Object.entries(digraphs)) {
-                output = output.replaceAll(eng, grk);
-            }
-        
-            // 3. Map single letters
-            return output.split('').map(char => {
-                // If it's already a Greek char (from digraphs), keep it
-                if (Object.values(digraphs).includes(char)) return char;
-                
-                // Use map. If char isn't in map (like spaces), keep it.
-                // Note: We check if the map explicitly returns undefined (for things not in map)
-                // or empty string (for H).
-                const mapped = phoneticMap[char];
-                return mapped !== undefined ? mapped : char;
-            }).join('');
-        }
+
         function init() {
+            // Load Settings
             setTheme(localStorage.getItem('theme') || 'auto');
             setDecoration(localStorage.getItem('decoration') || 'none');
             setFont(localStorage.getItem('font') || 'standard');
             setStyle(localStorage.getItem('style') || 'roman');
             
-            // Privacy
-            const savedPrivate = localStorage.getItem('showPrivate');
-            togglePrivateMode(savedPrivate === 'true'); // Loads setting
+            // Boolean Settings
+            ['showPrivate', 'parallax', 'haptics', 'memento', 'blind'].forEach(k => {
+                const val = localStorage.getItem(k);
+                settings[k] = val === 'true';
+                if(k === 'showPrivate') togglePrivateMode(settings.showPrivate, true);
+                else toggleSetting(k, true); // true = force UI update only
+            });
+
+            // Audio setting
+            setAudio(localStorage.getItem('audio') || 'off');
 
             const savedSheetUrl = localStorage.getItem('sheetUrl');
             if(savedSheetUrl) document.getElementById('sheet-url-input').value = savedSheetUrl;
+
+            // Keyboard Listeners
+            document.addEventListener('keydown', (e) => {
+                if(document.getElementById('editor-modal').style.display === 'flex') return;
+                if(document.getElementById('library-view').classList.contains('active')) return;
+                if (e.key === 'ArrowRight') forceThrow(-1);
+                if (e.key === 'ArrowLeft') forceThrow(1);
+                if (e.key === ' ') { e.preventDefault(); forceThrow(-1); }
+            });
+
+            // 2. Parallax Listener
+            window.addEventListener('deviceorientation', handleParallax);
 
             fetchQuotes();
         }
@@ -531,19 +558,19 @@
                     dateObj: new Date(item.date),
                     tagArray: item.tags ? item.tags.split(',').map(t => t.trim()) : []
                 }));
-                
-                applyFilters(); // Filter -> Queue -> Stack
-                
+                applyFilters();
             } catch (error) {
                 document.getElementById('card-stack').innerHTML = `<div style="text-align:center; padding-top:100px;">The archives are unreachable.</div>`;
-                console.error(error);
             }
         }
 
         function applyFilters() {
-            // Filter allMeditations into filteredMeditations based on privacy
+            // Standard Filter Logic
             filteredMeditations = allMeditations.filter(m => {
-                if (m.isPrivate && !showPrivate) return false;
+                // If checking "Deleted" (Catacombs), allow deleted items
+                // But for the MAIN stack, exclude deleted items.
+                if (m.isDeleted) return false; 
+                if (m.isPrivate && !settings.showPrivate) return false;
                 return true;
             });
 
@@ -557,18 +584,6 @@
             allTags.clear();
             filteredMeditations.forEach(m => m.tagArray.forEach(t => allTags.add(t)));
             updateTagFilterDropdown();
-        }
-
-        function togglePrivateMode(allow) {
-            showPrivate = allow;
-            localStorage.setItem('showPrivate', allow);
-            
-            // UI Toggle
-            document.getElementById('private-on').classList.toggle('selected', allow);
-            document.getElementById('private-off').classList.toggle('selected', !allow);
-
-            // Re-filter if data exists
-            if (allMeditations.length > 0) applyFilters();
         }
 
         // --- QUEUE LOGIC ---
@@ -596,19 +611,7 @@
         function getCurrentCardIndex() { return activeQueue[queuePointer]; }
         function advanceQueue() { queuePointer = (queuePointer + 1) % activeQueue.length; }
 
-        function formatOxfordDate(dateObj) {
-            const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-            const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-            const dayName = days[dateObj.getDay()];
-            const dayNum = dateObj.getDate();
-            const monthName = months[dateObj.getMonth()];
-            const year = dateObj.getFullYear();
-            const nth = (d) => { if(d>3 && d<21) return 'th'; switch(d%10){case 1:return "st";case 2:return "nd";case 3:return "rd";default:return "th";} };
-            const timeStr = dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
-            return `${dayName}, ${dayNum}${nth(dayNum)} ${monthName} ${year} — ${timeStr}`;
-        }
-
-        // --- STACK RENDER ---
+        // --- RENDER ---
         function initStack() {
             const container = document.getElementById('card-stack');
             container.innerHTML = '';
@@ -626,28 +629,48 @@
 
             const card = document.createElement('div');
             card.className = `quote-card ${type}`;
+            if (settings.blind) card.classList.add('blind-mode'); // 8. Blind Mode
             card.dataset.index = index;
             
             const dateStr = formatOxfordDate(item.dateObj);
             const currentFont = localStorage.getItem('font');
-            const displayText = currentFont === 'greek' ? toGreekCipher(item.body) : item.body;
+            
+            let displayBody = item.body;
+            if (currentFont === 'greek') displayBody = toGreekCipher(item.body);
+            else displayBody = parseMarkdown(item.body);
             
             let tagsHtml = '';
             item.tagArray.forEach(tag => { if(tag) tagsHtml += `<span class="tag">${tag}</span>`; });
 
-            // Private Icon
-            const lockIcon = item.isPrivate ? 
-                `<svg class="private-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>` 
-                : '';
+            const lockedClass = item.isPrivate ? 'locked' : '';
+            const sealedClass = item.isSealed ? 'active' : '';
+            const sealStamp = item.isSealed ? 'stamped' : '';
 
             card.innerHTML = `
-                <button class="edit-btn" ontouchstart="event.stopPropagation()" onmousedown="event.stopPropagation()" onclick="openEditModal(${index})">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-                </button>
-                ${lockIcon}
+                <!-- 1. Wax Seal Graphic -->
+                <div class="wax-seal ${sealStamp}">
+                    <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" /><path d="M30 50 L70 50 M50 30 L50 70" stroke="rgba(0,0,0,0.2)" stroke-width="5"/></svg>
+                </div>
+
+                <div class="card-actions">
+                    <button class="action-btn" ontouchstart="event.stopPropagation()" onmousedown="event.stopPropagation()" onclick="openEditModal(${index})">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                    </button>
+                    <button class="action-btn" ontouchstart="event.stopPropagation()" onmousedown="event.stopPropagation()" onclick="copyCardText(${index})">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+                    </button>
+                    <button class="action-btn ${lockedClass}" ontouchstart="event.stopPropagation()" onmousedown="event.stopPropagation()" onclick="toggleCardPrivacy(${index})">
+                         <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    </button>
+                    <!-- 1. Seal Button -->
+                    <button class="action-btn ${sealedClass}" ontouchstart="event.stopPropagation()" onmousedown="event.stopPropagation()" onclick="toggleSeal(${index})">
+                         <svg class="icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                    </button>
+                </div>
+                
                 <div class="card-date">${dateStr}</div>
                 <div class="card-title" style="display:${item.title ? 'block' : 'none'}">${item.title}</div>
-                <div class="card-body">${displayText}</div>
+                <div class="card-body" onclick="revealBlind(this)">${displayBody}</div>
                 <div class="tags-container">${tagsHtml}</div>
             `;
 
@@ -655,13 +678,38 @@
             if(type === 'current') attachPhysics(card);
         }
 
-        // --- PHYSICS (Drag & Throw) ---
+        // 8. Blind Mode Logic
+        function revealBlind(el) {
+            if (settings.blind) {
+                const card = el.closest('.quote-card');
+                card.classList.remove('blind-mode');
+            }
+        }
+
+        // 1. Seal Logic
+        async function toggleSeal(index) {
+            const item = filteredMeditations[index];
+            if (!item) return;
+            item.isSealed = !item.isSealed;
+            if(settings.haptics) navigator.vibrate(50);
+            
+            // Update UI
+            initStack();
+            // Send
+            await fetch(API_URL, {
+                method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'update', id: item.id, isSealed: item.isSealed })
+            });
+        }
+
+        // --- PHYSICS & HAPTICS (9) ---
         function attachPhysics(card) {
             let startX = 0, startY = 0;
             let isDragging = false;
             let startTime = 0;
 
             const onStart = (e) => {
+                if(e.target.closest('button') || e.target.closest('.wiki-link')) return;
                 isDragging = true;
                 startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
                 startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
@@ -690,12 +738,9 @@
                 const velocityX = deltaX / (Date.now() - startTime);
 
                 if (Math.abs(deltaX) > 100 || Math.abs(velocityX) > 0.5) {
+                    if(settings.haptics) navigator.vibrate(20);
                     const dirX = deltaX > 0 ? 1 : -1;
-                    const throwX = dirX * window.innerWidth * 1.5;
-                    const throwY = deltaY * 2;
-                    card.style.transition = "transform 0.5s ease-out";
-                    card.style.transform = `translate(${throwX}px, ${throwY}px) rotate(${dirX * 45}deg)`;
-                    setTimeout(() => completeSwipe(), 300);
+                    forceThrow(dirX * -1); 
                 } else {
                     card.classList.add('resetting');
                     card.style.transform = '';
@@ -711,11 +756,11 @@
             card.addEventListener('touchend', onEnd, {passive: true});
         }
 
-        function forceThrow() {
+        function forceThrow(direction) {
             const card = document.querySelector('.quote-card.current');
             if (card) {
-                card.classList.add('thrown');
-                card.style.transform = `translate(-150%, -50px) rotate(-20deg)`;
+                const throwClass = direction > 0 ? 'thrown-left' : 'thrown-right';
+                card.classList.add(throwClass);
                 setTimeout(() => completeSwipe(), 300);
             }
         }
@@ -724,7 +769,6 @@
             const oldCard = document.querySelector('.quote-card.current');
             if (oldCard) oldCard.remove();
             advanceQueue();
-            
             const nextCard = document.querySelector('.quote-card.next');
             if (nextCard) {
                 nextCard.classList.remove('next');
@@ -737,37 +781,223 @@
                 setTimeout(() => nextCard.classList.remove('resetting'), 500);
             }
             createCardElement(getNextCardIndex(), 'next');
+            if(settings.haptics) navigator.vibrate(10);
         }
 
-        // --- LIBRARY ---
+        // --- 2. PARALLAX ---
+        function handleParallax(e) {
+            if (!settings.parallax) return;
+            const card = document.querySelector('.quote-card.current');
+            if (!card) return;
+            
+            // Limit tilt logic
+            const tiltX = Math.min(Math.max(e.gamma, -20), 20); 
+            const tiltY = Math.min(Math.max(e.beta - 45, -20), 20);
+            
+            card.style.transform = `translate(${tiltX}px, ${tiltY}px)`;
+            // Subtle 3D shadow shift
+            card.style.boxShadow = `${-tiltX}px ${15 - tiltY}px 40px rgba(0,0,0,0.15)`;
+        }
+
+        // --- 3. AGORA (Audio) ---
+        function setAudio(mode) {
+            settings.audio = mode;
+            localStorage.setItem('audio', mode);
+            
+            // UI
+            document.getElementById('audio-off').classList.toggle('selected', mode === 'off');
+            document.getElementById('audio-rain').classList.toggle('selected', mode === 'rain');
+
+            if (mode === 'off') {
+                if (audioCtx) audioCtx.close();
+                audioCtx = null;
+            } else if (mode === 'rain') {
+                startRainNoise();
+            }
+        }
+
+        function startRainNoise() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const bufferSize = 2 * audioCtx.sampleRate;
+            const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                output[i] = (lastOut + (0.02 * white)) / 1.02;
+                lastOut = output[i];
+                output[i] *= 3.5; 
+            }
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = noiseBuffer;
+            noise.loop = true;
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.value = 0.05; // Gentle volume
+            noise.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            noise.start(0);
+        }
+        let lastOut = 0;
+
+        // --- 7. MEMENTO MORI ---
+        function updateMementoMori() {
+            if (!settings.memento) {
+                document.getElementById('memento-mori').style.opacity = 0;
+                return;
+            }
+            const now = new Date();
+            const start = new Date(now.getFullYear(), 0, 0);
+            const diff = now - start;
+            const oneDay = 1000 * 60 * 60 * 24;
+            const dayOfYear = Math.floor(diff / oneDay);
+            const percent = (dayOfYear / 365) * 100;
+            
+            const bar = document.getElementById('memento-mori');
+            bar.style.opacity = 1;
+            bar.style.width = percent + '%';
+        }
+        setInterval(updateMementoMori, 60000); // Check every minute
+
+        // --- 10. CONSTELLATION VIEW ---
+        function toggleConstellationView() {
+            const container = document.getElementById('constellation-container');
+            const list = document.getElementById('library-list');
+            const isVisible = container.style.display === 'block';
+            
+            if (isVisible) {
+                container.style.display = 'none';
+                list.style.display = 'block';
+            } else {
+                container.style.display = 'block';
+                list.style.display = 'none';
+                renderConstellation();
+            }
+        }
+
+        function renderConstellation() {
+            const container = document.getElementById('constellation-container');
+            container.innerHTML = '';
+            // Get Tag counts
+            const counts = {};
+            filteredMeditations.forEach(m => m.tagArray.forEach(t => counts[t] = (counts[t] || 0) + 1));
+            
+            Object.keys(counts).forEach(tag => {
+                const star = document.createElement('div');
+                star.className = 'star-tag';
+                star.setAttribute('data-label', tag);
+                
+                // Size based on count
+                const size = 5 + (counts[tag] * 2); 
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                
+                // Random Pos
+                star.style.top = Math.random() * 90 + '%';
+                star.style.left = Math.random() * 90 + '%';
+                
+                star.onclick = () => {
+                    document.getElementById('tag-filter').value = tag;
+                    renderLibrary(); // Filter
+                    toggleConstellationView(); // Go back to list
+                };
+                
+                container.appendChild(star);
+            });
+        }
+
+        // --- 4. EXPORT SCROLL ---
+        function downloadScroll() {
+            let content = "# The Meditations of Marston Aurelius\n\n";
+            allMeditations.forEach(m => {
+                const tags = m.tagArray.map(t => `#${t}`).join(' ');
+                content += `## ${m.title || 'Untitled'}\n${formatOxfordDate(m.dateObj)}\n\n${m.body}\n\n${tags}\n\n---\n\n`;
+            });
+            const blob = new Blob([content], {type: "text/markdown"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "Meditations_Scroll.md";
+            a.click();
+        }
+
+        // --- SETTINGS TOGGLES ---
+        function toggleSetting(key, forceUpdate = false) {
+            if (!forceUpdate) {
+                settings[key] = !settings[key];
+                localStorage.setItem(key, settings[key]);
+            }
+            
+            const btn = document.getElementById(`toggle-${key}`);
+            if (btn) btn.classList.toggle('selected', settings[key]);
+
+            if (key === 'memento') updateMementoMori();
+            
+            // iOS Parallax Permission
+            if (key === 'parallax' && settings.parallax && !forceUpdate && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(r => { if(r !== 'granted') toggleSetting('parallax'); })
+                    .catch(() => toggleSetting('parallax'));
+            }
+        }
+
+        // --- STANDARD UTILS ---
+        function formatOxfordDate(dateObj) {
+            const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            const dayName = days[dateObj.getDay()];
+            const dayNum = dateObj.getDate();
+            const monthName = months[dateObj.getMonth()];
+            const year = dateObj.getFullYear();
+            const nth = (d) => { if(d>3 && d<21) return 'th'; switch(d%10){case 1:return "st";case 2:return "nd";case 3:return "rd";default:return "th";} };
+            const timeStr = dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+            return `${dayName}, ${dayNum}${nth(dayNum)} ${monthName} ${year} — ${timeStr}`;
+        }
+
         function renderLibrary() {
             const list = document.getElementById('library-list');
             const sortMode = document.getElementById('sort-select').value;
             const filterTag = document.getElementById('tag-filter').value;
+            const searchTerm = document.getElementById('library-search').value.toLowerCase();
+            
             list.innerHTML = '';
             
-            let displayItems = filteredMeditations.map((item, index) => ({...item, originalIndex: index}));
+            let displayItems = [];
             
-            if (filterTag !== 'all') displayItems = displayItems.filter(m => m.tagArray.includes(filterTag));
-            
-            displayItems.sort((a, b) => {
-                return sortMode === 'newest' ? b.dateObj - a.dateObj : a.dateObj - b.dateObj;
-            });
+            // 6. Catacombs Mode
+            if (filterTag === 'catacombs') {
+                displayItems = allMeditations.filter(m => m.isDeleted).map((item, index) => ({...item, originalIndex: -1, realRef: item}));
+            } else {
+                displayItems = filteredMeditations.map((item, index) => ({...item, originalIndex: index}));
+            }
+
+            if (searchTerm) displayItems = displayItems.filter(i => (i.title && i.title.toLowerCase().includes(searchTerm)) || (i.body && i.body.toLowerCase().includes(searchTerm)));
+            if (filterTag !== 'all' && filterTag !== 'catacombs' && filterTag !== 'sealed') displayItems = displayItems.filter(m => m.tagArray.includes(filterTag));
+            if (filterTag === 'sealed') displayItems = displayItems.filter(m => m.isSealed);
+
+            displayItems.sort((a, b) => sortMode === 'newest' ? b.dateObj - a.dateObj : a.dateObj - b.dateObj);
 
             displayItems.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'library-item';
+                if(item.isDeleted) div.className += ' catacomb-item';
+                
                 div.onclick = () => {
+                    if (item.isDeleted) {
+                        if(confirm("Restore from Catacombs?")) restoreNote(item.realRef.id);
+                        else if(confirm("Burn permanently?")) permaDelete(item.realRef.id);
+                        return;
+                    }
                     generateChronologicalQueue(item.originalIndex);
                     initStack();
                     switchView('card');
                 };
                 
-                const lockIcon = item.isPrivate ? 'â€¢ <span style="font-size:0.8em">ðŸ”’</span>' : '';
+                const lockIcon = item.isPrivate ? '• 🔒' : '';
+                const sealIcon = item.isSealed ? '• 🔴' : '';
                 
                 div.innerHTML = `
                     <div class="lib-meta">
-                        <span>${item.dateObj.toLocaleDateString('en-GB')} ${lockIcon}</span>
+                        <span>${item.dateObj.toLocaleDateString('en-GB')} ${lockIcon} ${sealIcon}</span>
                         <span>${item.tagArray.join(', ')}</span>
                     </div>
                     <div class="lib-title">${item.title}</div>
@@ -777,44 +1007,47 @@
             });
         }
 
-        // --- UTILS ---
-        function updateTagFilterDropdown() {
-            const select = document.getElementById('tag-filter');
-            const currentVal = select.value;
-            select.innerHTML = '<option value="all">Filter: All Tags</option>';
-            Array.from(allTags).sort().forEach(tag => {
-                if(tag) {
-                    const option = document.createElement('option');
-                    option.value = tag; option.innerText = tag; select.appendChild(option);
-                }
+        async function restoreNote(id) {
+            // Optimistic
+            const note = allMeditations.find(m => m.id === id);
+            if(note) note.isDeleted = false;
+            applyFilters();
+            await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', id: id, isDeleted: false }) });
+        }
+
+        async function permaDelete(id) {
+            allMeditations = allMeditations.filter(m => m.id !== id);
+            applyFilters();
+            await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'perma-delete', id: id }) });
+        }
+
+        function parseMarkdown(text) {
+            if(!text) return '';
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\[\[(.*?)\]\]/g, '<span class="wiki-link" onclick="searchLibrary(\'$1\')">$1</span>');
+        }
+        function searchLibrary(term) {
+            switchView('library');
+            document.getElementById('library-search').value = term;
+            renderLibrary();
+        }
+        function copyCardText(index) {
+            const item = filteredMeditations[index];
+            const text = `"${item.body}"\n— Marston Aurelius (${item.dateObj.toLocaleDateString('en-GB')})`;
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('toast');
+                toast.style.opacity = 1; setTimeout(() => toast.style.opacity = 0, 2000);
             });
-            select.value = currentVal;
-        }
-
-        function switchView(viewName) {
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            const activeTab = Array.from(document.querySelectorAll('.nav-item'))
-                .find(el => el.innerText.toLowerCase().includes(viewName === 'card' ? 'oracle' : 'library'));
-            if(activeTab) activeTab.classList.add('active');
-            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-            document.getElementById(viewName + '-view').classList.add('active');
-        }
-
-        // --- MODALS ---
-        function toggleSettingsModal() {
-            const el = document.getElementById('settings-modal');
-            el.style.display = el.style.display === 'flex' ? 'none' : 'flex';
-        }
-        function openSettings() { toggleSettingsModal(); }
-        function toggleEditorModal() {
-            const el = document.getElementById('editor-modal');
-            el.style.display = el.style.display === 'flex' ? 'none' : 'flex';
         }
         function openAddModal() {
             isEditing = false;
             document.getElementById('editor-title').innerText = "New Meditation";
             document.getElementById('input-title').value = "";
             document.getElementById('input-body').value = "";
+            // 5. Socratic Prompt
+            document.getElementById('input-body').placeholder = prompts[Math.floor(Math.random() * prompts.length)];
             document.getElementById('input-tags').value = "";
             document.getElementById('input-private').checked = false;
             document.getElementById('modal-submit-btn').innerText = "Scribe";
@@ -822,102 +1055,24 @@
             document.getElementById('delete-container').style.display = 'none';
             toggleEditorModal();
         }
-        function openEditModal(index) {
-            const item = filteredMeditations[index]; // Use filtered array to find item
-            if(!item) return;
-            isEditing = true; editId = item.id;
-            document.getElementById('editor-title').innerText = "Edit Meditation";
-            document.getElementById('input-title').value = item.title;
-            document.getElementById('input-body').value = item.body;
-            document.getElementById('input-tags').value = item.tags;
-            document.getElementById('input-private').checked = item.isPrivate;
-            document.getElementById('modal-submit-btn').innerText = "Update";
-            document.getElementById('modal-submit-btn').onclick = submitUpdate;
-            document.getElementById('delete-container').style.display = 'block';
-            toggleEditorModal();
-        }
-
-        // --- ACTIONS ---
-        async function submitCreate() {
-            const title = document.getElementById('input-title').value;
-            const body = document.getElementById('input-body').value;
-            const tags = document.getElementById('input-tags').value;
-            const isPrivate = document.getElementById('input-private').checked;
-            if (!body) return;
-            toggleEditorModal();
-            
-            // Add to Cloud
-            await fetch(API_URL, {
-                method: 'POST', mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'create', title, body, tags, isPrivate })
-            });
-
-            // Reload all data to be safe (simplifies filtering logic)
-            fetchQuotes();
-        }
-
-        async function submitUpdate() {
-            const title = document.getElementById('input-title').value;
-            const body = document.getElementById('input-body').value;
-            const tags = document.getElementById('input-tags').value;
-            const isPrivate = document.getElementById('input-private').checked;
-            if (!body) return;
-            toggleEditorModal();
-
-            await fetch(API_URL, {
-                method: 'POST', mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'update', id: editId, title, body, tags, isPrivate })
-            });
-            fetchQuotes();
-        }
-
-        async function deleteCurrentQuote() {
-            if(!confirm("Are you sure you want to delete this wisdom?")) return;
-            const idToDelete = filteredMeditations[getCurrentCardIndex()].id;
-            toggleEditorModal();
-
-            await fetch(API_URL, {
-                method: 'POST', mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'delete', id: idToDelete })
-            });
-            fetchQuotes();
-        }
-
-        // --- HELPERS ---
-        function setTheme(theme) {
-            localStorage.setItem('theme', theme);
-            if (theme === 'auto') {
-                const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-                document.body.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-            } else { document.body.setAttribute('data-theme', theme); }
-            document.querySelectorAll('[id^="theme-"]').forEach(el => el.classList.remove('selected'));
-            document.getElementById('theme-' + theme).classList.add('selected');
-        }
-        function setDecoration(deco) {
-            document.body.setAttribute('data-decoration', deco);
-            localStorage.setItem('decoration', deco);
-            document.querySelectorAll('[id^="deco-"]').forEach(el => el.classList.remove('selected'));
-            document.getElementById('deco-' + deco).classList.add('selected');
-        }
-        function setFont(font) {
-            document.body.setAttribute('data-font', font);
-            localStorage.setItem('font', font);
-            document.querySelectorAll('[id^="font-"]').forEach(el => el.classList.remove('selected'));
-            document.getElementById('font-' + font).classList.add('selected');
-        }
-        function setStyle(style) {
-            document.body.setAttribute('data-style', style);
-            localStorage.setItem('style', style);
-            document.querySelectorAll('[id^="style-"]').forEach(el => el.classList.remove('selected'));
-            document.getElementById('style-' + style).classList.add('selected');
-        }
-        function saveSheetUrl() {
-            const url = document.getElementById('sheet-url-input').value;
-            if(url) { localStorage.setItem('sheetUrl', url); window.open(url, '_blank'); }
-        }
+        // Standard Utils
+        function updateTagFilterDropdown() { const select = document.getElementById('tag-filter'); const currentVal = select.value; select.innerHTML = '<option value="all">Filter: All Tags</option><option value="sealed">Sealed Only</option><option value="catacombs">The Catacombs</option>'; Array.from(allTags).sort().forEach(tag => { if(tag) { const option = document.createElement('option'); option.value = tag; option.innerText = tag; select.appendChild(option); } }); select.value = currentVal; }
+        function switchView(viewName) { document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active')); const activeTab = Array.from(document.querySelectorAll('.nav-item')).find(el => el.innerText.toLowerCase().includes(viewName === 'card' ? 'oracle' : 'library')); if(activeTab) activeTab.classList.add('active'); document.querySelectorAll('.view').forEach(el => el.classList.remove('active')); document.getElementById(viewName + '-view').classList.add('active'); }
+        function toggleSettingsModal() { const el = document.getElementById('settings-modal'); el.style.display = el.style.display === 'flex' ? 'none' : 'flex'; }
+        function openSettings() { toggleSettingsModal(); }
+        function toggleEditorModal() { const el = document.getElementById('editor-modal'); el.style.display = el.style.display === 'flex' ? 'none' : 'flex'; }
+        function openEditModal(index) { const item = filteredMeditations[index]; if(!item) return; isEditing = true; editId = item.id; document.getElementById('editor-title').innerText = "Edit Meditation"; document.getElementById('input-title').value = item.title; document.getElementById('input-body').value = item.body; document.getElementById('input-tags').value = item.tags; document.getElementById('input-private').checked = item.isPrivate; document.getElementById('modal-submit-btn').innerText = "Update"; document.getElementById('modal-submit-btn').onclick = () => submitUpdate(index); document.getElementById('delete-container').style.display = 'block'; document.getElementById('delete-btn-text').innerText = "Send to Catacombs"; toggleEditorModal(); }
+        async function submitCreate() { const title = document.getElementById('input-title').value; const body = document.getElementById('input-body').value; const tags = document.getElementById('input-tags').value; const isPrivate = document.getElementById('input-private').checked; if (!body) return; toggleEditorModal(); await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'create', title, body, tags, isPrivate }) }); fetchQuotes(); }
+        async function submitUpdate(originalIndex) { const title = document.getElementById('input-title').value; const body = document.getElementById('input-body').value; const tags = document.getElementById('input-tags').value; const isPrivate = document.getElementById('input-private').checked; if (!body) return; toggleEditorModal(); const item = filteredMeditations[originalIndex]; if (item) { item.title = title; item.body = body; item.tags = tags; item.tagArray = tags ? tags.split(',').map(t => t.trim()) : []; item.isPrivate = isPrivate; } initStack(); renderLibrary(); refreshTags(); await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', id: editId, title, body, tags, isPrivate }) }); }
+        async function toggleCardPrivacy(index) { const item = filteredMeditations[index]; if (!item) return; item.isPrivate = !item.isPrivate; initStack(); renderLibrary(); await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', id: item.id, title: item.title, body: item.body, tags: item.tags, isPrivate: item.isPrivate }) }); }
+        function togglePrivateMode(allow, force) { settings.showPrivate = allow; if(!force) localStorage.setItem('showPrivate', allow); document.getElementById('private-on').classList.toggle('selected', allow); document.getElementById('private-off').classList.toggle('selected', !allow); if (allMeditations.length > 0 && !force) applyFilters(); }
+        async function deleteCurrentQuote() { if(!confirm("Send to the Catacombs?")) return; const idToDelete = filteredMeditations[getCurrentCardIndex()].id; toggleEditorModal(); const currentCard = document.querySelector('.quote-card.current'); if(currentCard) currentCard.style.opacity = 0; await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'delete', id: idToDelete }) }); fetchQuotes(); }
+        function toGreekCipher(text) { return text.split('').map(char => greekMap[char] || char).join(''); }
+        function setTheme(theme) { localStorage.setItem('theme', theme); if (theme === 'auto') { const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches; document.body.setAttribute('data-theme', prefersDark ? 'dark' : 'light'); } else { document.body.setAttribute('data-theme', theme); } document.querySelectorAll('[id^="theme-"]').forEach(el => el.classList.remove('selected')); document.getElementById('theme-' + theme).classList.add('selected'); }
+        function setDecoration(deco) { document.body.setAttribute('data-decoration', deco); localStorage.setItem('decoration', deco); document.querySelectorAll('[id^="deco-"]').forEach(el => el.classList.remove('selected')); document.getElementById('deco-' + deco).classList.add('selected'); }
+        function setFont(font) { document.body.setAttribute('data-font', font); localStorage.setItem('font', font); document.querySelectorAll('[id^="font-"]').forEach(el => el.classList.remove('selected')); document.getElementById('font-' + font).classList.add('selected'); }
+        function setStyle(style) { document.body.setAttribute('data-style', style); localStorage.setItem('style', style); document.querySelectorAll('[id^="style-"]').forEach(el => el.classList.remove('selected')); document.getElementById('style-' + style).classList.add('selected'); }
+        function saveSheetUrl() { const url = document.getElementById('sheet-url-input').value; if(url) { localStorage.setItem('sheetUrl', url); window.open(url, '_blank'); } }
 
         init();
     </script>
