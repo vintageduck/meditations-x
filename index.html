@@ -14,6 +14,7 @@
 
     <style>
         :root {
+            /* Base Colors */
             --bg-color: #f4f1ea;
             --text-color: #2c2c2c;
             --accent-color: #8c7b75;
@@ -26,6 +27,7 @@
             --link-color: #a05a2c;
             --seal-color: #b94e48; /* Wax Red */
             
+            /* Fonts */
             --font-main: 'Playfair Display', serif;
             --font-ui: 'Lato', sans-serif;
             --font-header: 'Cinzel', serif;
@@ -50,6 +52,24 @@
         [data-font="grand"] { --font-main: 'Pinyon Script', cursive; }
         [data-font="greek"] { --font-main: 'GFS Didot', serif; }
         [data-style="italic"] { --font-style: italic; }
+
+        /* Ionic Layer */
+        [data-decoration="ionic"] .quote-card {
+            border-left: 5px double var(--accent-color);
+            border-right: 5px double var(--accent-color);
+        }
+        [data-decoration="ionic"] .quote-card::before {
+            content: ''; display: block; height: 4px; width: 80%;
+            margin: 0 auto; border-top: 1px solid var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
+            margin-bottom: 20px; opacity: 0.6; pointer-events: none;
+        }
+        [data-decoration="ionic"] .quote-card::after {
+            content: ''; display: block; height: 4px; width: 80%;
+            margin: 20px auto 0 auto; border-top: 2px solid var(--accent-color);
+            border-bottom: 1px solid var(--accent-color);
+            opacity: 0.6; pointer-events: none;
+        }
 
         body {
             background-color: var(--bg-color); color: var(--text-color);
@@ -126,24 +146,6 @@
             transition: transform 0.1s ease-out; 
         }
 
-        /* Ionic Decoration */
-        [data-decoration="ionic"] .quote-card {
-            border-left: 5px double var(--accent-color);
-            border-right: 5px double var(--accent-color);
-        }
-        [data-decoration="ionic"] .quote-card::before {
-            content: ''; display: block; height: 4px; width: 80%;
-            margin: 0 auto; border-top: 1px solid var(--accent-color);
-            border-bottom: 2px solid var(--accent-color);
-            margin-bottom: 20px; opacity: 0.6; pointer-events: none;
-        }
-        [data-decoration="ionic"] .quote-card::after {
-            content: ''; display: block; height: 4px; width: 80%;
-            margin: 20px auto 0 auto; border-top: 2px solid var(--accent-color);
-            border-bottom: 1px solid var(--accent-color);
-            opacity: 0.6; pointer-events: none;
-        }
-
         .quote-card.next {
             transform: scale(0.92) translateY(25px); opacity: 0.5; z-index: 1;
             filter: blur(0.5px); pointer-events: none;
@@ -200,8 +202,7 @@
         }
         /* Blind Wisdom Mode */
         .blind-mode .card-date, .blind-mode .card-title { opacity: 0; transition: opacity 0.5s; }
-        .blind-mode .card-body { filter: blur(0); } /* Body remains visible? Prompt said hide context */
-        /* Let's interpret Blind Wisdom as: Hide Author/Date context, just show text. */
+        .blind-mode .card-body { filter: blur(0); }
         
         [data-font="grand"] .card-body { font-size: 1.8rem; line-height: 1.4; }
         [data-font="greek"] .card-body { font-size: 1.45rem; line-height: 1.5; }
@@ -319,9 +320,7 @@
 </head>
 <body>
 
-    <!-- 7. Memento Mori -->
     <div id="memento-mori"></div>
-
     <div id="toast">Copied to Scriptorium</div>
 
     <header>
@@ -340,7 +339,9 @@
         
         <!-- CARD VIEW -->
         <div id="card-view" class="view active">
-            <div id="card-stack"></div>
+            <div id="card-stack">
+                <div style="text-align:center; padding-top:100px; opacity:0.6;">Consulting the archives...</div>
+            </div>
             <div id="mode-indicator">Random Mode</div>
             <div class="controls">
                 <button class="main-btn" onclick="forceThrow(1)">Next Wisdom</button>
@@ -366,12 +367,11 @@
                             <option value="catacombs">The Catacombs</option>
                         </select>
                     </div>
-                    <button class="option-btn" onclick="toggleConstellationView()" title="Constellation View" style="flex:0; width:40px;">âœ§</button>
+                    <button class="option-btn" onclick="toggleConstellationView()" title="Constellation View" style="flex:0; width:40px;">★</button>
                 </div>
             </div>
             
             <div class="library-list" id="library-list"></div>
-            <!-- 10. Constellation View -->
             <div id="constellation-container"></div>
         </div>
     </div>
@@ -395,7 +395,6 @@
                 </div>
             </div>
 
-            <!-- 3. The Agora -->
             <div class="settings-group">
                 <span class="settings-label">The Agora (Audio)</span>
                 <div class="option-grid">
@@ -430,7 +429,7 @@
                 <div class="option-grid">
                     <div class="option-btn" onclick="setFont('standard')" id="font-standard">Std</div>
                     <div class="option-btn" onclick="setFont('grand')" id="font-grand" style="font-family:'Pinyon Script'">Grand</div>
-                    <div class="option-btn" onclick="setFont('greek')" id="font-greek" style="font-family:'GFS Didot'">Î“Î¡Î•Î•Îš</div>
+                    <div class="option-btn" onclick="setFont('greek')" id="font-greek" style="font-family:'GFS Didot'">ΓΡΕΕΚ</div>
                 </div>
             </div>
             
@@ -452,7 +451,6 @@
         <div class="modal-content">
             <h3 id="editor-title" class="modal-header">New Meditation</h3>
             <input type="text" id="input-title" placeholder="Title (e.g., On Morning Coffee)">
-            <!-- 5. Socratic Prompt will be inserted here -->
             <textarea id="input-body" placeholder="Write your thought..."></textarea>
             <input type="text" id="input-tags" placeholder="Tags (comma separated)">
             
@@ -480,11 +478,9 @@
         let allMeditations = [];
         let filteredMeditations = [];
         let allTags = new Set();
-        
         let activeQueue = []; 
         let queuePointer = 0; 
         
-        // App State
         let settings = {
             showPrivate: false,
             parallax: false,
@@ -496,9 +492,8 @@
 
         let isEditing = false;
         let editId = null;
-        let audioCtx = null; // Web Audio Context
+        let audioCtx = null;
 
-        // 5. Socratic Prompts
         const prompts = [
             "What is outside my control today?",
             "Who annoyed me, and why is it my fault?",
@@ -508,32 +503,36 @@
             "What virtue did I neglect today?"
         ];
 
+        // Safe Unicode Greek Map
         const greekMap = {
-            'a': 'Î±', 'b': 'Î²', 'c': 'Ï‡', 'd': 'Î´', 'e': 'Îµ', 'f': 'Ï†', 'g': 'Î³', 'h': 'Î·', 'i': 'Î¹', 'j': 'Ï†', 'k': 'Îº', 'l': 'Î»', 'm': 'Î¼', 'n': 'Î½', 'o': 'Î¿', 'p': 'Ï€', 'q': 'Î¸', 'r': 'Ï ', 's': 'Ïƒ', 't': 'Ï„', 'u': 'Ï…', 'v': 'Ï…', 'w': 'Ï‰', 'x': 'Î¾', 'y': 'Ïˆ', 'z': 'Î¶', 'A': 'Î‘', 'B': 'Î’', 'C': 'Î§', 'D': 'Î”', 'E': 'Î•', 'F': 'Î¦', 'G': 'Î“', 'H': 'Î—', 'I': 'Î™', 'J': 'Î¦', 'K': 'Îš', 'L': 'Î›', 'M': 'Îœ', 'N': 'Î ', 'O': 'ÎŸ', 'P': 'Î ', 'Q': 'Î˜', 'R': 'Î¡', 'S': 'Î£', 'T': 'Î¤', 'U': 'Î¥', 'V': 'Î¥', 'W': 'Î©', 'X': 'Îž', 'Y': 'Î¨', 'Z': 'Î–'
+            'a': 'α', 'b': 'β', 'c': 'ψ', 'd': 'δ', 'e': 'ε', 'f': 'φ', 'g': 'γ', 
+            'h': 'η', 'i': 'ι', 'j': 'ξ', 'k': 'κ', 'l': 'λ', 'm': 'μ', 'n': 'ν', 
+            'o': 'ο', 'p': 'π', 'q': 'ς', 'r': 'ρ', 's': 'σ', 't': 'τ', 'u': 'υ', 
+            'v': 'ν', 'w': 'ω', 'x': 'χ', 'y': 'υ', 'z': 'ζ',
+            'A': 'Α', 'B': 'Β', 'C': 'Ψ', 'D': 'Δ', 'E': 'Ε', 'F': 'Φ', 'G': 'Γ', 
+            'H': 'Η', 'I': 'Ι', 'J': 'Ξ', 'K': 'Κ', 'L': 'Λ', 'M': 'Μ', 'N': 'Ν', 
+            'O': 'Ο', 'P': 'Π', 'Q': 'Σ', 'R': 'Ρ', 'S': 'Σ', 'T': 'Τ', 'U': 'Υ', 
+            'V': 'Ν', 'W': 'Ω', 'X': 'Χ', 'Y': 'Υ', 'Z': 'Ζ'
         };
 
         function init() {
-            // Load Settings
             setTheme(localStorage.getItem('theme') || 'auto');
             setDecoration(localStorage.getItem('decoration') || 'none');
             setFont(localStorage.getItem('font') || 'standard');
             setStyle(localStorage.getItem('style') || 'roman');
             
-            // Boolean Settings
             ['showPrivate', 'parallax', 'haptics', 'memento', 'blind'].forEach(k => {
                 const val = localStorage.getItem(k);
                 settings[k] = val === 'true';
                 if(k === 'showPrivate') togglePrivateMode(settings.showPrivate, true);
-                else toggleSetting(k, true); // true = force UI update only
+                else toggleSetting(k, true);
             });
 
-            // Audio setting
             setAudio(localStorage.getItem('audio') || 'off');
 
             const savedSheetUrl = localStorage.getItem('sheetUrl');
             if(savedSheetUrl) document.getElementById('sheet-url-input').value = savedSheetUrl;
 
-            // Keyboard Listeners
             document.addEventListener('keydown', (e) => {
                 if(document.getElementById('editor-modal').style.display === 'flex') return;
                 if(document.getElementById('library-view').classList.contains('active')) return;
@@ -542,33 +541,36 @@
                 if (e.key === ' ') { e.preventDefault(); forceThrow(-1); }
             });
 
-            // 2. Parallax Listener
             window.addEventListener('deviceorientation', handleParallax);
 
             fetchQuotes();
         }
 
-        // --- DATA ---
         async function fetchQuotes() {
             try {
                 const response = await fetch(API_URL);
                 const data = await response.json();
-                allMeditations = data.map(item => ({
-                    ...item,
-                    dateObj: new Date(item.date),
-                    tagArray: item.tags ? item.tags.split(',').map(t => t.trim()) : []
-                }));
+                
+                if (data.error) throw new Error(data.error);
+                
+                allMeditations = data.map(item => {
+                    // Safe Date Parsing
+                    let d = new Date(item.date);
+                    if (isNaN(d.getTime())) d = new Date(); // Fallback to now if broken
+                    return {
+                        ...item,
+                        dateObj: d,
+                        tagArray: item.tags ? item.tags.split(',').map(t => t.trim()) : []
+                    };
+                });
                 applyFilters();
             } catch (error) {
-                document.getElementById('card-stack').innerHTML = `<div style="text-align:center; padding-top:100px;">The archives are unreachable.</div>`;
+                document.getElementById('card-stack').innerHTML = `<div style="text-align:center; padding-top:100px; line-height:1.6;">The archives are silent.<br><small style="opacity:0.6;">${error.message || "Check API URL"}</small></div>`;
             }
         }
 
         function applyFilters() {
-            // Standard Filter Logic
             filteredMeditations = allMeditations.filter(m => {
-                // If checking "Deleted" (Catacombs), allow deleted items
-                // But for the MAIN stack, exclude deleted items.
                 if (m.isDeleted) return false; 
                 if (m.isPrivate && !settings.showPrivate) return false;
                 return true;
@@ -586,9 +588,12 @@
             updateTagFilterDropdown();
         }
 
-        // --- QUEUE LOGIC ---
         function generateRandomQueue() {
             document.getElementById('mode-indicator').innerText = "Oracle Mode";
+            if (filteredMeditations.length === 0) {
+                activeQueue = [];
+                return;
+            }
             activeQueue = filteredMeditations.map((_, i) => i);
             for (let i = activeQueue.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -607,11 +612,19 @@
             queuePointer = foundPtr !== -1 ? foundPtr : 0;
         }
 
-        function getNextCardIndex() { return activeQueue[(queuePointer + 1) % activeQueue.length]; }
-        function getCurrentCardIndex() { return activeQueue[queuePointer]; }
-        function advanceQueue() { queuePointer = (queuePointer + 1) % activeQueue.length; }
+        function getNextCardIndex() { 
+            if(activeQueue.length === 0) return -1;
+            return activeQueue[(queuePointer + 1) % activeQueue.length]; 
+        }
+        function getCurrentCardIndex() { 
+            if(activeQueue.length === 0) return -1;
+            return activeQueue[queuePointer]; 
+        }
+        function advanceQueue() { 
+            if(activeQueue.length === 0) return;
+            queuePointer = (queuePointer + 1) % activeQueue.length; 
+        }
 
-        // --- RENDER ---
         function initStack() {
             const container = document.getElementById('card-stack');
             container.innerHTML = '';
@@ -619,8 +632,12 @@
                 container.innerHTML = '<div style="text-align:center; padding-top:100px; opacity:0.6;">Silence.<br>No wisdom found.</div>';
                 return;
             }
-            createCardElement(getNextCardIndex(), 'next');
-            createCardElement(getCurrentCardIndex(), 'current');
+            // Logic: if only 1 card, create it as current. If >1, create next then current.
+            const idxNext = getNextCardIndex();
+            const idxCurr = getCurrentCardIndex();
+            
+            if (idxNext !== -1 && idxNext !== idxCurr) createCardElement(idxNext, 'next');
+            if (idxCurr !== -1) createCardElement(idxCurr, 'current');
         }
 
         function createCardElement(index, type) {
@@ -629,7 +646,7 @@
 
             const card = document.createElement('div');
             card.className = `quote-card ${type}`;
-            if (settings.blind) card.classList.add('blind-mode'); // 8. Blind Mode
+            if (settings.blind) card.classList.add('blind-mode');
             card.dataset.index = index;
             
             const dateStr = formatOxfordDate(item.dateObj);
@@ -647,11 +664,9 @@
             const sealStamp = item.isSealed ? 'stamped' : '';
 
             card.innerHTML = `
-                <!-- 1. Wax Seal Graphic -->
                 <div class="wax-seal ${sealStamp}">
                     <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" /><path d="M30 50 L70 50 M50 30 L50 70" stroke="rgba(0,0,0,0.2)" stroke-width="5"/></svg>
                 </div>
-
                 <div class="card-actions">
                     <button class="action-btn" ontouchstart="event.stopPropagation()" onmousedown="event.stopPropagation()" onclick="openEditModal(${index})">
                         <svg class="icon" viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
@@ -662,12 +677,10 @@
                     <button class="action-btn ${lockedClass}" ontouchstart="event.stopPropagation()" onmousedown="event.stopPropagation()" onclick="toggleCardPrivacy(${index})">
                          <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                     </button>
-                    <!-- 1. Seal Button -->
                     <button class="action-btn ${sealedClass}" ontouchstart="event.stopPropagation()" onmousedown="event.stopPropagation()" onclick="toggleSeal(${index})">
                          <svg class="icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
                     </button>
                 </div>
-                
                 <div class="card-date">${dateStr}</div>
                 <div class="card-title" style="display:${item.title ? 'block' : 'none'}">${item.title}</div>
                 <div class="card-body" onclick="revealBlind(this)">${displayBody}</div>
@@ -678,36 +691,25 @@
             if(type === 'current') attachPhysics(card);
         }
 
-        // 8. Blind Mode Logic
+        // --- CORE FUNCTIONS (Physics, Toggles, etc) ---
         function revealBlind(el) {
-            if (settings.blind) {
-                const card = el.closest('.quote-card');
-                card.classList.remove('blind-mode');
-            }
+            if (settings.blind) el.closest('.quote-card').classList.remove('blind-mode');
         }
 
-        // 1. Seal Logic
         async function toggleSeal(index) {
             const item = filteredMeditations[index];
             if (!item) return;
             item.isSealed = !item.isSealed;
             if(settings.haptics) navigator.vibrate(50);
-            
-            // Update UI
             initStack();
-            // Send
             await fetch(API_URL, {
                 method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'update', id: item.id, isSealed: item.isSealed })
             });
         }
 
-        // --- PHYSICS & HAPTICS (9) ---
         function attachPhysics(card) {
-            let startX = 0, startY = 0;
-            let isDragging = false;
-            let startTime = 0;
-
+            let startX = 0, startY = 0, isDragging = false, startTime = 0;
             const onStart = (e) => {
                 if(e.target.closest('button') || e.target.closest('.wiki-link')) return;
                 isDragging = true;
@@ -716,7 +718,6 @@
                 startTime = Date.now();
                 card.classList.add('moving');
             };
-
             const onMove = (e) => {
                 if (!isDragging) return;
                 const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
@@ -726,41 +727,30 @@
                 const rotate = deltaX * 0.05; 
                 card.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${rotate}deg) scale(1.02)`;
             };
-
             const onEnd = (e) => {
                 if (!isDragging) return;
                 isDragging = false;
                 card.classList.remove('moving');
                 const clientX = e.type.includes('mouse') ? e.clientX : e.changedTouches[0].clientX;
-                const clientY = e.type.includes('mouse') ? e.clientY : e.changedTouches[0].clientY;
                 const deltaX = clientX - startX;
-                const deltaY = clientY - startY;
                 const velocityX = deltaX / (Date.now() - startTime);
-
                 if (Math.abs(deltaX) > 100 || Math.abs(velocityX) > 0.5) {
                     if(settings.haptics) navigator.vibrate(20);
                     const dirX = deltaX > 0 ? 1 : -1;
                     forceThrow(dirX * -1); 
                 } else {
-                    card.classList.add('resetting');
-                    card.style.transform = '';
+                    card.classList.add('resetting'); card.style.transform = '';
                     setTimeout(() => card.classList.remove('resetting'), 500);
                 }
             };
-
-            card.addEventListener('mousedown', onStart);
-            window.addEventListener('mousemove', onMove);
-            window.addEventListener('mouseup', onEnd);
-            card.addEventListener('touchstart', onStart, {passive: true});
-            card.addEventListener('touchmove', onMove, {passive: true});
-            card.addEventListener('touchend', onEnd, {passive: true});
+            card.addEventListener('mousedown', onStart); window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onEnd);
+            card.addEventListener('touchstart', onStart, {passive: true}); card.addEventListener('touchmove', onMove, {passive: true}); card.addEventListener('touchend', onEnd, {passive: true});
         }
 
         function forceThrow(direction) {
             const card = document.querySelector('.quote-card.current');
             if (card) {
-                const throwClass = direction > 0 ? 'thrown-left' : 'thrown-right';
-                card.classList.add(throwClass);
+                card.classList.add(direction > 0 ? 'thrown-left' : 'thrown-right');
                 setTimeout(() => completeSwipe(), 300);
             }
         }
@@ -771,49 +761,36 @@
             advanceQueue();
             const nextCard = document.querySelector('.quote-card.next');
             if (nextCard) {
-                nextCard.classList.remove('next');
-                nextCard.classList.add('resetting');
+                nextCard.classList.remove('next'); nextCard.classList.add('resetting');
                 void nextCard.offsetWidth; 
-                nextCard.classList.add('current');
-                nextCard.style.transform = '';
-                nextCard.style.filter = '';
+                nextCard.classList.add('current'); nextCard.style.transform = ''; nextCard.style.filter = '';
                 attachPhysics(nextCard);
                 setTimeout(() => nextCard.classList.remove('resetting'), 500);
             }
-            createCardElement(getNextCardIndex(), 'next');
+            // Always ensure next card exists if queue > 1
+            const nextIdx = getNextCardIndex();
+            if (nextIdx !== -1 && nextIdx !== getCurrentCardIndex()) {
+                createCardElement(nextIdx, 'next');
+            }
             if(settings.haptics) navigator.vibrate(10);
         }
 
-        // --- 2. PARALLAX ---
         function handleParallax(e) {
             if (!settings.parallax) return;
             const card = document.querySelector('.quote-card.current');
             if (!card) return;
-            
-            // Limit tilt logic
             const tiltX = Math.min(Math.max(e.gamma, -20), 20); 
             const tiltY = Math.min(Math.max(e.beta - 45, -20), 20);
-            
             card.style.transform = `translate(${tiltX}px, ${tiltY}px)`;
-            // Subtle 3D shadow shift
             card.style.boxShadow = `${-tiltX}px ${15 - tiltY}px 40px rgba(0,0,0,0.15)`;
         }
 
-        // --- 3. AGORA (Audio) ---
         function setAudio(mode) {
-            settings.audio = mode;
-            localStorage.setItem('audio', mode);
-            
-            // UI
+            settings.audio = mode; localStorage.setItem('audio', mode);
             document.getElementById('audio-off').classList.toggle('selected', mode === 'off');
             document.getElementById('audio-rain').classList.toggle('selected', mode === 'rain');
-
-            if (mode === 'off') {
-                if (audioCtx) audioCtx.close();
-                audioCtx = null;
-            } else if (mode === 'rain') {
-                startRainNoise();
-            }
+            if (mode === 'off') { if (audioCtx) audioCtx.close(); audioCtx = null; }
+            else if (mode === 'rain') startRainNoise();
         }
 
         function startRainNoise() {
@@ -822,6 +799,7 @@
             const bufferSize = 2 * audioCtx.sampleRate;
             const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
             const output = noiseBuffer.getChannelData(0);
+            let lastOut = 0;
             for (let i = 0; i < bufferSize; i++) {
                 const white = Math.random() * 2 - 1;
                 output[i] = (lastOut + (0.02 * white)) / 1.02;
@@ -829,83 +807,49 @@
                 output[i] *= 3.5; 
             }
             const noise = audioCtx.createBufferSource();
-            noise.buffer = noiseBuffer;
-            noise.loop = true;
+            noise.buffer = noiseBuffer; noise.loop = true;
             const gainNode = audioCtx.createGain();
-            gainNode.gain.value = 0.05; // Gentle volume
-            noise.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
+            gainNode.gain.value = 0.05;
+            noise.connect(gainNode); gainNode.connect(audioCtx.destination);
             noise.start(0);
         }
-        let lastOut = 0;
 
-        // --- 7. MEMENTO MORI ---
         function updateMementoMori() {
-            if (!settings.memento) {
-                document.getElementById('memento-mori').style.opacity = 0;
-                return;
-            }
+            if (!settings.memento) { document.getElementById('memento-mori').style.opacity = 0; return; }
             const now = new Date();
             const start = new Date(now.getFullYear(), 0, 0);
-            const diff = now - start;
-            const oneDay = 1000 * 60 * 60 * 24;
-            const dayOfYear = Math.floor(diff / oneDay);
-            const percent = (dayOfYear / 365) * 100;
-            
+            const percent = ((now - start) / (1000 * 60 * 60 * 24 * 365)) * 100;
             const bar = document.getElementById('memento-mori');
-            bar.style.opacity = 1;
-            bar.style.width = percent + '%';
+            bar.style.opacity = 1; bar.style.width = percent + '%';
         }
-        setInterval(updateMementoMori, 60000); // Check every minute
+        setInterval(updateMementoMori, 60000);
 
-        // --- 10. CONSTELLATION VIEW ---
         function toggleConstellationView() {
             const container = document.getElementById('constellation-container');
             const list = document.getElementById('library-list');
-            const isVisible = container.style.display === 'block';
-            
-            if (isVisible) {
-                container.style.display = 'none';
-                list.style.display = 'block';
+            if (container.style.display === 'block') {
+                container.style.display = 'none'; list.style.display = 'block';
             } else {
-                container.style.display = 'block';
-                list.style.display = 'none';
-                renderConstellation();
+                container.style.display = 'block'; list.style.display = 'none'; renderConstellation();
             }
         }
 
         function renderConstellation() {
             const container = document.getElementById('constellation-container');
             container.innerHTML = '';
-            // Get Tag counts
             const counts = {};
             filteredMeditations.forEach(m => m.tagArray.forEach(t => counts[t] = (counts[t] || 0) + 1));
-            
             Object.keys(counts).forEach(tag => {
                 const star = document.createElement('div');
-                star.className = 'star-tag';
-                star.setAttribute('data-label', tag);
-                
-                // Size based on count
+                star.className = 'star-tag'; star.setAttribute('data-label', tag);
                 const size = 5 + (counts[tag] * 2); 
-                star.style.width = size + 'px';
-                star.style.height = size + 'px';
-                
-                // Random Pos
-                star.style.top = Math.random() * 90 + '%';
-                star.style.left = Math.random() * 90 + '%';
-                
-                star.onclick = () => {
-                    document.getElementById('tag-filter').value = tag;
-                    renderLibrary(); // Filter
-                    toggleConstellationView(); // Go back to list
-                };
-                
+                star.style.width = size + 'px'; star.style.height = size + 'px';
+                star.style.top = Math.random() * 90 + '%'; star.style.left = Math.random() * 90 + '%';
+                star.onclick = () => { document.getElementById('tag-filter').value = tag; renderLibrary(); toggleConstellationView(); };
                 container.appendChild(star);
             });
         }
 
-        // --- 4. EXPORT SCROLL ---
         function downloadScroll() {
             let content = "# The Meditations of Marston Aurelius\n\n";
             allMeditations.forEach(m => {
@@ -914,43 +858,19 @@
             });
             const blob = new Blob([content], {type: "text/markdown"});
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = "Meditations_Scroll.md";
-            a.click();
+            const a = document.createElement('a'); a.href = url; a.download = "Meditations_Scroll.md"; a.click();
         }
 
-        // --- SETTINGS TOGGLES ---
-        function toggleSetting(key, forceUpdate = false) {
-            if (!forceUpdate) {
-                settings[key] = !settings[key];
-                localStorage.setItem(key, settings[key]);
-            }
-            
-            const btn = document.getElementById(`toggle-${key}`);
-            if (btn) btn.classList.toggle('selected', settings[key]);
-
-            if (key === 'memento') updateMementoMori();
-            
-            // iOS Parallax Permission
-            if (key === 'parallax' && settings.parallax && !forceUpdate && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                DeviceOrientationEvent.requestPermission()
-                    .then(r => { if(r !== 'granted') toggleSetting('parallax'); })
-                    .catch(() => toggleSetting('parallax'));
-            }
-        }
-
-        // --- STANDARD UTILS ---
         function formatOxfordDate(dateObj) {
+            if (isNaN(dateObj.getTime())) return "Timeless";
             const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
             const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
             const dayName = days[dateObj.getDay()];
             const dayNum = dateObj.getDate();
             const monthName = months[dateObj.getMonth()];
-            const year = dateObj.getFullYear();
             const nth = (d) => { if(d>3 && d<21) return 'th'; switch(d%10){case 1:return "st";case 2:return "nd";case 3:return "rd";default:return "th";} };
             const timeStr = dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
-            return `${dayName}, ${dayNum}${nth(dayNum)} ${monthName} ${year} — ${timeStr}`;
+            return `${dayName}, ${dayNum}${nth(dayNum)} ${monthName} ${dateObj.getFullYear()} — ${timeStr}`;
         }
 
         function renderLibrary() {
@@ -958,12 +878,9 @@
             const sortMode = document.getElementById('sort-select').value;
             const filterTag = document.getElementById('tag-filter').value;
             const searchTerm = document.getElementById('library-search').value.toLowerCase();
-            
             list.innerHTML = '';
             
             let displayItems = [];
-            
-            // 6. Catacombs Mode
             if (filterTag === 'catacombs') {
                 displayItems = allMeditations.filter(m => m.isDeleted).map((item, index) => ({...item, originalIndex: -1, realRef: item}));
             } else {
@@ -980,7 +897,6 @@
                 const div = document.createElement('div');
                 div.className = 'library-item';
                 if(item.isDeleted) div.className += ' catacomb-item';
-                
                 div.onclick = () => {
                     if (item.isDeleted) {
                         if(confirm("Restore from Catacombs?")) restoreNote(item.realRef.id);
@@ -991,13 +907,11 @@
                     initStack();
                     switchView('card');
                 };
-                
                 const lockIcon = item.isPrivate ? '• 🔒' : '';
                 const sealIcon = item.isSealed ? '• 🔴' : '';
-                
                 div.innerHTML = `
                     <div class="lib-meta">
-                        <span>${item.dateObj.toLocaleDateString('en-GB')} ${lockIcon} ${sealIcon}</span>
+                        <span>${formatOxfordDate(item.dateObj)} ${lockIcon} ${sealIcon}</span>
                         <span>${item.tagArray.join(', ')}</span>
                     </div>
                     <div class="lib-title">${item.title}</div>
@@ -1008,16 +922,11 @@
         }
 
         async function restoreNote(id) {
-            // Optimistic
-            const note = allMeditations.find(m => m.id === id);
-            if(note) note.isDeleted = false;
-            applyFilters();
+            const note = allMeditations.find(m => m.id === id); if(note) note.isDeleted = false; applyFilters();
             await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', id: id, isDeleted: false }) });
         }
-
         async function permaDelete(id) {
-            allMeditations = allMeditations.filter(m => m.id !== id);
-            applyFilters();
+            allMeditations = allMeditations.filter(m => m.id !== id); applyFilters();
             await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'perma-delete', id: id }) });
         }
 
@@ -1028,51 +937,40 @@
                 .replace(/\*(.*?)\*/g, '<em>$1</em>')
                 .replace(/\[\[(.*?)\]\]/g, '<span class="wiki-link" onclick="searchLibrary(\'$1\')">$1</span>');
         }
-        function searchLibrary(term) {
-            switchView('library');
-            document.getElementById('library-search').value = term;
-            renderLibrary();
-        }
+        function searchLibrary(term) { switchView('library'); document.getElementById('library-search').value = term; renderLibrary(); }
         function copyCardText(index) {
             const item = filteredMeditations[index];
-            const text = `"${item.body}"\n— Marston Aurelius (${item.dateObj.toLocaleDateString('en-GB')})`;
+            const text = `"${item.body}"\n— Marston Aurelius (${formatOxfordDate(item.dateObj)})`;
             navigator.clipboard.writeText(text).then(() => {
-                const toast = document.getElementById('toast');
-                toast.style.opacity = 1; setTimeout(() => toast.style.opacity = 0, 2000);
+                const toast = document.getElementById('toast'); toast.style.opacity = 1; setTimeout(() => toast.style.opacity = 0, 2000);
             });
         }
-        function openAddModal() {
-            isEditing = false;
-            document.getElementById('editor-title').innerText = "New Meditation";
-            document.getElementById('input-title').value = "";
-            document.getElementById('input-body').value = "";
-            // 5. Socratic Prompt
-            document.getElementById('input-body').placeholder = prompts[Math.floor(Math.random() * prompts.length)];
-            document.getElementById('input-tags').value = "";
-            document.getElementById('input-private').checked = false;
-            document.getElementById('modal-submit-btn').innerText = "Scribe";
-            document.getElementById('modal-submit-btn').onclick = submitCreate;
-            document.getElementById('delete-container').style.display = 'none';
-            toggleEditorModal();
-        }
-        // Standard Utils
-        function updateTagFilterDropdown() { const select = document.getElementById('tag-filter'); const currentVal = select.value; select.innerHTML = '<option value="all">Filter: All Tags</option><option value="sealed">Sealed Only</option><option value="catacombs">The Catacombs</option>'; Array.from(allTags).sort().forEach(tag => { if(tag) { const option = document.createElement('option'); option.value = tag; option.innerText = tag; select.appendChild(option); } }); select.value = currentVal; }
-        function switchView(viewName) { document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active')); const activeTab = Array.from(document.querySelectorAll('.nav-item')).find(el => el.innerText.toLowerCase().includes(viewName === 'card' ? 'oracle' : 'library')); if(activeTab) activeTab.classList.add('active'); document.querySelectorAll('.view').forEach(el => el.classList.remove('active')); document.getElementById(viewName + '-view').classList.add('active'); }
+        
+        function toGreekCipher(text) { return text.split('').map(char => greekMap[char] || char).join(''); }
+        function toggleSetting(key, forceUpdate) { if (!forceUpdate) { settings[key] = !settings[key]; localStorage.setItem(key, settings[key]); } const btn = document.getElementById(`toggle-${key}`); if (btn) btn.classList.toggle('selected', settings[key]); if (key === 'memento') updateMementoMori(); if (key === 'parallax' && settings.parallax && !forceUpdate && typeof DeviceOrientationEvent.requestPermission === 'function') { DeviceOrientationEvent.requestPermission().then(r => { if(r !== 'granted') toggleSetting('parallax'); }).catch(() => toggleSetting('parallax')); } }
+        function togglePrivateMode(allow, force) { settings.showPrivate = allow; if(!force) localStorage.setItem('showPrivate', allow); document.getElementById('private-on').classList.toggle('selected', allow); document.getElementById('private-off').classList.toggle('selected', !allow); if (allMeditations.length > 0 && !force) applyFilters(); }
+        
+        // Boilerplate Toggles
         function toggleSettingsModal() { const el = document.getElementById('settings-modal'); el.style.display = el.style.display === 'flex' ? 'none' : 'flex'; }
         function openSettings() { toggleSettingsModal(); }
         function toggleEditorModal() { const el = document.getElementById('editor-modal'); el.style.display = el.style.display === 'flex' ? 'none' : 'flex'; }
+        function openAddModal() { isEditing = false; document.getElementById('editor-title').innerText = "New Meditation"; document.getElementById('input-title').value = ""; document.getElementById('input-body').value = ""; document.getElementById('input-body').placeholder = prompts[Math.floor(Math.random() * prompts.length)]; document.getElementById('input-tags').value = ""; document.getElementById('input-private').checked = false; document.getElementById('modal-submit-btn').innerText = "Scribe"; document.getElementById('modal-submit-btn').onclick = submitCreate; document.getElementById('delete-container').style.display = 'none'; toggleEditorModal(); }
         function openEditModal(index) { const item = filteredMeditations[index]; if(!item) return; isEditing = true; editId = item.id; document.getElementById('editor-title').innerText = "Edit Meditation"; document.getElementById('input-title').value = item.title; document.getElementById('input-body').value = item.body; document.getElementById('input-tags').value = item.tags; document.getElementById('input-private').checked = item.isPrivate; document.getElementById('modal-submit-btn').innerText = "Update"; document.getElementById('modal-submit-btn').onclick = () => submitUpdate(index); document.getElementById('delete-container').style.display = 'block'; document.getElementById('delete-btn-text').innerText = "Send to Catacombs"; toggleEditorModal(); }
+        
+        // CRUD
         async function submitCreate() { const title = document.getElementById('input-title').value; const body = document.getElementById('input-body').value; const tags = document.getElementById('input-tags').value; const isPrivate = document.getElementById('input-private').checked; if (!body) return; toggleEditorModal(); await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'create', title, body, tags, isPrivate }) }); fetchQuotes(); }
         async function submitUpdate(originalIndex) { const title = document.getElementById('input-title').value; const body = document.getElementById('input-body').value; const tags = document.getElementById('input-tags').value; const isPrivate = document.getElementById('input-private').checked; if (!body) return; toggleEditorModal(); const item = filteredMeditations[originalIndex]; if (item) { item.title = title; item.body = body; item.tags = tags; item.tagArray = tags ? tags.split(',').map(t => t.trim()) : []; item.isPrivate = isPrivate; } initStack(); renderLibrary(); refreshTags(); await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', id: editId, title, body, tags, isPrivate }) }); }
         async function toggleCardPrivacy(index) { const item = filteredMeditations[index]; if (!item) return; item.isPrivate = !item.isPrivate; initStack(); renderLibrary(); await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', id: item.id, title: item.title, body: item.body, tags: item.tags, isPrivate: item.isPrivate }) }); }
-        function togglePrivateMode(allow, force) { settings.showPrivate = allow; if(!force) localStorage.setItem('showPrivate', allow); document.getElementById('private-on').classList.toggle('selected', allow); document.getElementById('private-off').classList.toggle('selected', !allow); if (allMeditations.length > 0 && !force) applyFilters(); }
         async function deleteCurrentQuote() { if(!confirm("Send to the Catacombs?")) return; const idToDelete = filteredMeditations[getCurrentCardIndex()].id; toggleEditorModal(); const currentCard = document.querySelector('.quote-card.current'); if(currentCard) currentCard.style.opacity = 0; await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'delete', id: idToDelete }) }); fetchQuotes(); }
-        function toGreekCipher(text) { return text.split('').map(char => greekMap[char] || char).join(''); }
+        
+        // Theme
         function setTheme(theme) { localStorage.setItem('theme', theme); if (theme === 'auto') { const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches; document.body.setAttribute('data-theme', prefersDark ? 'dark' : 'light'); } else { document.body.setAttribute('data-theme', theme); } document.querySelectorAll('[id^="theme-"]').forEach(el => el.classList.remove('selected')); document.getElementById('theme-' + theme).classList.add('selected'); }
         function setDecoration(deco) { document.body.setAttribute('data-decoration', deco); localStorage.setItem('decoration', deco); document.querySelectorAll('[id^="deco-"]').forEach(el => el.classList.remove('selected')); document.getElementById('deco-' + deco).classList.add('selected'); }
         function setFont(font) { document.body.setAttribute('data-font', font); localStorage.setItem('font', font); document.querySelectorAll('[id^="font-"]').forEach(el => el.classList.remove('selected')); document.getElementById('font-' + font).classList.add('selected'); }
         function setStyle(style) { document.body.setAttribute('data-style', style); localStorage.setItem('style', style); document.querySelectorAll('[id^="style-"]').forEach(el => el.classList.remove('selected')); document.getElementById('style-' + style).classList.add('selected'); }
         function saveSheetUrl() { const url = document.getElementById('sheet-url-input').value; if(url) { localStorage.setItem('sheetUrl', url); window.open(url, '_blank'); } }
+        function updateTagFilterDropdown() { const select = document.getElementById('tag-filter'); const currentVal = select.value; select.innerHTML = '<option value="all">Filter: All Tags</option><option value="sealed">Sealed Only</option><option value="catacombs">The Catacombs</option>'; Array.from(allTags).sort().forEach(tag => { if(tag) { const option = document.createElement('option'); option.value = tag; option.innerText = tag; select.appendChild(option); } }); select.value = currentVal; }
+        function switchView(viewName) { document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active')); const activeTab = Array.from(document.querySelectorAll('.nav-item')).find(el => el.innerText.toLowerCase().includes(viewName === 'card' ? 'oracle' : 'library')); if(activeTab) activeTab.classList.add('active'); document.querySelectorAll('.view').forEach(el => el.classList.remove('active')); document.getElementById(viewName + '-view').classList.add('active'); }
 
         init();
     </script>
