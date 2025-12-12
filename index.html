@@ -3,202 +3,965 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Marston Aurelius (Diagnostic)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Lato:wght@400;700&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-    <style>
-        body { background: #1a1a1a; color: #e0e0e0; font-family: 'Playfair Display', serif; display: flex; flex-direction: column; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
-        
-        /* DIAGNOSTIC CONSOLE */
-        #console {
-            position: fixed; top: 0; left: 0; width: 100%; height: 40vh;
-            background: rgba(0,0,0,0.9); color: #00ff00; font-family: monospace;
-            font-size: 12px; padding: 10px; box-sizing: border-box;
-            overflow-y: auto; z-index: 9999; border-bottom: 2px solid #00ff00;
-            display: block; /* Visible by default for debugging */
-        }
-        .log-entry { margin-bottom: 5px; border-bottom: 1px solid #333; padding-bottom: 2px; }
-        .error { color: #ff3333; font-weight: bold; }
-        .success { color: #33ff33; }
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Marston Aurelius</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=GFS+Didot&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Pinyon+Script&display=swap" rel="stylesheet">
 
-        /* Normal App UI (Pushed down) */
-        .app-layer { margin-top: 42vh; width: 100%; max-width: 500px; text-align: center; }
-        h1 { font-family: 'Cinzel', serif; color: #8c7b75; letter-spacing: 2px; font-size: 1rem; }
+    <style>
+        :root {
+            /* Base Colors */
+            --bg-color: #f4f1ea;
+            --text-color: #2c2c2c;
+            --accent-color: #8c7b75;
+            --card-bg: #fffbf6;
+            --shadow: 0 15px 40px rgba(0,0,0,0.12);
+            --border-color: #dcd6ce;
+            --tag-bg: #e6e2d8;
+            --danger-color: #a35d5d;
+            --input-bg: #e6e2d8;
+            --link-color: #a05a2c;
+            --seal-color: #b94e48;
+            
+            /* Fonts */
+            --font-main: 'Playfair Display', serif;
+            --font-ui: 'Lato', sans-serif;
+            --font-header: 'Cinzel', serif;
+            --font-style: normal;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --accent-color: #a89f91;
+            --card-bg: #262626;
+            --shadow: 0 15px 40px rgba(0,0,0,0.5);
+            --border-color: #444;
+            --tag-bg: #333;
+            --danger-color: #d97575;
+            --input-bg: #333;
+            --link-color: #d4a373;
+            --seal-color: #8a3b36;
+        }
+
+        /* Font Modes */
+        [data-font="grand"] { --font-main: 'Pinyon Script', cursive; }
+        [data-font="greek"] { --font-main: 'GFS Didot', serif; }
+        [data-style="italic"] { --font-style: italic; }
+
+        /* Ionic Layer */
+        [data-decoration="ionic"] .quote-card {
+            border-left: 5px double var(--accent-color);
+            border-right: 5px double var(--accent-color);
+        }
+        [data-decoration="ionic"] .quote-card::before {
+            content: ''; display: block; height: 4px; width: 80%;
+            margin: 0 auto; border-top: 1px solid var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
+            margin-bottom: 20px; opacity: 0.6; pointer-events: none;
+        }
+        [data-decoration="ionic"] .quote-card::after {
+            content: ''; display: block; height: 4px; width: 80%;
+            margin: 20px auto 0 auto; border-top: 2px solid var(--accent-color);
+            border-bottom: 1px solid var(--accent-color);
+            opacity: 0.6; pointer-events: none;
+        }
+
+        body {
+            background-color: var(--bg-color); color: var(--text-color);
+            font-family: var(--font-main); margin: 0; height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+            transition: background-color 0.5s ease, color 0.5s ease;
+            user-select: none; -webkit-user-select: none;
+        }
+
+        #memento-mori {
+            position: absolute; top: 0; left: 0; height: 3px; 
+            background: var(--accent-color); opacity: 0; width: 0%;
+            transition: width 1s ease, opacity 0.5s ease; z-index: 1000;
+        }
+
+        header {
+            padding: 1rem 1.5rem; text-align: center; flex-shrink: 0;
+            position: relative; z-index: 20; display: flex;
+            justify-content: center; align-items: center;
+        }
+
+        h1 {
+            font-family: var(--font-header); font-size: 1rem;
+            text-transform: uppercase; letter-spacing: 2px;
+            color: var(--accent-color); margin: 0; line-height: 1.4;
+        }
+
+        .settings-btn {
+            position: absolute; right: 20px; background: none; border: none;
+            color: var(--text-color); cursor: pointer; opacity: 0.5; padding: 5px;
+        }
+        .icon {
+            width: 20px; height: 20px; stroke: currentColor; stroke-width: 2;
+            stroke-linecap: round; stroke-linejoin: round; fill: none;
+        }
+
+        /* --- NAVIGATION --- */
+        .nav-bar {
+            display: flex; justify-content: center; gap: 25px;
+            margin-bottom: 10px; flex-shrink: 0; z-index: 20;
+        }
+        .nav-item {
+            font-family: var(--font-ui); font-size: 0.75rem;
+            text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
+            padding-bottom: 5px; opacity: 0.4; border-bottom: 2px solid transparent; font-weight: 700;
+        }
+        .nav-item.active { opacity: 1; border-bottom-color: var(--accent-color); }
+
+        .view-container { flex-grow: 1; position: relative; width: 100%; overflow: hidden; }
+        .view {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+            box-sizing: border-box; padding: 0 1.5rem 1.5rem 1.5rem;
+        }
+        .view.active { opacity: 1; pointer-events: all; }
+
+        /* --- CARD STACK --- */
+        #card-stack {
+            position: relative; width: 100%; max-width: 500px;
+            height: 65vh; max-height: 550px; margin: 0 auto; perspective: 1500px;
+        }
+
+        .quote-card {
+            background: var(--card-bg); padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+            border-radius: 4px; box-shadow: var(--shadow);
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            box-sizing: border-box; border: 1px solid var(--border-color);
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            will-change: transform; transform-origin: center center;
+            transition: transform 0.1s ease-out; 
+        }
+
+        .quote-card.next {
+            transform: scale(0.92) translateY(25px); opacity: 0.5; z-index: 1;
+            filter: blur(0.5px); pointer-events: none;
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .quote-card.current {
+            transform: scale(1) translate(0, 0); opacity: 1; z-index: 2;
+            cursor: grab; filter: blur(0);
+        }
+        .quote-card.moving { transition: none !important; cursor: grabbing; }
+        .quote-card.resetting { transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .quote-card.thrown-left { transition: 0.5s ease-out; transform: translateX(-150%) rotate(-20deg); opacity: 0; }
+        .quote-card.thrown-right { transition: 0.5s ease-out; transform: translateX(150%) rotate(20deg); opacity: 0; }
+
+        /* Card Internals */
+        .card-actions {
+            position: absolute; top: 15px; left: 20px; z-index: 10;
+            display: flex; gap: 10px; align-items: center;
+        }
+        .action-btn {
+            background: none; border: none; padding: 5px; cursor: pointer; opacity: 0.3;
+            color: var(--text-color); transition: 0.3s;
+        }
+        .action-btn:hover { opacity: 1; }
+        .action-btn.active { opacity: 1; color: var(--seal-color); }
+        .action-btn.locked { opacity: 0.8; color: var(--danger-color); }
+
+        .wax-seal {
+            position: absolute; bottom: 20px; right: 20px; width: 80px; height: 80px;
+            opacity: 0; pointer-events: none; z-index: 5; transition: opacity 0.5s, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: scale(1.5);
+        }
+        .wax-seal.stamped { opacity: 0.8; transform: scale(1) rotate(-10deg); }
+        .wax-seal svg { fill: var(--seal-color); filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2)); }
+
+        .card-date {
+            position: absolute; top: 15px; right: 20px; font-family: var(--font-ui);
+            font-size: 0.65rem; opacity: 0.5; text-transform: uppercase;
+        }
+
+        .card-title {
+            font-family: var(--font-ui); font-weight: 700; font-size: 0.9rem;
+            text-transform: uppercase; letter-spacing: 2px; color: var(--accent-color);
+            margin-bottom: 1rem; margin-top: 1rem; flex-shrink: 0;
+        }
+
+        .card-body {
+            font-size: 1.35rem; line-height: 1.6; font-style: var(--font-style);
+            overflow-y: auto; width: 100%; flex-grow: 1;
+            scrollbar-width: thin; scrollbar-color: var(--accent-color) transparent;
+            padding: 0 10px; touch-action: pan-y; white-space: pre-wrap;
+            transition: filter 0.3s ease;
+        }
+        .blind-mode .card-date, .blind-mode .card-title { opacity: 0; transition: opacity 0.5s; }
+        .blind-mode .card-body { filter: blur(0); }
         
-        .card {
-            background: #262626; margin: 20px auto; padding: 40px 20px;
-            border-radius: 4px; border: 1px solid #444; width: 80%; min-height: 200px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        [data-font="grand"] .card-body { font-size: 1.8rem; line-height: 1.4; }
+        [data-font="greek"] .card-body { font-size: 1.45rem; line-height: 1.5; }
+
+        .wiki-link {
+            color: var(--link-color); border-bottom: 1px solid var(--link-color);
+            cursor: pointer; font-weight: 700;
         }
-        .btn {
-            background: none; border: 1px solid #e0e0e0; color: #e0e0e0;
-            padding: 10px 20px; border-radius: 30px; font-family: 'Lato'; text-transform: uppercase;
-            cursor: pointer; margin-top: 20px;
+
+        .tags-container {
+            margin-top: 1.5rem; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; flex-shrink: 0;
         }
+        .tag {
+            font-family: var(--font-ui); font-size: 0.6rem; background: var(--tag-bg);
+            padding: 4px 10px; border-radius: 4px; text-transform: uppercase;
+            letter-spacing: 1px; color: var(--text-color); opacity: 0.8;
+        }
+
+        /* --- LIBRARY VIEWS --- */
+        #library-view { justify-content: flex-start; padding-top: 10px; }
+        .library-controls-group { width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; z-index: 10; }
+        .library-search-input {
+            width: 100%; padding: 10px; border: none; background: var(--input-bg);
+            border-radius: 4px; font-family: var(--font-ui); color: var(--text-color);
+            box-sizing: border-box; font-size: 0.85rem;
+        }
+        .library-filters { display: flex; gap: 10px; width: 100%; }
+        .custom-select-wrapper { flex: 1; position: relative; }
+        select {
+            width: 100%; appearance: none; background: transparent; border: none;
+            border-bottom: 1px solid var(--border-color); padding: 8px 0; color: var(--text-color);
+            font-family: var(--font-ui); font-size: 0.75rem; text-transform: uppercase;
+            letter-spacing: 1px; font-weight: 700; cursor: pointer; border-radius: 0;
+        }
+        
+        .library-list { width: 100%; max-width: 600px; overflow-y: auto; padding-bottom: 100px; }
+        .library-item {
+            background: var(--card-bg); padding: 15px; margin-bottom: 10px;
+            border-radius: 2px; border-left: 3px solid var(--accent-color); cursor: pointer;
+        }
+        .library-item.catacomb-item { opacity: 0.6; border-left-color: var(--text-color); filter: grayscale(1); }
+        
+        .lib-meta { display: flex; justify-content: space-between; font-family: var(--font-ui); font-size: 0.7rem; opacity: 0.6; margin-bottom: 6px; }
+        .lib-title { font-family: var(--font-ui); font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; color: var(--accent-color); }
+        .lib-preview { font-size: 0.95rem; opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--font-ui); }
+
+        #constellation-container {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none;
+        }
+        .star-tag {
+            position: absolute; background: var(--text-color); border-radius: 50%;
+            cursor: pointer; transition: transform 0.3s;
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+        .star-tag:hover::after {
+            content: attr(data-label); position: absolute; bottom: 10px; left: 50%;
+            transform: translateX(-50%); background: var(--bg-color); padding: 2px 5px;
+            font-size: 0.7rem; white-space: nowrap; pointer-events: none;
+        }
+
+        /* --- CONTROLS & MODALS --- */
+        .controls { margin-top: 2rem; }
+        button.main-btn {
+            background: none; border: 1px solid var(--text-color); color: var(--text-color);
+            padding: 12px 28px; font-family: var(--font-ui); font-size: 0.7rem; font-weight: 700;
+            cursor: pointer; text-transform: uppercase; letter-spacing: 1px; border-radius: 50px;
+        }
+        button.main-btn:hover { background: var(--text-color); color: var(--bg-color); }
+
+        .fab {
+            position: absolute; bottom: 30px; right: 30px; width: 56px; height: 56px;
+            border-radius: 50%; background: var(--text-color); color: var(--bg-color);
+            border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex;
+            align-items: center; justify-content: center; z-index: 100; cursor: pointer;
+        }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);
+            z-index: 200; display: none; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: var(--bg-color); padding: 2rem; width: 85%; max-width: 400px;
+            border-radius: 4px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); max-height: 80vh; overflow-y: auto;
+        }
+        .modal-header {
+            font-family: var(--font-ui); text-transform: uppercase; font-size: 0.9rem;
+            margin-top: 0; margin-bottom: 1.5rem; text-align: center; letter-spacing: 1px; font-weight: 700;
+        }
+        input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; background: var(--input-bg); border: none; border-radius: 4px; color: var(--text-color); box-sizing: border-box; font-family: var(--font-ui); }
+        textarea { font-family: var(--font-main); min-height: 120px; resize: none; line-height: 1.5; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 10px; }
+        .modal-actions button { flex: 1; padding: 10px; border: 1px solid var(--text-color); background: none; color: var(--text-color); font-family: var(--font-ui); text-transform: uppercase; font-size: 0.7rem; font-weight: 700; cursor: pointer; border-radius: 4px; }
+        .modal-actions button.primary { background: var(--text-color); color: var(--bg-color); }
+        .checkbox-container { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; font-family: var(--font-ui); font-size: 0.8rem; cursor: pointer; }
+        .checkbox-container input { width: auto; margin: 0; }
+
+        .settings-group { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
+        .settings-label { font-family: var(--font-ui); font-size: 0.7rem; text-transform: uppercase; opacity: 0.6; margin-bottom: 8px; display: block; letter-spacing: 1px; }
+        .option-grid { display: flex; gap: 5px; margin-bottom: 8px; flex-wrap: wrap; }
+        .option-btn {
+            flex: 1; padding: 8px; border: 1px solid var(--border-color); background: var(--card-bg);
+            color: var(--text-color); cursor: pointer; font-family: var(--font-ui); font-size: 0.65rem;
+            text-align: center; border-radius: 4px; display: flex; align-items: center; justify-content: center; min-width: 60px;
+        }
+        .option-btn.selected { background: var(--accent-color); color: #fff; border-color: var(--accent-color); }
+
+        #mode-indicator { position: absolute; bottom: -30px; left: 0; width: 100%; text-align: center; font-family: var(--font-ui); font-size: 0.6rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 2px; }
+        #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text-color); color: var(--bg-color); padding: 10px 20px; border-radius: 30px; font-family: var(--font-ui); font-size: 0.8rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 300; }
+        #debug-console { display:none; position: fixed; top: 0; left: 0; width: 100%; background: red; color: white; padding: 10px; font-family: monospace; font-size: 12px; z-index: 2000; text-align: center; }
+
     </style>
 </head>
 <body>
 
-    <!-- THE MECHANIC'S CONSOLE -->
-    <div id="console">
-        <div class="log-entry">System: Initializing Diagnostic Mode...</div>
+    <div id="debug-console"></div>
+    <div id="memento-mori"></div>
+    <div id="toast">Copied to Scriptorium</div>
+
+    <header>
+        <h1>The Meditations of<br>Marston Aurelius</h1>
+        <button class="settings-btn" onclick="openSettings()" title="Settings">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+    </header>
+
+    <div class="nav-bar">
+        <div class="nav-item active" onclick="switchView('card')">Oracle</div>
+        <div class="nav-item" onclick="switchView('library')">Library</div>
     </div>
 
-    <div class="app-layer">
-        <h1>Marston Aurelius</h1>
-        <div class="card" id="card-display">
-            <div id="status-text">Waiting for connection...</div>
+    <div class="view-container">
+        
+        <div id="card-view" class="view active">
+            <div id="card-stack">
+                <div style="text-align:center; padding-top:100px; opacity:0.6;">Consulting the archives...</div>
+            </div>
+            <div id="mode-indicator">Random Mode</div>
+            <div class="controls">
+                <button class="main-btn" onclick="forceThrow(1)">Next Wisdom</button>
+            </div>
         </div>
-        <button class="btn" onclick="runDiagnostics()">Run Connection Test</button>
+
+        <div id="library-view" class="view">
+            <div class="library-controls-group">
+                <input type="text" id="library-search" class="library-search-input" placeholder="Search wisdom..." onkeyup="renderLibrary()">
+                
+                <div class="library-filters">
+                    <div class="custom-select-wrapper">
+                        <select id="sort-select" onchange="renderLibrary()">
+                            <option value="newest">Sort: Newest</option>
+                            <option value="oldest">Sort: Oldest</option>
+                        </select>
+                    </div>
+                    <div class="custom-select-wrapper">
+                        <select id="tag-filter" onchange="renderLibrary()">
+                            <option value="all">Filter: All Tags</option>
+                            <option value="sealed">Sealed Only</option>
+                            <option value="catacombs">The Catacombs</option>
+                        </select>
+                    </div>
+                    <button class="option-btn" onclick="toggleConstellationView()" title="Constellation View" style="flex:0; width:40px;">★</button>
+                </div>
+            </div>
+            
+            <div class="library-list" id="library-list"></div>
+            <div id="constellation-container"></div>
+        </div>
+    </div>
+
+    <button class="fab" onclick="openAddModal()">
+        <svg class="icon" viewBox="0 0 24 24" style="width:24px; height:24px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    </button>
+
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="modal-header">Settings</h3>
+            <div class="settings-group">
+                <span class="settings-label">Immersive Effects</span>
+                <div class="option-grid">
+                    <div class="option-btn" id="toggle-parallax" onclick="toggleSetting('parallax')">Parallax</div>
+                    <div class="option-btn" id="toggle-haptics" onclick="toggleSetting('haptics')">Haptics</div>
+                    <div class="option-btn" id="toggle-memento" onclick="toggleSetting('memento')">Memento</div>
+                    <div class="option-btn" id="toggle-blind" onclick="toggleSetting('blind')">Blind</div>
+                </div>
+            </div>
+            <div class="settings-group">
+                <span class="settings-label">The Agora (Audio)</span>
+                <div class="option-grid">
+                    <div class="option-btn" id="audio-off" onclick="setAudio('off')">Off</div>
+                    <div class="option-btn" id="audio-rain" onclick="setAudio('rain')">The Stoa</div>
+                </div>
+            </div>
+            <div class="settings-group">
+                <span class="settings-label">Privacy</span>
+                <div class="option-grid">
+                    <div class="option-btn" onclick="togglePrivateMode(false)" id="private-off">Hide Private</div>
+                    <div class="option-btn" onclick="togglePrivateMode(true)" id="private-on">Show Private</div>
+                </div>
+            </div>
+            <div class="settings-group">
+                <span class="settings-label">Stone & Style</span>
+                <div class="option-grid">
+                    <div class="option-btn" onclick="setTheme('light')" id="theme-light">Marble</div>
+                    <div class="option-btn" onclick="setTheme('dark')" id="theme-dark">Slate</div>
+                    <div class="option-btn" onclick="setTheme('auto')" id="theme-auto">Auto</div>
+                </div>
+                <div class="option-grid" style="margin-top:5px;">
+                    <div class="option-btn" onclick="setDecoration('none')" id="deco-none">Minimal</div>
+                    <div class="option-btn" onclick="setDecoration('ionic')" id="deco-ionic">Ionic</div>
+                </div>
+            </div>
+            <div class="settings-group">
+                <span class="settings-label">Script Style</span>
+                <div class="option-grid">
+                    <div class="option-btn" onclick="setFont('standard')" id="font-standard">Std</div>
+                    <div class="option-btn" onclick="setFont('grand')" id="font-grand" style="font-family:'Pinyon Script'">Grand</div>
+                    <div class="option-btn" onclick="setFont('greek')" id="font-greek" style="font-family:'GFS Didot'">ΓΡΕΕΚ</div>
+                </div>
+            </div>
+            <div class="settings-group">
+                <span class="settings-label">Archives</span>
+                <button onclick="downloadScroll()" class="main-btn" style="width:100%; margin-bottom:5px; padding:8px; font-size:0.7rem;">Export Scroll (.md)</button>
+                <input type="text" id="sheet-url-input" placeholder="Paste Google Sheet Edit URL..." style="font-size:0.7rem;">
+                <button onclick="saveSheetUrl()" class="main-btn" style="width:100%; margin-top:5px; padding:8px; font-size:0.7rem;">Open Spreadsheet</button>
+            </div>
+            <div class="modal-actions">
+                <button onclick="toggleSettingsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editor-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="editor-title" class="modal-header">New Meditation</h3>
+            <input type="text" id="input-title" placeholder="Title (e.g., On Morning Coffee)">
+            <textarea id="input-body" placeholder="Write your thought..."></textarea>
+            <input type="text" id="input-tags" placeholder="Tags (comma separated)">
+            <label class="checkbox-container">
+                <input type="checkbox" id="input-private">
+                <span>Mark as Private (Inner Citadel)</span>
+            </label>
+            <div class="modal-actions">
+                <button onclick="toggleEditorModal()">Cancel</button>
+                <button id="modal-submit-btn" class="primary">Scribe</button>
+            </div>
+            <div id="delete-container" style="margin-top:10px; display:none;">
+                <button class="main-btn" id="delete-btn-text" onclick="deleteCurrentQuote()" style="width:100%; border-color:var(--danger-color); color:var(--danger-color);">Delete Note</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // --- 1. PASTE URL HERE ---
-        const API_URL = "https://script.google.com/macros/s/AKfycbyeAgXo2SCcJOToWgbM2O3qdhsxz67NrMotSWjDWbEJafKJ7tLSMm7siu0t278bPqxe/exec"; 
-        // -------------------------
+        // --- CONFIGURATION ---
+        // PASTE YOUR /exec URL HERE
+        const API_URL = "YOUR_GOOGLE_SCRIPT_URL_HERE"; 
+        // ---------------------
 
-        // Logger Function
-        function log(msg, type = 'normal') {
-            const consoleDiv = document.getElementById('console');
-            const entry = document.createElement('div');
-            entry.className = 'log-entry ' + type;
-            const time = new Date().toLocaleTimeString();
-            entry.innerText = `[${time}] ${msg}`;
-            consoleDiv.appendChild(entry);
-            consoleDiv.scrollTop = consoleDiv.scrollHeight;
-        }
-
-        // Global Error Trap ( catches syntax errors )
-        window.onerror = function(message, source, lineno, colno, error) {
-            log(`CRITICAL JS ERROR: ${message} at line ${lineno}`, 'error');
-            return false;
+        let allMeditations = [];
+        let filteredMeditations = [];
+        let allTags = new Set();
+        let activeQueue = []; 
+        let queuePointer = 0; 
+        
+        let settings = {
+            showPrivate: false,
+            parallax: false,
+            haptics: false,
+            memento: false,
+            blind: false,
+            audio: 'off'
         };
 
-        async function runDiagnostics() {
-            log("--- STARTING TEST ---");
-            const status = document.getElementById('status-text');
-            status.innerText = "Testing...";
+        let isEditing = false;
+        let editId = null;
+        let audioCtx = null;
 
-            // Check 1: URL Format
-            if (API_URL.includes("YOUR_GOOGLE")) {
-                log("FAIL: You forgot to paste the Google Script URL in the code.", 'error');
-                status.innerText = "Error: No URL";
-                return;
-            }
-            log(`URL Check: Looks valid (${API_URL.substring(0, 30)}...)`);
+        const prompts = [
+            "What is outside my control today?",
+            "Who annoyed me, and why is it my fault?",
+            "What would a stricter man do?",
+            "If I died tonight, is this note enough?",
+            "Am I acting for the hive, or just the bee?",
+            "What virtue did I neglect today?"
+        ];
 
-            // Check 2: Network Fetch
+        // Safe Unicode Greek Map
+        const greekMap = {
+            'a': '\u03B1', 'b': '\u03B2', 'c': '\u03C8', 'd': '\u03B4', 'e': '\u03B5', 'f': '\u03C6', 'g': '\u03B3', 
+            'h': '\u03B7', 'i': '\u03B9', 'j': '\u03BE', 'k': '\u03BA', 'l': '\u03BB', 'm': '\u03BC', 'n': '\u03BD', 
+            'o': '\u03BF', 'p': '\u03C0', 'q': '\u03C2', 'r': '\u03C1', 's': '\u03C3', 't': '\u03C4', 'u': '\u03C5', 
+            'v': '\u03BD', 'w': '\u03C9', 'x': '\u03C7', 'y': '\u03C5', 'z': '\u03B6',
+            'A': '\u0391', 'B': '\u0392', 'C': '\u03A8', 'D': '\u0394', 'E': '\u0395', 'F': '\u03A6', 'G': '\u0393', 
+            'H': '\u0397', 'I': '\u0399', 'J': '\u039E', 'K': '\u039A', 'L': '\u039B', 'M': '\u039C', 'N': '\u039D', 
+            'O': '\u039F', 'P': '\u03A0', 'Q': '\u03A3', 'R': '\u03A1', 'S': '\u03A3', 'T': '\u03A4', 'U': '\u03A5', 
+            'V': '\u039D', 'W': '\u03A9', 'X': '\u03A7', 'Y': '\u03A5', 'Z': '\u0396'
+        };
+
+        function showDebug(msg) {
+            const dbg = document.getElementById('debug-console');
+            dbg.style.display = 'block';
+            dbg.innerText = "Error: " + msg;
+        }
+
+        function init() {
+            setTheme(localStorage.getItem('theme') || 'auto');
+            setDecoration(localStorage.getItem('decoration') || 'none');
+            setFont(localStorage.getItem('font') || 'standard');
+            setStyle(localStorage.getItem('style') || 'roman');
+            
+            ['showPrivate', 'parallax', 'haptics', 'memento', 'blind'].forEach(k => {
+                const val = localStorage.getItem(k);
+                settings[k] = val === 'true';
+                if(k === 'showPrivate') togglePrivateMode(settings.showPrivate, true);
+                else toggleSetting(k, true);
+            });
+
+            setAudio(localStorage.getItem('audio') || 'off');
+
+            const savedSheetUrl = localStorage.getItem('sheetUrl');
+            if(savedSheetUrl) document.getElementById('sheet-url-input').value = savedSheetUrl;
+
+            document.addEventListener('keydown', (e) => {
+                if(document.getElementById('editor-modal').style.display === 'flex') return;
+                if(document.getElementById('library-view').classList.contains('active')) return;
+                if (e.key === 'ArrowRight') forceThrow(-1);
+                if (e.key === 'ArrowLeft') forceThrow(1);
+                if (e.key === ' ') { e.preventDefault(); forceThrow(-1); }
+            });
+
+            window.addEventListener('deviceorientation', handleParallax);
+
+            fetchQuotes();
+        }
+
+        async function fetchQuotes() {
             try {
-                log("Network: Attempting to contact Google...", 'normal');
+                if (API_URL.includes("YOUR_GOOGLE")) throw new Error("API URL not set in code.");
                 
-                // We add a cache buster to prevent iOS caching old errors
-                const cacheBuster = API_URL + "?t=" + new Date().getTime();
+                const response = await fetch(API_URL);
+                const data = await response.json();
                 
-                const response = await fetch(cacheBuster, {
-                    method: "GET",
-                    headers: { "Content-Type": "text/plain" } // Simple header
+                if (data.error) throw new Error(data.error);
+                
+                allMeditations = data.map(item => {
+                    let d = new Date(item.date);
+                    if (isNaN(d.getTime())) d = new Date(); 
+                    return {
+                        ...item,
+                        dateObj: d,
+                        tagArray: item.tags ? item.tags.split(',').map(t => t.trim()) : []
+                    };
                 });
-
-                log(`Network: Response received. Status: ${response.status}`);
-
-                if (!response.ok) {
-                    log(`FAIL: Server returned error ${response.status}`, 'error');
-                    throw new Error(`HTTP Error ${response.status}`);
-                }
-
-                // Check 3: Data Parsing
-                const textData = await response.text();
-                log(`Data: Raw text received (${textData.length} chars)`);
                 
-                // Try parsing JSON
-                try {
-                    const jsonData = JSON.parse(textData);
-                    log(`JSON: Parsed successfully. Found ${jsonData.length} items.`, 'success');
-                    
-                    if (jsonData.length > 0) {
-                        status.innerText = jsonData[0].body || "Data found but no body text.";
-                        log("SUCCESS: System is operational.", 'success');
-                        log("First item title: " + (jsonData[0].title || "Untitled"));
-                    } else {
-                        status.innerText = "Connected, but Sheet is empty.";
-                        log("WARN: Connected, but returned 0 items.", 'error');
-                    }
-
-                } catch (jsonErr) {
-                    log("FAIL: Could not parse JSON. Google likely returned an HTML login page.", 'error');
-                    log("Preview of data: " + textData.substring(0, 100), 'error');
-                    status.innerText = "Data Error (See Console)";
-                }
-
-            } catch (e) {
-                log(`FAIL: Network Error - ${e.message}`, 'error');
-                if (e.message.includes("Failed to fetch")) {
-                    log("HINT: This usually means a CORS issue or the URL is incomplete.", 'error');
-                }
-                status.innerText = "Connection Failed";
+                if (allMeditations.length === 0) showDebug("Connected, but Sheet is empty.");
+                applyFilters();
+            } catch (error) {
+                showDebug(error.message);
+                document.getElementById('card-stack').innerHTML = `<div style="text-align:center; padding-top:100px; line-height:1.6;">The archives are silent.<br><small style="opacity:0.6;">${error.message}</small></div>`;
             }
         }
 
-        // Auto-run on load
-        setTimeout(runDiagnostics, 1000);
+        function applyFilters() {
+            filteredMeditations = allMeditations.filter(m => {
+                if (m.isDeleted) return false; 
+                if (m.isPrivate && !settings.showPrivate) return false;
+                return true;
+            });
 
+            refreshTags();
+            generateRandomQueue(); 
+            initStack();
+            renderLibrary();
+        }
+
+        function refreshTags() {
+            allTags.clear();
+            filteredMeditations.forEach(m => m.tagArray.forEach(t => allTags.add(t)));
+            updateTagFilterDropdown();
+        }
+
+        function generateRandomQueue() {
+            document.getElementById('mode-indicator').innerText = "Oracle Mode";
+            if (filteredMeditations.length === 0) {
+                activeQueue = [];
+                return;
+            }
+            activeQueue = filteredMeditations.map((_, i) => i);
+            for (let i = activeQueue.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [activeQueue[i], activeQueue[j]] = [activeQueue[j], activeQueue[i]];
+            }
+            queuePointer = 0;
+        }
+
+        function generateChronologicalQueue(startIndexInFiltered) {
+            document.getElementById('mode-indicator').innerText = "History Mode";
+            const sortedIndices = filteredMeditations.map((_, i) => i).sort((a, b) => {
+                return filteredMeditations[b].dateObj - filteredMeditations[a].dateObj;
+            });
+            activeQueue = sortedIndices;
+            const foundPtr = activeQueue.indexOf(startIndexInFiltered);
+            queuePointer = foundPtr !== -1 ? foundPtr : 0;
+        }
+
+        function getNextCardIndex() { 
+            if(activeQueue.length === 0) return -1;
+            return activeQueue[(queuePointer + 1) % activeQueue.length]; 
+        }
+        function getCurrentCardIndex() { 
+            if(activeQueue.length === 0) return -1;
+            return activeQueue[queuePointer]; 
+        }
+        function advanceQueue() { 
+            if(activeQueue.length === 0) return;
+            queuePointer = (queuePointer + 1) % activeQueue.length; 
+        }
+
+        function initStack() {
+            const container = document.getElementById('card-stack');
+            container.innerHTML = '';
+            if(filteredMeditations.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding-top:100px; opacity:0.6;">Silence.<br>No wisdom found.</div>';
+                return;
+            }
+            const idxNext = getNextCardIndex();
+            const idxCurr = getCurrentCardIndex();
+            
+            if (idxNext !== -1 && idxNext !== idxCurr) createCardElement(idxNext, 'next');
+            if (idxCurr !== -1) createCardElement(idxCurr, 'current');
+        }
+
+        function createCardElement(index, type) {
+            const item = filteredMeditations[index];
+            if (!item) return;
+
+            const card = document.createElement('div');
+            card.className = `quote-card ${type}`;
+            if (settings.blind) card.classList.add('blind-mode');
+            card.dataset.index = index;
+            
+            const dateStr = formatOxfordDate(item.dateObj);
+            const currentFont = localStorage.getItem('font');
+            
+            let displayBody = item.body;
+            if (currentFont === 'greek') displayBody = toGreekCipher(item.body);
+            else displayBody = parseMarkdown(item.body);
+            
+            let tagsHtml = '';
+            item.tagArray.forEach(tag => { if(tag) tagsHtml += `<span class="tag">${tag}</span>`; });
+
+            const lockedClass = item.isPrivate ? 'locked' : '';
+            const sealedClass = item.isSealed ? 'active' : '';
+            const sealStamp = item.isSealed ? 'stamped' : '';
+
+            card.innerHTML = `
+                <div class="wax-seal ${sealStamp}">
+                    <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" /><path d="M30 50 L70 50 M50 30 L50 70" stroke="rgba(0,0,0,0.2)" stroke-width="5"/></svg>
+                </div>
+                <div class="card-actions">
+                    <button class="action-btn" ontouchstart="event.stopPropagation()" onmousedown="event.stopPropagation()" onclick="openEditModal(${index})">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                    </button>
+                    <button class="action-btn" ontouchstart="event.stopPropagation()" onmousedown="event.stopPropagation()" onclick="copyCardText(${index})">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+                    </button>
+                    <button class="action-btn ${lockedClass}" ontouchstart="event.stopPropagation()" onmousedown="event.stopPropagation()" onclick="toggleCardPrivacy(${index})">
+                         <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    </button>
+                    <button class="action-btn ${sealedClass}" ontouchstart="event.stopPropagation()" onmousedown="event.stopPropagation()" onclick="toggleSeal(${index})">
+                         <svg class="icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                    </button>
+                </div>
+                <div class="card-date">${dateStr}</div>
+                <div class="card-title" style="display:${item.title ? 'block' : 'none'}">${item.title}</div>
+                <div class="card-body" onclick="revealBlind(this)">${displayBody}</div>
+                <div class="tags-container">${tagsHtml}</div>
+            `;
+
+            document.getElementById('card-stack').appendChild(card);
+            if(type === 'current') attachPhysics(card);
+        }
+
+        function revealBlind(el) {
+            if (settings.blind) el.closest('.quote-card').classList.remove('blind-mode');
+        }
+
+        async function toggleSeal(index) {
+            const item = filteredMeditations[index];
+            if (!item) return;
+            item.isSealed = !item.isSealed;
+            if(settings.haptics) navigator.vibrate(50);
+            initStack();
+            await fetch(API_URL, {
+                method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'update', id: item.id, isSealed: item.isSealed })
+            });
+        }
+
+        function attachPhysics(card) {
+            let startX = 0, startY = 0, isDragging = false, startTime = 0;
+            const onStart = (e) => {
+                if(e.target.closest('button') || e.target.closest('.wiki-link')) return;
+                isDragging = true;
+                startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+                startTime = Date.now();
+                card.classList.add('moving');
+            };
+            const onMove = (e) => {
+                if (!isDragging) return;
+                const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+                const deltaX = clientX - startX;
+                const deltaY = clientY - startY;
+                const rotate = deltaX * 0.05; 
+                card.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${rotate}deg) scale(1.02)`;
+            };
+            const onEnd = (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                card.classList.remove('moving');
+                const clientX = e.type.includes('mouse') ? e.clientX : e.changedTouches[0].clientX;
+                const deltaX = clientX - startX;
+                const velocityX = deltaX / (Date.now() - startTime);
+                if (Math.abs(deltaX) > 100 || Math.abs(velocityX) > 0.5) {
+                    if(settings.haptics) navigator.vibrate(20);
+                    const dirX = deltaX > 0 ? 1 : -1;
+                    forceThrow(dirX * -1); 
+                } else {
+                    card.classList.add('resetting'); card.style.transform = '';
+                    setTimeout(() => card.classList.remove('resetting'), 500);
+                }
+            };
+            card.addEventListener('mousedown', onStart); window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onEnd);
+            card.addEventListener('touchstart', onStart, {passive: true}); card.addEventListener('touchmove', onMove, {passive: true}); card.addEventListener('touchend', onEnd, {passive: true});
+        }
+
+        function forceThrow(direction) {
+            const card = document.querySelector('.quote-card.current');
+            if (card) {
+                card.classList.add(direction > 0 ? 'thrown-left' : 'thrown-right');
+                setTimeout(() => completeSwipe(), 300);
+            }
+        }
+
+        function completeSwipe() {
+            const oldCard = document.querySelector('.quote-card.current');
+            if (oldCard) oldCard.remove();
+            advanceQueue();
+            const nextCard = document.querySelector('.quote-card.next');
+            if (nextCard) {
+                nextCard.classList.remove('next'); nextCard.classList.add('resetting');
+                void nextCard.offsetWidth; 
+                nextCard.classList.add('current'); nextCard.style.transform = ''; nextCard.style.filter = '';
+                attachPhysics(nextCard);
+                setTimeout(() => nextCard.classList.remove('resetting'), 500);
+            }
+            const nextIdx = getNextCardIndex();
+            if (nextIdx !== -1 && nextIdx !== getCurrentCardIndex()) {
+                createCardElement(nextIdx, 'next');
+            }
+            if(settings.haptics) navigator.vibrate(10);
+        }
+
+        function handleParallax(e) {
+            if (!settings.parallax) return;
+            const card = document.querySelector('.quote-card.current');
+            if (!card) return;
+            const tiltX = Math.min(Math.max(e.gamma, -20), 20); 
+            const tiltY = Math.min(Math.max(e.beta - 45, -20), 20);
+            card.style.transform = `translate(${tiltX}px, ${tiltY}px)`;
+            card.style.boxShadow = `${-tiltX}px ${15 - tiltY}px 40px rgba(0,0,0,0.15)`;
+        }
+
+        function setAudio(mode) {
+            settings.audio = mode; localStorage.setItem('audio', mode);
+            document.getElementById('audio-off').classList.toggle('selected', mode === 'off');
+            document.getElementById('audio-rain').classList.toggle('selected', mode === 'rain');
+            if (mode === 'off') { if (audioCtx) audioCtx.close(); audioCtx = null; }
+            else if (mode === 'rain') startRainNoise();
+        }
+
+        function startRainNoise() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const bufferSize = 2 * audioCtx.sampleRate;
+            const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+            let lastOut = 0;
+            for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                output[i] = (lastOut + (0.02 * white)) / 1.02;
+                lastOut = output[i];
+                output[i] *= 3.5; 
+            }
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = noiseBuffer; noise.loop = true;
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.value = 0.05;
+            noise.connect(gainNode); gainNode.connect(audioCtx.destination);
+            noise.start(0);
+        }
+
+        function updateMementoMori() {
+            if (!settings.memento) { document.getElementById('memento-mori').style.opacity = 0; return; }
+            const now = new Date();
+            const start = new Date(now.getFullYear(), 0, 0);
+            const percent = ((now - start) / (1000 * 60 * 60 * 24 * 365)) * 100;
+            const bar = document.getElementById('memento-mori');
+            bar.style.opacity = 1; bar.style.width = percent + '%';
+        }
+        setInterval(updateMementoMori, 60000);
+
+        function toggleConstellationView() {
+            const container = document.getElementById('constellation-container');
+            const list = document.getElementById('library-list');
+            if (container.style.display === 'block') {
+                container.style.display = 'none'; list.style.display = 'block';
+            } else {
+                container.style.display = 'block'; list.style.display = 'none'; renderConstellation();
+            }
+        }
+
+        function renderConstellation() {
+            const container = document.getElementById('constellation-container');
+            container.innerHTML = '';
+            const counts = {};
+            filteredMeditations.forEach(m => m.tagArray.forEach(t => counts[t] = (counts[t] || 0) + 1));
+            Object.keys(counts).forEach(tag => {
+                const star = document.createElement('div');
+                star.className = 'star-tag'; star.setAttribute('data-label', tag);
+                const size = 5 + (counts[tag] * 2); 
+                star.style.width = size + 'px'; star.style.height = size + 'px';
+                star.style.top = Math.random() * 90 + '%'; star.style.left = Math.random() * 90 + '%';
+                star.onclick = () => { document.getElementById('tag-filter').value = tag; renderLibrary(); toggleConstellationView(); };
+                container.appendChild(star);
+            });
+        }
+
+        function downloadScroll() {
+            let content = "# The Meditations of Marston Aurelius\n\n";
+            allMeditations.forEach(m => {
+                const tags = m.tagArray.map(t => `#${t}`).join(' ');
+                content += `## ${m.title || 'Untitled'}\n${formatOxfordDate(m.dateObj)}\n\n${m.body}\n\n${tags}\n\n---\n\n`;
+            });
+            const blob = new Blob([content], {type: "text/markdown"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = "Meditations_Scroll.md"; a.click();
+        }
+
+        function formatOxfordDate(dateObj) {
+            if (isNaN(dateObj.getTime())) return "Timeless";
+            const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            const dayName = days[dateObj.getDay()];
+            const dayNum = dateObj.getDate();
+            const monthName = months[dateObj.getMonth()];
+            const nth = (d) => { if(d>3 && d<21) return 'th'; switch(d%10){case 1:return "st";case 2:return "nd";case 3:return "rd";default:return "th";} };
+            const timeStr = dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+            return `${dayName}, ${dayNum}${nth(dayNum)} ${monthName} ${dateObj.getFullYear()} — ${timeStr}`;
+        }
+
+        function renderLibrary() {
+            const list = document.getElementById('library-list');
+            const sortMode = document.getElementById('sort-select').value;
+            const filterTag = document.getElementById('tag-filter').value;
+            const searchTerm = document.getElementById('library-search').value.toLowerCase();
+            list.innerHTML = '';
+            
+            let displayItems = [];
+            if (filterTag === 'catacombs') {
+                displayItems = allMeditations.filter(m => m.isDeleted).map((item, index) => ({...item, originalIndex: -1, realRef: item}));
+            } else {
+                displayItems = filteredMeditations.map((item, index) => ({...item, originalIndex: index}));
+            }
+
+            if (searchTerm) displayItems = displayItems.filter(i => (i.title && i.title.toLowerCase().includes(searchTerm)) || (i.body && i.body.toLowerCase().includes(searchTerm)));
+            if (filterTag !== 'all' && filterTag !== 'catacombs' && filterTag !== 'sealed') displayItems = displayItems.filter(m => m.tagArray.includes(filterTag));
+            if (filterTag === 'sealed') displayItems = displayItems.filter(m => m.isSealed);
+
+            displayItems.sort((a, b) => sortMode === 'newest' ? b.dateObj - a.dateObj : a.dateObj - b.dateObj);
+
+            displayItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'library-item';
+                if(item.isDeleted) div.className += ' catacomb-item';
+                div.onclick = () => {
+                    if (item.isDeleted) {
+                        if(confirm("Restore from Catacombs?")) restoreNote(item.realRef.id);
+                        else if(confirm("Burn permanently?")) permaDelete(item.realRef.id);
+                        return;
+                    }
+                    generateChronologicalQueue(item.originalIndex);
+                    initStack();
+                    switchView('card');
+                };
+                const lockIcon = item.isPrivate ? '• 🔒' : '';
+                const sealIcon = item.isSealed ? '• 🔴' : '';
+                div.innerHTML = `
+                    <div class="lib-meta">
+                        <span>${formatOxfordDate(item.dateObj)} ${lockIcon} ${sealIcon}</span>
+                        <span>${item.tagArray.join(', ')}</span>
+                    </div>
+                    <div class="lib-title">${item.title}</div>
+                    <div class="lib-preview">${item.body}</div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        async function restoreNote(id) {
+            const note = allMeditations.find(m => m.id === id); if(note) note.isDeleted = false; applyFilters();
+            await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', id: id, isDeleted: false }) });
+        }
+        async function permaDelete(id) {
+            allMeditations = allMeditations.filter(m => m.id !== id); applyFilters();
+            await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'perma-delete', id: id }) });
+        }
+
+        function parseMarkdown(text) {
+            if(!text) return '';
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\[\[(.*?)\]\]/g, '<span class="wiki-link" onclick="searchLibrary(\'$1\')">$1</span>');
+        }
+        function searchLibrary(term) { switchView('library'); document.getElementById('library-search').value = term; renderLibrary(); }
+        function copyCardText(index) {
+            const item = filteredMeditations[index];
+            const text = `"${item.body}"\n— Marston Aurelius (${formatOxfordDate(item.dateObj)})`;
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('toast'); toast.style.opacity = 1; setTimeout(() => toast.style.opacity = 0, 2000);
+            });
+        }
+        
+        function toGreekCipher(text) { return text.split('').map(char => greekMap[char] || char).join(''); }
+        function toggleSetting(key, forceUpdate) { if (!forceUpdate) { settings[key] = !settings[key]; localStorage.setItem(key, settings[key]); } const btn = document.getElementById(`toggle-${key}`); if (btn) btn.classList.toggle('selected', settings[key]); if (key === 'memento') updateMementoMori(); if (key === 'parallax' && settings.parallax && !forceUpdate && typeof DeviceOrientationEvent.requestPermission === 'function') { DeviceOrientationEvent.requestPermission().then(r => { if(r !== 'granted') toggleSetting('parallax'); }).catch(() => toggleSetting('parallax')); } }
+        function togglePrivateMode(allow, force) { settings.showPrivate = allow; if(!force) localStorage.setItem('showPrivate', allow); document.getElementById('private-on').classList.toggle('selected', allow); document.getElementById('private-off').classList.toggle('selected', !allow); if (allMeditations.length > 0 && !force) applyFilters(); }
+        
+        // Boilerplate Toggles
+        function toggleSettingsModal() { const el = document.getElementById('settings-modal'); el.style.display = el.style.display === 'flex' ? 'none' : 'flex'; }
+        function openSettings() { toggleSettingsModal(); }
+        function toggleEditorModal() { const el = document.getElementById('editor-modal'); el.style.display = el.style.display === 'flex' ? 'none' : 'flex'; }
+        function openAddModal() { isEditing = false; document.getElementById('editor-title').innerText = "New Meditation"; document.getElementById('input-title').value = ""; document.getElementById('input-body').value = ""; document.getElementById('input-body').placeholder = prompts[Math.floor(Math.random() * prompts.length)]; document.getElementById('input-tags').value = ""; document.getElementById('input-private').checked = false; document.getElementById('modal-submit-btn').innerText = "Scribe"; document.getElementById('modal-submit-btn').onclick = submitCreate; document.getElementById('delete-container').style.display = 'none'; toggleEditorModal(); }
+        function openEditModal(index) { const item = filteredMeditations[index]; if(!item) return; isEditing = true; editId = item.id; document.getElementById('editor-title').innerText = "Edit Meditation"; document.getElementById('input-title').value = item.title; document.getElementById('input-body').value = item.body; document.getElementById('input-tags').value = item.tags; document.getElementById('input-private').checked = item.isPrivate; document.getElementById('modal-submit-btn').innerText = "Update"; document.getElementById('modal-submit-btn').onclick = () => submitUpdate(index); document.getElementById('delete-container').style.display = 'block'; document.getElementById('delete-btn-text').innerText = "Send to Catacombs"; toggleEditorModal(); }
+        
+        // CRUD
+        async function submitCreate() { const title = document.getElementById('input-title').value; const body = document.getElementById('input-body').value; const tags = document.getElementById('input-tags').value; const isPrivate = document.getElementById('input-private').checked; if (!body) return; toggleEditorModal(); await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'create', title, body, tags, isPrivate }) }); fetchQuotes(); }
+        async function submitUpdate(originalIndex) { const title = document.getElementById('input-title').value; const body = document.getElementById('input-body').value; const tags = document.getElementById('input-tags').value; const isPrivate = document.getElementById('input-private').checked; if (!body) return; toggleEditorModal(); const item = filteredMeditations[originalIndex]; if (item) { item.title = title; item.body = body; item.tags = tags; item.tagArray = tags ? tags.split(',').map(t => t.trim()) : []; item.isPrivate = isPrivate; } initStack(); renderLibrary(); refreshTags(); await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', id: editId, title, body, tags, isPrivate }) }); }
+        async function toggleCardPrivacy(index) { const item = filteredMeditations[index]; if (!item) return; item.isPrivate = !item.isPrivate; initStack(); renderLibrary(); await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', id: item.id, title: item.title, body: item.body, tags: item.tags, isPrivate: item.isPrivate }) }); }
+        async function deleteCurrentQuote() { if(!confirm("Send to the Catacombs?")) return; const idToDelete = filteredMeditations[getCurrentCardIndex()].id; toggleEditorModal(); const currentCard = document.querySelector('.quote-card.current'); if(currentCard) currentCard.style.opacity = 0; await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'delete', id: idToDelete }) }); fetchQuotes(); }
+        
+        // Theme
+        function setTheme(theme) { localStorage.setItem('theme', theme); if (theme === 'auto') { const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches; document.body.setAttribute('data-theme', prefersDark ? 'dark' : 'light'); } else { document.body.setAttribute('data-theme', theme); } document.querySelectorAll('[id^="theme-"]').forEach(el => el.classList.remove('selected')); document.getElementById('theme-' + theme).classList.add('selected'); }
+        function setDecoration(deco) { document.body.setAttribute('data-decoration', deco); localStorage.setItem('decoration', deco); document.querySelectorAll('[id^="deco-"]').forEach(el => el.classList.remove('selected')); document.getElementById('deco-' + deco).classList.add('selected'); }
+        function setFont(font) { document.body.setAttribute('data-font', font); localStorage.setItem('font', font); document.querySelectorAll('[id^="font-"]').forEach(el => el.classList.remove('selected')); document.getElementById('font-' + font).classList.add('selected'); }
+        function setStyle(style) { document.body.setAttribute('data-style', style); localStorage.setItem('style', style); document.querySelectorAll('[id^="style-"]').forEach(el => el.classList.remove('selected')); document.getElementById('style-' + style).classList.add('selected'); }
+        function saveSheetUrl() { const url = document.getElementById('sheet-url-input').value; if(url) { localStorage.setItem('sheetUrl', url); window.open(url, '_blank'); } }
+        function updateTagFilterDropdown() { const select = document.getElementById('tag-filter'); const currentVal = select.value; select.innerHTML = '<option value="all">Filter: All Tags</option><option value="sealed">Sealed Only</option><option value="catacombs">The Catacombs</option>'; Array.from(allTags).sort().forEach(tag => { if(tag) { const option = document.createElement('option'); option.value = tag; option.innerText = tag; select.appendChild(option); } }); select.value = currentVal; }
+        function switchView(viewName) { document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active')); const activeTab = Array.from(document.querySelectorAll('.nav-item')).find(el => el.innerText.toLowerCase().includes(viewName === 'card' ? 'oracle' : 'library')); if(activeTab) activeTab.classList.add('active'); document.querySelectorAll('.view').forEach(el => el.classList.remove('active')); document.getElementById(viewName + '-view').classList.add('active'); }
+
+        init();
     </script>
 </body>
 </html>
-```
-
----
-
-### Step 2: What the Errors Mean
-
-When you open this page, look at the Green/Red text box at the top.
-
-* **Error: "Unexpected token < in JSON..."**
-    * **Meaning:** The app connected, but Google sent back a Login Page (HTML) instead of your data.
-    * **Fix:** In Google Script > Deploy > Manage Deployments, verify "Who has access" is set to **"Anyone"**. If it says "Anyone with Google Account", it will fail.
-
-* **Error: "Failed to fetch"**
-    * **Meaning:** The browser blocked the request entirely.
-    * **Fix:** Usually means the URL is wrong (e.g., ends in `/edit` instead of `/exec`) or you pasted it without quotation marks.
-
-* **Error: "Constraint not satisfied"**
-    * **Meaning:** The spreadsheet logic crashed (e.g., reading a column that doesn't exist).
-    * **Fix:** Ensure you added the **Private**, **Sealed**, and **Deleted** columns (Columns E, F, G) in your spreadsheet.
-
-### Step 3: The "Safe" Google Script
-Just to be 100% sure the brain isn't the problem, here is a simplified script that is impossible to crash. It forces a default value if a column is missing.
-
-1.  Paste this into your Script Editor.
-2.  **Deploy > New Version**. (Crucial).
-
-```javascript
-function doGet() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
-  const rows = sheet.getDataRange().getValues();
-  const output = [];
-
-  // Start at row 1 to skip headers
-  for (let i = 1; i < rows.length; i++) {
-    const row = rows[i];
-    // Simple check: does the row have text in column C (Body)?
-    if (row[2]) {
-      output.push({
-        date: row[0] || new Date(),
-        title: row[1] || "",
-        body: row[2],
-        tags: row[3] || "",
-        isPrivate: row[4] === true,
-        isSealed: row[5] === true,
-        isDeleted: row[6] === true
-      });
-    }
-  }
-
-  return ContentService.createTextOutput(JSON.stringify(output))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-function doPost(e) {
-  // Simple success response for now to test connection
-  return ContentService.createTextOutput(JSON.stringify({result: "success"}))
-    .setMimeType(ContentService.MimeType.JSON);
-}
