@@ -14,7 +14,6 @@
 
     <style>
         :root {
-            /* Base Colors */
             --bg-color: #f4f1ea;
             --text-color: #2c2c2c;
             --accent-color: #8c7b75;
@@ -27,7 +26,6 @@
             --link-color: #a05a2c;
             --seal-color: #b94e48;
             
-            /* Fonts */
             --font-main: 'Playfair Display', serif;
             --font-ui: 'Lato', sans-serif;
             --font-header: 'Cinzel', serif;
@@ -48,7 +46,6 @@
             --seal-color: #8a3b36;
         }
 
-        /* Font Modes */
         [data-font="grand"] { --font-main: 'Pinyon Script', cursive; }
         [data-font="greek"] { --font-main: 'GFS Didot', serif; }
         [data-style="italic"] { --font-style: italic; }
@@ -79,11 +76,13 @@
             user-select: none; -webkit-user-select: none;
         }
 
-        #memento-mori {
-            position: absolute; top: 0; left: 0; height: 3px; 
-            background: var(--accent-color); opacity: 0; width: 0%;
-            transition: width 1s ease, opacity 0.5s ease; z-index: 1000;
+        /* Loading Status Overlay */
+        #loading-overlay {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center; width: 80%; z-index: 50; pointer-events: none;
+            transition: opacity 0.5s;
         }
+        #loading-text { font-family: var(--font-ui); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; }
 
         header {
             padding: 1rem 1.5rem; text-align: center; flex-shrink: 0;
@@ -106,7 +105,6 @@
             stroke-linecap: round; stroke-linejoin: round; fill: none;
         }
 
-        /* --- NAVIGATION --- */
         .nav-bar {
             display: flex; justify-content: center; gap: 25px;
             margin-bottom: 10px; flex-shrink: 0; z-index: 20;
@@ -157,7 +155,6 @@
         .quote-card.thrown-left { transition: 0.5s ease-out; transform: translateX(-150%) rotate(-20deg); opacity: 0; }
         .quote-card.thrown-right { transition: 0.5s ease-out; transform: translateX(150%) rotate(20deg); opacity: 0; }
 
-        /* Card Internals */
         .card-actions {
             position: absolute; top: 15px; left: 20px; z-index: 10;
             display: flex; gap: 10px; align-items: center;
@@ -194,7 +191,6 @@
             overflow-y: auto; width: 100%; flex-grow: 1;
             scrollbar-width: thin; scrollbar-color: var(--accent-color) transparent;
             padding: 0 10px; touch-action: pan-y; white-space: pre-wrap;
-            transition: filter 0.3s ease;
         }
         .blind-mode .card-date, .blind-mode .card-title { opacity: 0; transition: opacity 0.5s; }
         .blind-mode .card-body { filter: blur(0); }
@@ -216,50 +212,7 @@
             letter-spacing: 1px; color: var(--text-color); opacity: 0.8;
         }
 
-        /* --- LIBRARY VIEWS --- */
-        #library-view { justify-content: flex-start; padding-top: 10px; }
-        .library-controls-group { width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; z-index: 10; }
-        .library-search-input {
-            width: 100%; padding: 10px; border: none; background: var(--input-bg);
-            border-radius: 4px; font-family: var(--font-ui); color: var(--text-color);
-            box-sizing: border-box; font-size: 0.85rem;
-        }
-        .library-filters { display: flex; gap: 10px; width: 100%; }
-        .custom-select-wrapper { flex: 1; position: relative; }
-        select {
-            width: 100%; appearance: none; background: transparent; border: none;
-            border-bottom: 1px solid var(--border-color); padding: 8px 0; color: var(--text-color);
-            font-family: var(--font-ui); font-size: 0.75rem; text-transform: uppercase;
-            letter-spacing: 1px; font-weight: 700; cursor: pointer; border-radius: 0;
-        }
-        
-        .library-list { width: 100%; max-width: 600px; overflow-y: auto; padding-bottom: 100px; }
-        .library-item {
-            background: var(--card-bg); padding: 15px; margin-bottom: 10px;
-            border-radius: 2px; border-left: 3px solid var(--accent-color); cursor: pointer;
-        }
-        .library-item.catacomb-item { opacity: 0.6; border-left-color: var(--text-color); filter: grayscale(1); }
-        
-        .lib-meta { display: flex; justify-content: space-between; font-family: var(--font-ui); font-size: 0.7rem; opacity: 0.6; margin-bottom: 6px; }
-        .lib-title { font-family: var(--font-ui); font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; color: var(--accent-color); }
-        .lib-preview { font-size: 0.95rem; opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--font-ui); }
-
-        #constellation-container {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: none;
-        }
-        .star-tag {
-            position: absolute; background: var(--text-color); border-radius: 50%;
-            cursor: pointer; transition: transform 0.3s;
-            box-shadow: 0 0 10px var(--accent-color);
-        }
-        .star-tag:hover::after {
-            content: attr(data-label); position: absolute; bottom: 10px; left: 50%;
-            transform: translateX(-50%); background: var(--bg-color); padding: 2px 5px;
-            font-size: 0.7rem; white-space: nowrap; pointer-events: none;
-        }
-
-        /* --- CONTROLS & MODALS --- */
+        /* --- CONTROLS --- */
         .controls { margin-top: 2rem; }
         button.main-btn {
             background: none; border: 1px solid var(--text-color); color: var(--text-color);
@@ -275,19 +228,23 @@
             align-items: center; justify-content: center; z-index: 100; cursor: pointer;
         }
 
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);
-            z-index: 200; display: none; align-items: center; justify-content: center;
-        }
-        .modal-content {
-            background: var(--bg-color); padding: 2rem; width: 85%; max-width: 400px;
-            border-radius: 4px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); max-height: 80vh; overflow-y: auto;
-        }
-        .modal-header {
-            font-family: var(--font-ui); text-transform: uppercase; font-size: 0.9rem;
-            margin-top: 0; margin-bottom: 1.5rem; text-align: center; letter-spacing: 1px; font-weight: 700;
-        }
+        /* --- LIBRARY --- */
+        #library-view { justify-content: flex-start; padding-top: 10px; }
+        .library-controls-group { width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; z-index: 10; }
+        .library-search-input { width: 100%; padding: 10px; border: none; background: var(--input-bg); border-radius: 4px; font-family: var(--font-ui); color: var(--text-color); box-sizing: border-box; font-size: 0.85rem; }
+        .library-filters { display: flex; gap: 10px; width: 100%; }
+        .custom-select-wrapper { flex: 1; position: relative; }
+        select { width: 100%; appearance: none; background: transparent; border: none; border-bottom: 1px solid var(--border-color); padding: 8px 0; color: var(--text-color); font-family: var(--font-ui); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; cursor: pointer; border-radius: 0; }
+        .library-list { width: 100%; max-width: 600px; overflow-y: auto; padding-bottom: 100px; }
+        .library-item { background: var(--card-bg); padding: 15px; margin-bottom: 10px; border-radius: 2px; border-left: 3px solid var(--accent-color); cursor: pointer; }
+        .lib-meta { display: flex; justify-content: space-between; font-family: var(--font-ui); font-size: 0.7rem; opacity: 0.6; margin-bottom: 6px; }
+        .lib-title { font-family: var(--font-ui); font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; color: var(--accent-color); }
+        .lib-preview { font-size: 0.95rem; opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--font-ui); }
+
+        /* --- MODALS --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); z-index: 200; display: none; align-items: center; justify-content: center; }
+        .modal-content { background: var(--bg-color); padding: 2rem; width: 85%; max-width: 400px; border-radius: 4px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); max-height: 80vh; overflow-y: auto; }
+        .modal-header { font-family: var(--font-ui); text-transform: uppercase; font-size: 0.9rem; margin-top: 0; margin-bottom: 1.5rem; text-align: center; letter-spacing: 1px; font-weight: 700; }
         input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; background: var(--input-bg); border: none; border-radius: 4px; color: var(--text-color); box-sizing: border-box; font-family: var(--font-ui); }
         textarea { font-family: var(--font-main); min-height: 120px; resize: none; line-height: 1.5; }
         .modal-actions { display: flex; gap: 10px; margin-top: 10px; }
@@ -299,23 +256,21 @@
         .settings-group { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
         .settings-label { font-family: var(--font-ui); font-size: 0.7rem; text-transform: uppercase; opacity: 0.6; margin-bottom: 8px; display: block; letter-spacing: 1px; }
         .option-grid { display: flex; gap: 5px; margin-bottom: 8px; flex-wrap: wrap; }
-        .option-btn {
-            flex: 1; padding: 8px; border: 1px solid var(--border-color); background: var(--card-bg);
-            color: var(--text-color); cursor: pointer; font-family: var(--font-ui); font-size: 0.65rem;
-            text-align: center; border-radius: 4px; display: flex; align-items: center; justify-content: center; min-width: 60px;
-        }
+        .option-btn { flex: 1; padding: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); cursor: pointer; font-family: var(--font-ui); font-size: 0.65rem; text-align: center; border-radius: 4px; display: flex; align-items: center; justify-content: center; min-width: 60px; }
         .option-btn.selected { background: var(--accent-color); color: #fff; border-color: var(--accent-color); }
 
         #mode-indicator { position: absolute; bottom: -30px; left: 0; width: 100%; text-align: center; font-family: var(--font-ui); font-size: 0.6rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 2px; }
         #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text-color); color: var(--bg-color); padding: 10px 20px; border-radius: 30px; font-family: var(--font-ui); font-size: 0.8rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 300; }
-        #debug-console { display:none; position: fixed; top: 0; left: 0; width: 100%; background: red; color: white; padding: 10px; font-family: monospace; font-size: 12px; z-index: 2000; text-align: center; }
 
     </style>
 </head>
 <body>
 
-    <div id="debug-console"></div>
-    <div id="memento-mori"></div>
+    <!-- 1. Status Overlay -->
+    <div id="loading-overlay">
+        <div id="loading-text">Initializing...</div>
+    </div>
+
     <div id="toast">Copied to Scriptorium</div>
 
     <header>
@@ -333,9 +288,7 @@
     <div class="view-container">
         
         <div id="card-view" class="view active">
-            <div id="card-stack">
-                <div style="text-align:center; padding-top:100px; opacity:0.6;">Consulting the archives...</div>
-            </div>
+            <div id="card-stack"></div>
             <div id="mode-indicator">Random Mode</div>
             <div class="controls">
                 <button class="main-btn" onclick="forceThrow(1)">Next Wisdom</button>
@@ -345,7 +298,6 @@
         <div id="library-view" class="view">
             <div class="library-controls-group">
                 <input type="text" id="library-search" class="library-search-input" placeholder="Search wisdom..." onkeyup="renderLibrary()">
-                
                 <div class="library-filters">
                     <div class="custom-select-wrapper">
                         <select id="sort-select" onchange="renderLibrary()">
@@ -360,12 +312,9 @@
                             <option value="catacombs">The Catacombs</option>
                         </select>
                     </div>
-                    <button class="option-btn" onclick="toggleConstellationView()" title="Constellation View" style="flex:0; width:40px;">★</button>
                 </div>
             </div>
-            
             <div class="library-list" id="library-list"></div>
-            <div id="constellation-container"></div>
         </div>
     </div>
 
@@ -373,6 +322,7 @@
         <svg class="icon" viewBox="0 0 24 24" style="width:24px; height:24px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
     </button>
 
+    <!-- SETTINGS MODAL -->
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 class="modal-header">Settings</h3>
@@ -380,16 +330,7 @@
                 <span class="settings-label">Immersive Effects</span>
                 <div class="option-grid">
                     <div class="option-btn" id="toggle-parallax" onclick="toggleSetting('parallax')">Parallax</div>
-                    <div class="option-btn" id="toggle-haptics" onclick="toggleSetting('haptics')">Haptics</div>
-                    <div class="option-btn" id="toggle-memento" onclick="toggleSetting('memento')">Memento</div>
                     <div class="option-btn" id="toggle-blind" onclick="toggleSetting('blind')">Blind</div>
-                </div>
-            </div>
-            <div class="settings-group">
-                <span class="settings-label">The Agora (Audio)</span>
-                <div class="option-grid">
-                    <div class="option-btn" id="audio-off" onclick="setAudio('off')">Off</div>
-                    <div class="option-btn" id="audio-rain" onclick="setAudio('rain')">The Stoa</div>
                 </div>
             </div>
             <div class="settings-group">
@@ -416,12 +357,11 @@
                 <div class="option-grid">
                     <div class="option-btn" onclick="setFont('standard')" id="font-standard">Std</div>
                     <div class="option-btn" onclick="setFont('grand')" id="font-grand" style="font-family:'Pinyon Script'">Grand</div>
-                    <div class="option-btn" onclick="setFont('greek')" id="font-greek" style="font-family:'GFS Didot'">ΓΡΕΕΚ</div>
+                    <div class="option-btn" onclick="setFont('greek')" id="font-greek" style="font-family:'GFS Didot'">&#915;&#929;&#917;&#917;&#922;</div>
                 </div>
             </div>
             <div class="settings-group">
                 <span class="settings-label">Archives</span>
-                <button onclick="downloadScroll()" class="main-btn" style="width:100%; margin-bottom:5px; padding:8px; font-size:0.7rem;">Export Scroll (.md)</button>
                 <input type="text" id="sheet-url-input" placeholder="Paste Google Sheet Edit URL..." style="font-size:0.7rem;">
                 <button onclick="saveSheetUrl()" class="main-btn" style="width:100%; margin-top:5px; padding:8px; font-size:0.7rem;">Open Spreadsheet</button>
             </div>
@@ -431,29 +371,29 @@
         </div>
     </div>
 
+    <!-- EDITOR MODAL -->
     <div id="editor-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 id="editor-title" class="modal-header">New Meditation</h3>
-            <input type="text" id="input-title" placeholder="Title (e.g., On Morning Coffee)">
+            <input type="text" id="input-title" placeholder="Title">
             <textarea id="input-body" placeholder="Write your thought..."></textarea>
             <input type="text" id="input-tags" placeholder="Tags (comma separated)">
             <label class="checkbox-container">
                 <input type="checkbox" id="input-private">
-                <span>Mark as Private (Inner Citadel)</span>
+                <span>Mark as Private</span>
             </label>
             <div class="modal-actions">
                 <button onclick="toggleEditorModal()">Cancel</button>
                 <button id="modal-submit-btn" class="primary">Scribe</button>
             </div>
             <div id="delete-container" style="margin-top:10px; display:none;">
-                <button class="main-btn" id="delete-btn-text" onclick="deleteCurrentQuote()" style="width:100%; border-color:var(--danger-color); color:var(--danger-color);">Delete Note</button>
+                <button class="main-btn" onclick="deleteCurrentQuote()" style="width:100%; border-color:var(--danger-color); color:var(--danger-color);">Delete Note</button>
             </div>
         </div>
     </div>
 
     <script>
         // --- CONFIGURATION ---
-        // PASTE YOUR /exec URL HERE
         const API_URL = "https://script.google.com/macros/s/AKfycbyeAgXo2SCcJOToWgbM2O3qdhsxz67NrMotSWjDWbEJafKJ7tLSMm7siu0t278bPqxe/exec"; 
         // ---------------------
 
@@ -466,26 +406,13 @@
         let settings = {
             showPrivate: false,
             parallax: false,
-            haptics: false,
-            memento: false,
-            blind: false,
-            audio: 'off'
+            blind: false
         };
 
         let isEditing = false;
         let editId = null;
-        let audioCtx = null;
 
-        const prompts = [
-            "What is outside my control today?",
-            "Who annoyed me, and why is it my fault?",
-            "What would a stricter man do?",
-            "If I died tonight, is this note enough?",
-            "Am I acting for the hive, or just the bee?",
-            "What virtue did I neglect today?"
-        ];
-
-        // Safe Unicode Greek Map
+        // Safe Unicode Greek
         const greekMap = {
             'a': '\u03B1', 'b': '\u03B2', 'c': '\u03C8', 'd': '\u03B4', 'e': '\u03B5', 'f': '\u03C6', 'g': '\u03B3', 
             'h': '\u03B7', 'i': '\u03B9', 'j': '\u03BE', 'k': '\u03BA', 'l': '\u03BB', 'm': '\u03BC', 'n': '\u03BD', 
@@ -497,30 +424,26 @@
             'V': '\u039D', 'W': '\u03A9', 'X': '\u03A7', 'Y': '\u03A5', 'Z': '\u0396'
         };
 
-        function showDebug(msg) {
-            const dbg = document.getElementById('debug-console');
-            dbg.style.display = 'block';
-            dbg.innerText = "Error: " + msg;
+        function setStatus(msg) {
+            document.getElementById('loading-text').innerText = msg;
         }
 
         function init() {
             setTheme(localStorage.getItem('theme') || 'auto');
             setDecoration(localStorage.getItem('decoration') || 'none');
             setFont(localStorage.getItem('font') || 'standard');
-            setStyle(localStorage.getItem('style') || 'roman');
             
-            ['showPrivate', 'parallax', 'haptics', 'memento', 'blind'].forEach(k => {
+            ['showPrivate', 'parallax', 'blind'].forEach(k => {
                 const val = localStorage.getItem(k);
                 settings[k] = val === 'true';
                 if(k === 'showPrivate') togglePrivateMode(settings.showPrivate, true);
                 else toggleSetting(k, true);
             });
 
-            setAudio(localStorage.getItem('audio') || 'off');
-
             const savedSheetUrl = localStorage.getItem('sheetUrl');
             if(savedSheetUrl) document.getElementById('sheet-url-input').value = savedSheetUrl;
 
+            // Keyboard Listeners
             document.addEventListener('keydown', (e) => {
                 if(document.getElementById('editor-modal').style.display === 'flex') return;
                 if(document.getElementById('library-view').classList.contains('active')) return;
@@ -536,12 +459,18 @@
 
         async function fetchQuotes() {
             try {
-                if (API_URL.includes("YOUR_GOOGLE")) throw new Error("API URL not set in code.");
+                setStatus("Connecting to Oracle...");
+                if (API_URL.includes("YOUR_GOOGLE")) throw new Error("API URL missing");
                 
                 const response = await fetch(API_URL);
+                if (!response.ok) throw new Error("Network Error");
+                
+                setStatus("Reading Scrolls...");
                 const data = await response.json();
                 
                 if (data.error) throw new Error(data.error);
+                
+                setStatus(`Found ${data.length} Meditations...`);
                 
                 allMeditations = data.map(item => {
                     let d = new Date(item.date);
@@ -549,15 +478,22 @@
                     return {
                         ...item,
                         dateObj: d,
-                        tagArray: item.tags ? item.tags.split(',').map(t => t.trim()) : []
+                        tagArray: item.tags ? item.tags.split(',').map(t => t.trim()) : [],
+                        // Safe Defaults in case of old script
+                        isPrivate: item.isPrivate === true,
+                        isSealed: item.isSealed === true,
+                        isDeleted: item.isDeleted === true
                     };
                 });
                 
-                if (allMeditations.length === 0) showDebug("Connected, but Sheet is empty.");
-                applyFilters();
+                if (allMeditations.length === 0) setStatus("Archives Empty");
+                else {
+                    document.getElementById('loading-overlay').style.opacity = 0;
+                    applyFilters();
+                }
             } catch (error) {
-                showDebug(error.message);
-                document.getElementById('card-stack').innerHTML = `<div style="text-align:center; padding-top:100px; line-height:1.6;">The archives are silent.<br><small style="opacity:0.6;">${error.message}</small></div>`;
+                setStatus("Error: " + error.message);
+                document.getElementById('loading-text').style.color = 'red';
             }
         }
 
@@ -620,10 +556,8 @@
         function initStack() {
             const container = document.getElementById('card-stack');
             container.innerHTML = '';
-            if(filteredMeditations.length === 0) {
-                container.innerHTML = '<div style="text-align:center; padding-top:100px; opacity:0.6;">Silence.<br>No wisdom found.</div>';
-                return;
-            }
+            if(filteredMeditations.length === 0) return;
+            
             const idxNext = getNextCardIndex();
             const idxCurr = getCurrentCardIndex();
             
@@ -682,50 +616,33 @@
             if(type === 'current') attachPhysics(card);
         }
 
-        function revealBlind(el) {
-            if (settings.blind) el.closest('.quote-card').classList.remove('blind-mode');
-        }
-
-        async function toggleSeal(index) {
-            const item = filteredMeditations[index];
-            if (!item) return;
-            item.isSealed = !item.isSealed;
-            if(settings.haptics) navigator.vibrate(50);
-            initStack();
-            await fetch(API_URL, {
-                method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'update', id: item.id, isSealed: item.isSealed })
-            });
-        }
-
+        // --- PHYSICS & INTERACTION ---
         function attachPhysics(card) {
-            let startX = 0, startY = 0, isDragging = false, startTime = 0;
+            let startX = 0, isDragging = false;
+            
             const onStart = (e) => {
                 if(e.target.closest('button') || e.target.closest('.wiki-link')) return;
                 isDragging = true;
                 startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-                startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-                startTime = Date.now();
                 card.classList.add('moving');
             };
+
             const onMove = (e) => {
                 if (!isDragging) return;
                 const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-                const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
                 const deltaX = clientX - startX;
-                const deltaY = clientY - startY;
                 const rotate = deltaX * 0.05; 
-                card.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${rotate}deg) scale(1.02)`;
+                card.style.transform = `translate(${deltaX}px, 0px) rotate(${rotate}deg)`;
             };
+
             const onEnd = (e) => {
                 if (!isDragging) return;
                 isDragging = false;
                 card.classList.remove('moving');
                 const clientX = e.type.includes('mouse') ? e.clientX : e.changedTouches[0].clientX;
                 const deltaX = clientX - startX;
-                const velocityX = deltaX / (Date.now() - startTime);
-                if (Math.abs(deltaX) > 100 || Math.abs(velocityX) > 0.5) {
-                    if(settings.haptics) navigator.vibrate(20);
+
+                if (Math.abs(deltaX) > 100) {
                     const dirX = deltaX > 0 ? 1 : -1;
                     forceThrow(dirX * -1); 
                 } else {
@@ -733,6 +650,7 @@
                     setTimeout(() => card.classList.remove('resetting'), 500);
                 }
             };
+
             card.addEventListener('mousedown', onStart); window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onEnd);
             card.addEventListener('touchstart', onStart, {passive: true}); card.addEventListener('touchmove', onMove, {passive: true}); card.addEventListener('touchend', onEnd, {passive: true});
         }
@@ -753,7 +671,7 @@
             if (nextCard) {
                 nextCard.classList.remove('next'); nextCard.classList.add('resetting');
                 void nextCard.offsetWidth; 
-                nextCard.classList.add('current'); nextCard.style.transform = ''; nextCard.style.filter = '';
+                nextCard.classList.add('current'); nextCard.style.transform = '';
                 attachPhysics(nextCard);
                 setTimeout(() => nextCard.classList.remove('resetting'), 500);
             }
@@ -761,7 +679,6 @@
             if (nextIdx !== -1 && nextIdx !== getCurrentCardIndex()) {
                 createCardElement(nextIdx, 'next');
             }
-            if(settings.haptics) navigator.vibrate(10);
         }
 
         function handleParallax(e) {
@@ -771,95 +688,16 @@
             const tiltX = Math.min(Math.max(e.gamma, -20), 20); 
             const tiltY = Math.min(Math.max(e.beta - 45, -20), 20);
             card.style.transform = `translate(${tiltX}px, ${tiltY}px)`;
-            card.style.boxShadow = `${-tiltX}px ${15 - tiltY}px 40px rgba(0,0,0,0.15)`;
         }
 
-        function setAudio(mode) {
-            settings.audio = mode; localStorage.setItem('audio', mode);
-            document.getElementById('audio-off').classList.toggle('selected', mode === 'off');
-            document.getElementById('audio-rain').classList.toggle('selected', mode === 'rain');
-            if (mode === 'off') { if (audioCtx) audioCtx.close(); audioCtx = null; }
-            else if (mode === 'rain') startRainNoise();
-        }
-
-        function startRainNoise() {
-            if (audioCtx) return;
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const bufferSize = 2 * audioCtx.sampleRate;
-            const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-            const output = noiseBuffer.getChannelData(0);
-            let lastOut = 0;
-            for (let i = 0; i < bufferSize; i++) {
-                const white = Math.random() * 2 - 1;
-                output[i] = (lastOut + (0.02 * white)) / 1.02;
-                lastOut = output[i];
-                output[i] *= 3.5; 
-            }
-            const noise = audioCtx.createBufferSource();
-            noise.buffer = noiseBuffer; noise.loop = true;
-            const gainNode = audioCtx.createGain();
-            gainNode.gain.value = 0.05;
-            noise.connect(gainNode); gainNode.connect(audioCtx.destination);
-            noise.start(0);
-        }
-
-        function updateMementoMori() {
-            if (!settings.memento) { document.getElementById('memento-mori').style.opacity = 0; return; }
-            const now = new Date();
-            const start = new Date(now.getFullYear(), 0, 0);
-            const percent = ((now - start) / (1000 * 60 * 60 * 24 * 365)) * 100;
-            const bar = document.getElementById('memento-mori');
-            bar.style.opacity = 1; bar.style.width = percent + '%';
-        }
-        setInterval(updateMementoMori, 60000);
-
-        function toggleConstellationView() {
-            const container = document.getElementById('constellation-container');
-            const list = document.getElementById('library-list');
-            if (container.style.display === 'block') {
-                container.style.display = 'none'; list.style.display = 'block';
-            } else {
-                container.style.display = 'block'; list.style.display = 'none'; renderConstellation();
-            }
-        }
-
-        function renderConstellation() {
-            const container = document.getElementById('constellation-container');
-            container.innerHTML = '';
-            const counts = {};
-            filteredMeditations.forEach(m => m.tagArray.forEach(t => counts[t] = (counts[t] || 0) + 1));
-            Object.keys(counts).forEach(tag => {
-                const star = document.createElement('div');
-                star.className = 'star-tag'; star.setAttribute('data-label', tag);
-                const size = 5 + (counts[tag] * 2); 
-                star.style.width = size + 'px'; star.style.height = size + 'px';
-                star.style.top = Math.random() * 90 + '%'; star.style.left = Math.random() * 90 + '%';
-                star.onclick = () => { document.getElementById('tag-filter').value = tag; renderLibrary(); toggleConstellationView(); };
-                container.appendChild(star);
-            });
-        }
-
-        function downloadScroll() {
-            let content = "# The Meditations of Marston Aurelius\n\n";
-            allMeditations.forEach(m => {
-                const tags = m.tagArray.map(t => `#${t}`).join(' ');
-                content += `## ${m.title || 'Untitled'}\n${formatOxfordDate(m.dateObj)}\n\n${m.body}\n\n${tags}\n\n---\n\n`;
-            });
-            const blob = new Blob([content], {type: "text/markdown"});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = "Meditations_Scroll.md"; a.click();
-        }
-
-        function formatOxfordDate(dateObj) {
-            if (isNaN(dateObj.getTime())) return "Timeless";
-            const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-            const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-            const dayName = days[dateObj.getDay()];
-            const dayNum = dateObj.getDate();
-            const monthName = months[dateObj.getMonth()];
-            const nth = (d) => { if(d>3 && d<21) return 'th'; switch(d%10){case 1:return "st";case 2:return "nd";case 3:return "rd";default:return "th";} };
-            const timeStr = dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
-            return `${dayName}, ${dayNum}${nth(dayNum)} ${monthName} ${dateObj.getFullYear()} — ${timeStr}`;
+        // --- CORE UTILS ---
+        function revealBlind(el) { if (settings.blind) el.closest('.quote-card').classList.remove('blind-mode'); }
+        
+        async function toggleSeal(index) {
+            const item = filteredMeditations[index];
+            item.isSealed = !item.isSealed;
+            initStack();
+            await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', id: item.id, isSealed: item.isSealed }) });
         }
 
         function renderLibrary() {
@@ -887,22 +725,13 @@
                 div.className = 'library-item';
                 if(item.isDeleted) div.className += ' catacomb-item';
                 div.onclick = () => {
-                    if (item.isDeleted) {
-                        if(confirm("Restore from Catacombs?")) restoreNote(item.realRef.id);
-                        else if(confirm("Burn permanently?")) permaDelete(item.realRef.id);
-                        return;
-                    }
+                    if (item.isDeleted) return; // Cant open deleted items
                     generateChronologicalQueue(item.originalIndex);
                     initStack();
                     switchView('card');
                 };
-                const lockIcon = item.isPrivate ? '• 🔒' : '';
-                const sealIcon = item.isSealed ? '• 🔴' : '';
                 div.innerHTML = `
-                    <div class="lib-meta">
-                        <span>${formatOxfordDate(item.dateObj)} ${lockIcon} ${sealIcon}</span>
-                        <span>${item.tagArray.join(', ')}</span>
-                    </div>
+                    <div class="lib-meta"><span>${formatOxfordDate(item.dateObj)}</span><span>${item.tagArray.join(', ')}</span></div>
                     <div class="lib-title">${item.title}</div>
                     <div class="lib-preview">${item.body}</div>
                 `;
@@ -910,56 +739,38 @@
             });
         }
 
-        async function restoreNote(id) {
-            const note = allMeditations.find(m => m.id === id); if(note) note.isDeleted = false; applyFilters();
-            await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', id: id, isDeleted: false }) });
+        // --- STANDARD ---
+        function formatOxfordDate(dateObj) {
+            if (isNaN(dateObj.getTime())) return "Timeless";
+            const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            const nth = (d) => { if(d>3 && d<21) return 'th'; switch(d%10){case 1:return "st";case 2:return "nd";case 3:return "rd";default:return "th";} };
+            return `${days[dateObj.getDay()]}, ${dateObj.getDate()}${nth(dateObj.getDate())} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
         }
-        async function permaDelete(id) {
-            allMeditations = allMeditations.filter(m => m.id !== id); applyFilters();
-            await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'perma-delete', id: id }) });
-        }
-
-        function parseMarkdown(text) {
-            if(!text) return '';
-            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                .replace(/\[\[(.*?)\]\]/g, '<span class="wiki-link" onclick="searchLibrary(\'$1\')">$1</span>');
-        }
-        function searchLibrary(term) { switchView('library'); document.getElementById('library-search').value = term; renderLibrary(); }
-        function copyCardText(index) {
-            const item = filteredMeditations[index];
-            const text = `"${item.body}"\n— Marston Aurelius (${formatOxfordDate(item.dateObj)})`;
-            navigator.clipboard.writeText(text).then(() => {
-                const toast = document.getElementById('toast'); toast.style.opacity = 1; setTimeout(() => toast.style.opacity = 0, 2000);
-            });
-        }
-        
         function toGreekCipher(text) { return text.split('').map(char => greekMap[char] || char).join(''); }
-        function toggleSetting(key, forceUpdate) { if (!forceUpdate) { settings[key] = !settings[key]; localStorage.setItem(key, settings[key]); } const btn = document.getElementById(`toggle-${key}`); if (btn) btn.classList.toggle('selected', settings[key]); if (key === 'memento') updateMementoMori(); if (key === 'parallax' && settings.parallax && !forceUpdate && typeof DeviceOrientationEvent.requestPermission === 'function') { DeviceOrientationEvent.requestPermission().then(r => { if(r !== 'granted') toggleSetting('parallax'); }).catch(() => toggleSetting('parallax')); } }
+        function parseMarkdown(text) { if(!text) return ''; return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/\[\[(.*?)\]\]/g, '<span class="wiki-link">$1</span>'); }
+        function copyCardText(index) { navigator.clipboard.writeText(`"${filteredMeditations[index].body}"`).then(() => { const t = document.getElementById('toast'); t.style.opacity = 1; setTimeout(() => t.style.opacity = 0, 2000); }); }
+        
+        function toggleSetting(key, forceUpdate) { if (!forceUpdate) { settings[key] = !settings[key]; localStorage.setItem(key, settings[key]); } const btn = document.getElementById(`toggle-${key}`); if (btn) btn.classList.toggle('selected', settings[key]); if (key === 'parallax' && settings.parallax && !forceUpdate && typeof DeviceOrientationEvent.requestPermission === 'function') DeviceOrientationEvent.requestPermission(); }
         function togglePrivateMode(allow, force) { settings.showPrivate = allow; if(!force) localStorage.setItem('showPrivate', allow); document.getElementById('private-on').classList.toggle('selected', allow); document.getElementById('private-off').classList.toggle('selected', !allow); if (allMeditations.length > 0 && !force) applyFilters(); }
         
-        // Boilerplate Toggles
+        function setTheme(theme) { localStorage.setItem('theme', theme); document.body.setAttribute('data-theme', theme === 'auto' && window.matchMedia("(prefers-color-scheme: dark)").matches ? 'dark' : theme); document.querySelectorAll('[id^="theme-"]').forEach(el => el.classList.remove('selected')); document.getElementById('theme-' + theme).classList.add('selected'); }
+        function setDecoration(deco) { document.body.setAttribute('data-decoration', deco); localStorage.setItem('decoration', deco); document.querySelectorAll('[id^="deco-"]').forEach(el => el.classList.remove('selected')); document.getElementById('deco-' + deco).classList.add('selected'); }
+        function setFont(font) { document.body.setAttribute('data-font', font); localStorage.setItem('font', font); document.querySelectorAll('[id^="font-"]').forEach(el => el.classList.remove('selected')); document.getElementById('font-' + font).classList.add('selected'); }
+        function saveSheetUrl() { const url = document.getElementById('sheet-url-input').value; if(url) { localStorage.setItem('sheetUrl', url); window.open(url, '_blank'); } }
+        function updateTagFilterDropdown() { const select = document.getElementById('tag-filter'); const currentVal = select.value; select.innerHTML = '<option value="all">Filter: All Tags</option><option value="sealed">Sealed Only</option><option value="catacombs">The Catacombs</option>'; Array.from(allTags).sort().forEach(tag => { if(tag) { const option = document.createElement('option'); option.value = tag; option.innerText = tag; select.appendChild(option); } }); select.value = currentVal; }
+        function switchView(viewName) { document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active')); const activeTab = Array.from(document.querySelectorAll('.nav-item')).find(el => el.innerText.toLowerCase().includes(viewName === 'card' ? 'oracle' : 'library')); if(activeTab) activeTab.classList.add('active'); document.querySelectorAll('.view').forEach(el => el.classList.remove('active')); document.getElementById(viewName + '-view').classList.add('active'); }
+        
         function toggleSettingsModal() { const el = document.getElementById('settings-modal'); el.style.display = el.style.display === 'flex' ? 'none' : 'flex'; }
         function openSettings() { toggleSettingsModal(); }
         function toggleEditorModal() { const el = document.getElementById('editor-modal'); el.style.display = el.style.display === 'flex' ? 'none' : 'flex'; }
-        function openAddModal() { isEditing = false; document.getElementById('editor-title').innerText = "New Meditation"; document.getElementById('input-title').value = ""; document.getElementById('input-body').value = ""; document.getElementById('input-body').placeholder = prompts[Math.floor(Math.random() * prompts.length)]; document.getElementById('input-tags').value = ""; document.getElementById('input-private').checked = false; document.getElementById('modal-submit-btn').innerText = "Scribe"; document.getElementById('modal-submit-btn').onclick = submitCreate; document.getElementById('delete-container').style.display = 'none'; toggleEditorModal(); }
+        function openAddModal() { isEditing = false; document.getElementById('editor-title').innerText = "New Meditation"; document.getElementById('input-title').value = ""; document.getElementById('input-body').value = ""; document.getElementById('input-tags').value = ""; document.getElementById('input-private').checked = false; document.getElementById('modal-submit-btn').innerText = "Scribe"; document.getElementById('modal-submit-btn').onclick = submitCreate; document.getElementById('delete-container').style.display = 'none'; toggleEditorModal(); }
         function openEditModal(index) { const item = filteredMeditations[index]; if(!item) return; isEditing = true; editId = item.id; document.getElementById('editor-title').innerText = "Edit Meditation"; document.getElementById('input-title').value = item.title; document.getElementById('input-body').value = item.body; document.getElementById('input-tags').value = item.tags; document.getElementById('input-private').checked = item.isPrivate; document.getElementById('modal-submit-btn').innerText = "Update"; document.getElementById('modal-submit-btn').onclick = () => submitUpdate(index); document.getElementById('delete-container').style.display = 'block'; document.getElementById('delete-btn-text').innerText = "Send to Catacombs"; toggleEditorModal(); }
         
-        // CRUD
         async function submitCreate() { const title = document.getElementById('input-title').value; const body = document.getElementById('input-body').value; const tags = document.getElementById('input-tags').value; const isPrivate = document.getElementById('input-private').checked; if (!body) return; toggleEditorModal(); await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'create', title, body, tags, isPrivate }) }); fetchQuotes(); }
         async function submitUpdate(originalIndex) { const title = document.getElementById('input-title').value; const body = document.getElementById('input-body').value; const tags = document.getElementById('input-tags').value; const isPrivate = document.getElementById('input-private').checked; if (!body) return; toggleEditorModal(); const item = filteredMeditations[originalIndex]; if (item) { item.title = title; item.body = body; item.tags = tags; item.tagArray = tags ? tags.split(',').map(t => t.trim()) : []; item.isPrivate = isPrivate; } initStack(); renderLibrary(); refreshTags(); await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', id: editId, title, body, tags, isPrivate }) }); }
         async function toggleCardPrivacy(index) { const item = filteredMeditations[index]; if (!item) return; item.isPrivate = !item.isPrivate; initStack(); renderLibrary(); await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', id: item.id, title: item.title, body: item.body, tags: item.tags, isPrivate: item.isPrivate }) }); }
         async function deleteCurrentQuote() { if(!confirm("Send to the Catacombs?")) return; const idToDelete = filteredMeditations[getCurrentCardIndex()].id; toggleEditorModal(); const currentCard = document.querySelector('.quote-card.current'); if(currentCard) currentCard.style.opacity = 0; await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'delete', id: idToDelete }) }); fetchQuotes(); }
-        
-        // Theme
-        function setTheme(theme) { localStorage.setItem('theme', theme); if (theme === 'auto') { const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches; document.body.setAttribute('data-theme', prefersDark ? 'dark' : 'light'); } else { document.body.setAttribute('data-theme', theme); } document.querySelectorAll('[id^="theme-"]').forEach(el => el.classList.remove('selected')); document.getElementById('theme-' + theme).classList.add('selected'); }
-        function setDecoration(deco) { document.body.setAttribute('data-decoration', deco); localStorage.setItem('decoration', deco); document.querySelectorAll('[id^="deco-"]').forEach(el => el.classList.remove('selected')); document.getElementById('deco-' + deco).classList.add('selected'); }
-        function setFont(font) { document.body.setAttribute('data-font', font); localStorage.setItem('font', font); document.querySelectorAll('[id^="font-"]').forEach(el => el.classList.remove('selected')); document.getElementById('font-' + font).classList.add('selected'); }
-        function setStyle(style) { document.body.setAttribute('data-style', style); localStorage.setItem('style', style); document.querySelectorAll('[id^="style-"]').forEach(el => el.classList.remove('selected')); document.getElementById('style-' + style).classList.add('selected'); }
-        function saveSheetUrl() { const url = document.getElementById('sheet-url-input').value; if(url) { localStorage.setItem('sheetUrl', url); window.open(url, '_blank'); } }
-        function updateTagFilterDropdown() { const select = document.getElementById('tag-filter'); const currentVal = select.value; select.innerHTML = '<option value="all">Filter: All Tags</option><option value="sealed">Sealed Only</option><option value="catacombs">The Catacombs</option>'; Array.from(allTags).sort().forEach(tag => { if(tag) { const option = document.createElement('option'); option.value = tag; option.innerText = tag; select.appendChild(option); } }); select.value = currentVal; }
-        function switchView(viewName) { document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active')); const activeTab = Array.from(document.querySelectorAll('.nav-item')).find(el => el.innerText.toLowerCase().includes(viewName === 'card' ? 'oracle' : 'library')); if(activeTab) activeTab.classList.add('active'); document.querySelectorAll('.view').forEach(el => el.classList.remove('active')); document.getElementById(viewName + '-view').classList.add('active'); }
 
         init();
     </script>
