@@ -31,7 +31,7 @@
             --font-ui: 'Lato', sans-serif;
             --font-header: 'Cinzel', serif;
             --font-style: normal;
-            --base-font-size: 22px; /* Adjustable via JS */
+            --base-font-size: 22px; 
         }
 
         [data-theme="dark"] {
@@ -51,24 +51,6 @@
         [data-font="grand"] { --font-main: 'Pinyon Script', cursive; }
         [data-font="greek"] { --font-main: 'GFS Didot', serif; }
         [data-style="italic"] { --font-style: italic; }
-
-        /* Ionic Layer */
-        [data-decoration="ionic"] .quote-card {
-            border-left: 5px double var(--accent-color);
-            border-right: 5px double var(--accent-color);
-        }
-        [data-decoration="ionic"] .quote-card::before {
-            content: ''; display: block; height: 4px; width: 80%;
-            margin: 0 auto; border-top: 1px solid var(--accent-color);
-            border-bottom: 2px solid var(--accent-color);
-            margin-bottom: 20px; opacity: 0.6; pointer-events: none;
-        }
-        [data-decoration="ionic"] .quote-card::after {
-            content: ''; display: block; height: 4px; width: 80%;
-            margin: 20px auto 0 auto; border-top: 2px solid var(--accent-color);
-            border-bottom: 1px solid var(--accent-color);
-            opacity: 0.6; pointer-events: none;
-        }
 
         html, body {
             height: 100%; overflow: hidden; overscroll-behavior: none;
@@ -271,6 +253,10 @@
             border: 1px solid var(--danger-color); padding: 1px 5px; border-radius: 3px;
             margin-left: 5px; text-transform: uppercase;
         }
+        .empty-state {
+            text-align: center; opacity: 0.5; font-family: var(--font-ui); 
+            text-transform: uppercase; margin-top: 40px; font-size: 0.8rem; letter-spacing: 1px;
+        }
 
         /* --- BUTTONS --- */
         .controls { margin-top: 2rem; }
@@ -413,7 +399,8 @@
         <!-- LIBRARY VIEW -->
         <div id="library-view" class="view">
             <div class="library-controls-group">
-                <input type="text" id="library-search" class="library-search-input" placeholder="Search wisdom..." onkeyup="renderLibrary()">
+                <!-- UPDATED SEARCH INPUT: Uses oninput for reliability -->
+                <input type="text" id="library-search" class="library-search-input" placeholder="Search wisdom..." oninput="renderLibrary()">
                 
                 <div class="library-filters">
                     <div class="custom-select-wrapper">
@@ -462,13 +449,7 @@
                 </div>
             </div>
             
-            <div class="settings-group">
-                <span class="settings-label">Architecture</span>
-                <div class="option-grid">
-                    <div class="option-btn" onclick="setDecoration('none')" id="deco-none">Minimal</div>
-                    <div class="option-btn" onclick="setDecoration('ionic')" id="deco-ionic">Ionic</div>
-                </div>
-            </div>
+            <!-- REMOVED ARCHITECTURE SECTION HERE -->
             
             <div class="settings-group">
                 <span class="settings-label">Typography</span>
@@ -541,7 +522,7 @@
 
         function init() {
             setTheme(localStorage.getItem('theme') || 'auto');
-            setDecoration(localStorage.getItem('decoration') || 'none');
+            // REMOVED DECORATION INIT
             setFont(localStorage.getItem('font') || 'standard');
             setStyle(localStorage.getItem('style') || 'roman');
             setFontSize(localStorage.getItem('fontSize') || '22');
@@ -864,17 +845,21 @@
             const list = document.getElementById('library-list');
             const sortMode = document.getElementById('sort-select').value;
             const filterTag = document.getElementById('tag-filter').value;
-            const searchTerm = document.getElementById('library-search').value.toLowerCase();
+            
+            // Search Fix: Use String coercion to be safe against nulls/numbers
+            const searchTerm = String(document.getElementById('library-search').value || "").toLowerCase().trim();
             
             list.innerHTML = '';
             
             let displayItems = filteredMeditations.map((item, index) => ({...item, originalIndex: index}));
             
-            // 1. Search Filter
-            if (searchTerm) {
+            // 1. Search Filter (Re-engineered)
+            if (searchTerm.length > 0) {
                 displayItems = displayItems.filter(item => {
-                    const safeTitle = (item.title || "").toLowerCase();
-                    const safeBody = (item.body || "").toLowerCase();
+                    // Convert both to string first, then lower case. 
+                    // This prevents crashes if title is null or body is a number (e.g. year)
+                    const safeTitle = String(item.title || "").toLowerCase();
+                    const safeBody = String(item.body || "").toLowerCase();
                     return safeTitle.includes(searchTerm) || safeBody.includes(searchTerm);
                 });
             }
@@ -888,6 +873,12 @@
             displayItems.sort((a, b) => {
                 return sortMode === 'newest' ? b.dateObj - a.dateObj : a.dateObj - b.dateObj;
             });
+            
+            // 4. Empty State
+            if (displayItems.length === 0) {
+                list.innerHTML = `<div class="empty-state">No scroll matches your query</div>`;
+                return;
+            }
 
             displayItems.forEach(item => {
                 const div = document.createElement('div');
@@ -1071,12 +1062,7 @@
             document.querySelectorAll('[id^="theme-"]').forEach(el => el.classList.remove('selected'));
             document.getElementById('theme-' + theme).classList.add('selected');
         }
-        function setDecoration(deco) {
-            document.body.setAttribute('data-decoration', deco);
-            localStorage.setItem('decoration', deco);
-            document.querySelectorAll('[id^="deco-"]').forEach(el => el.classList.remove('selected'));
-            document.getElementById('deco-' + deco).classList.add('selected');
-        }
+        // Removed setDecoration function
         function setFont(font) {
             document.body.setAttribute('data-font', font);
             localStorage.setItem('font', font);
