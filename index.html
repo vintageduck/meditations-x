@@ -25,7 +25,7 @@
             --danger-color: #a35d5d;
             --input-bg: #e6e2d8;
             --link-color: #a05a2c;
-            --seal-color: #b94e48; /* Wax Red */
+            --seal-color: #b94e48;
             
             /* Fonts */
             --font-main: 'Playfair Display', serif;
@@ -48,7 +48,6 @@
             --seal-color: #8a3b36;
         }
 
-        /* Font Modes */
         [data-font="grand"] { --font-main: 'Pinyon Script', cursive; }
         [data-font="greek"] { --font-main: 'GFS Didot', serif; }
         [data-style="italic"] { --font-style: italic; }
@@ -79,14 +78,12 @@
             user-select: none; -webkit-user-select: none;
         }
 
-        /* --- MEMENTO MORI BAR --- */
         #memento-mori {
             position: absolute; top: 0; left: 0; height: 3px; 
             background: var(--accent-color); opacity: 0; width: 0%;
             transition: width 1s ease, opacity 0.5s ease; z-index: 1000;
         }
 
-        /* --- HEADER --- */
         header {
             padding: 1rem 1.5rem; text-align: center; flex-shrink: 0;
             position: relative; z-index: 20; display: flex;
@@ -142,7 +139,6 @@
             box-sizing: border-box; border: 1px solid var(--border-color);
             display: flex; flex-direction: column; align-items: center; text-align: center;
             will-change: transform; transform-origin: center center;
-            /* Parallax base transition */
             transition: transform 0.1s ease-out; 
         }
 
@@ -170,10 +166,9 @@
             color: var(--text-color); transition: 0.3s;
         }
         .action-btn:hover { opacity: 1; }
-        .action-btn.active { opacity: 1; color: var(--seal-color); } /* For Sealed */
+        .action-btn.active { opacity: 1; color: var(--seal-color); }
         .action-btn.locked { opacity: 0.8; color: var(--danger-color); }
 
-        /* Wax Seal Graphic */
         .wax-seal {
             position: absolute; bottom: 20px; right: 20px; width: 80px; height: 80px;
             opacity: 0; pointer-events: none; z-index: 5; transition: opacity 0.5s, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -200,7 +195,6 @@
             padding: 0 10px; touch-action: pan-y; white-space: pre-wrap;
             transition: filter 0.3s ease;
         }
-        /* Blind Wisdom Mode */
         .blind-mode .card-date, .blind-mode .card-title { opacity: 0; transition: opacity 0.5s; }
         .blind-mode .card-body { filter: blur(0); }
         
@@ -249,10 +243,9 @@
         .lib-title { font-family: var(--font-ui); font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; color: var(--accent-color); }
         .lib-preview { font-size: 0.95rem; opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--font-ui); }
 
-        /* Constellation View */
         #constellation-container {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: none; /* Hidden by default */
+            display: none;
         }
         .star-tag {
             position: absolute; background: var(--text-color); border-radius: 50%;
@@ -302,7 +295,6 @@
         .checkbox-container { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; font-family: var(--font-ui); font-size: 0.8rem; cursor: pointer; }
         .checkbox-container input { width: auto; margin: 0; }
 
-        /* Settings Groups */
         .settings-group { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
         .settings-label { font-family: var(--font-ui); font-size: 0.7rem; text-transform: uppercase; opacity: 0.6; margin-bottom: 8px; display: block; letter-spacing: 1px; }
         .option-grid { display: flex; gap: 5px; margin-bottom: 8px; flex-wrap: wrap; }
@@ -315,11 +307,13 @@
 
         #mode-indicator { position: absolute; bottom: -30px; left: 0; width: 100%; text-align: center; font-family: var(--font-ui); font-size: 0.6rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 2px; }
         #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text-color); color: var(--bg-color); padding: 10px 20px; border-radius: 30px; font-family: var(--font-ui); font-size: 0.8rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 300; }
+        #debug-console { display:none; position: fixed; top: 0; left: 0; width: 100%; background: red; color: white; padding: 10px; font-family: monospace; font-size: 12px; z-index: 2000; text-align: center; }
 
     </style>
 </head>
 <body>
 
+    <div id="debug-console"></div>
     <div id="memento-mori"></div>
     <div id="toast">Copied to Scriptorium</div>
 
@@ -337,7 +331,6 @@
 
     <div class="view-container">
         
-        <!-- CARD VIEW -->
         <div id="card-view" class="view active">
             <div id="card-stack">
                 <div style="text-align:center; padding-top:100px; opacity:0.6;">Consulting the archives...</div>
@@ -348,7 +341,6 @@
             </div>
         </div>
 
-        <!-- LIBRARY VIEW -->
         <div id="library-view" class="view">
             <div class="library-controls-group">
                 <input type="text" id="library-search" class="library-search-input" placeholder="Search wisdom..." onkeyup="renderLibrary()">
@@ -380,11 +372,9 @@
         <svg class="icon" viewBox="0 0 24 24" style="width:24px; height:24px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
     </button>
 
-    <!-- SETTINGS MODAL -->
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 class="modal-header">Settings</h3>
-            
             <div class="settings-group">
                 <span class="settings-label">Immersive Effects</span>
                 <div class="option-grid">
@@ -394,7 +384,6 @@
                     <div class="option-btn" id="toggle-blind" onclick="toggleSetting('blind')">Blind</div>
                 </div>
             </div>
-
             <div class="settings-group">
                 <span class="settings-label">The Agora (Audio)</span>
                 <div class="option-grid">
@@ -402,7 +391,6 @@
                     <div class="option-btn" id="audio-rain" onclick="setAudio('rain')">The Stoa</div>
                 </div>
             </div>
-
             <div class="settings-group">
                 <span class="settings-label">Privacy</span>
                 <div class="option-grid">
@@ -410,7 +398,6 @@
                     <div class="option-btn" onclick="togglePrivateMode(true)" id="private-on">Show Private</div>
                 </div>
             </div>
-
             <div class="settings-group">
                 <span class="settings-label">Stone & Style</span>
                 <div class="option-grid">
@@ -423,7 +410,6 @@
                     <div class="option-btn" onclick="setDecoration('ionic')" id="deco-ionic">Ionic</div>
                 </div>
             </div>
-            
             <div class="settings-group">
                 <span class="settings-label">Script Style</span>
                 <div class="option-grid">
@@ -432,33 +418,28 @@
                     <div class="option-btn" onclick="setFont('greek')" id="font-greek" style="font-family:'GFS Didot'">ΓΡΕΕΚ</div>
                 </div>
             </div>
-            
             <div class="settings-group">
                 <span class="settings-label">Archives</span>
                 <button onclick="downloadScroll()" class="main-btn" style="width:100%; margin-bottom:5px; padding:8px; font-size:0.7rem;">Export Scroll (.md)</button>
                 <input type="text" id="sheet-url-input" placeholder="Paste Google Sheet Edit URL..." style="font-size:0.7rem;">
                 <button onclick="saveSheetUrl()" class="main-btn" style="width:100%; margin-top:5px; padding:8px; font-size:0.7rem;">Open Spreadsheet</button>
             </div>
-            
             <div class="modal-actions">
                 <button onclick="toggleSettingsModal()">Close</button>
             </div>
         </div>
     </div>
 
-    <!-- EDITOR MODAL -->
     <div id="editor-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 id="editor-title" class="modal-header">New Meditation</h3>
             <input type="text" id="input-title" placeholder="Title (e.g., On Morning Coffee)">
             <textarea id="input-body" placeholder="Write your thought..."></textarea>
             <input type="text" id="input-tags" placeholder="Tags (comma separated)">
-            
             <label class="checkbox-container">
                 <input type="checkbox" id="input-private">
                 <span>Mark as Private (Inner Citadel)</span>
             </label>
-
             <div class="modal-actions">
                 <button onclick="toggleEditorModal()">Cancel</button>
                 <button id="modal-submit-btn" class="primary">Scribe</button>
@@ -505,15 +486,21 @@
 
         // Safe Unicode Greek Map
         const greekMap = {
-            'a': 'α', 'b': 'β', 'c': 'ψ', 'd': 'δ', 'e': 'ε', 'f': 'φ', 'g': 'γ', 
-            'h': 'η', 'i': 'ι', 'j': 'ξ', 'k': 'κ', 'l': 'λ', 'm': 'μ', 'n': 'ν', 
-            'o': 'ο', 'p': 'π', 'q': 'ς', 'r': 'ρ', 's': 'σ', 't': 'τ', 'u': 'υ', 
-            'v': 'ν', 'w': 'ω', 'x': 'χ', 'y': 'υ', 'z': 'ζ',
-            'A': 'Α', 'B': 'Β', 'C': 'Ψ', 'D': 'Δ', 'E': 'Ε', 'F': 'Φ', 'G': 'Γ', 
-            'H': 'Η', 'I': 'Ι', 'J': 'Ξ', 'K': 'Κ', 'L': 'Λ', 'M': 'Μ', 'N': 'Ν', 
-            'O': 'Ο', 'P': 'Π', 'Q': 'Σ', 'R': 'Ρ', 'S': 'Σ', 'T': 'Τ', 'U': 'Υ', 
-            'V': 'Ν', 'W': 'Ω', 'X': 'Χ', 'Y': 'Υ', 'Z': 'Ζ'
+            'a': '\u03B1', 'b': '\u03B2', 'c': '\u03C8', 'd': '\u03B4', 'e': '\u03B5', 'f': '\u03C6', 'g': '\u03B3', 
+            'h': '\u03B7', 'i': '\u03B9', 'j': '\u03BE', 'k': '\u03BA', 'l': '\u03BB', 'm': '\u03BC', 'n': '\u03BD', 
+            'o': '\u03BF', 'p': '\u03C0', 'q': '\u03C2', 'r': '\u03C1', 's': '\u03C3', 't': '\u03C4', 'u': '\u03C5', 
+            'v': '\u03BD', 'w': '\u03C9', 'x': '\u03C7', 'y': '\u03C5', 'z': '\u03B6',
+            'A': '\u0391', 'B': '\u0392', 'C': '\u03A8', 'D': '\u0394', 'E': '\u0395', 'F': '\u03A6', 'G': '\u0393', 
+            'H': '\u0397', 'I': '\u0399', 'J': '\u039E', 'K': '\u039A', 'L': '\u039B', 'M': '\u039C', 'N': '\u039D', 
+            'O': '\u039F', 'P': '\u03A0', 'Q': '\u03A3', 'R': '\u03A1', 'S': '\u03A3', 'T': '\u03A4', 'U': '\u03A5', 
+            'V': '\u039D', 'W': '\u03A9', 'X': '\u03A7', 'Y': '\u03A5', 'Z': '\u0396'
         };
+
+        function showDebug(msg) {
+            const dbg = document.getElementById('debug-console');
+            dbg.style.display = 'block';
+            dbg.innerText = "Error: " + msg;
+        }
 
         function init() {
             setTheme(localStorage.getItem('theme') || 'auto');
@@ -548,24 +535,28 @@
 
         async function fetchQuotes() {
             try {
+                if (API_URL.includes("YOUR_GOOGLE")) throw new Error("API URL not set in code.");
+                
                 const response = await fetch(API_URL);
                 const data = await response.json();
                 
                 if (data.error) throw new Error(data.error);
                 
                 allMeditations = data.map(item => {
-                    // Safe Date Parsing
                     let d = new Date(item.date);
-                    if (isNaN(d.getTime())) d = new Date(); // Fallback to now if broken
+                    if (isNaN(d.getTime())) d = new Date(); 
                     return {
                         ...item,
                         dateObj: d,
                         tagArray: item.tags ? item.tags.split(',').map(t => t.trim()) : []
                     };
                 });
+                
+                if (allMeditations.length === 0) showDebug("Connected, but Sheet is empty.");
                 applyFilters();
             } catch (error) {
-                document.getElementById('card-stack').innerHTML = `<div style="text-align:center; padding-top:100px; line-height:1.6;">The archives are silent.<br><small style="opacity:0.6;">${error.message || "Check API URL"}</small></div>`;
+                showDebug(error.message);
+                document.getElementById('card-stack').innerHTML = `<div style="text-align:center; padding-top:100px; line-height:1.6;">The archives are silent.<br><small style="opacity:0.6;">${error.message}</small></div>`;
             }
         }
 
@@ -632,7 +623,6 @@
                 container.innerHTML = '<div style="text-align:center; padding-top:100px; opacity:0.6;">Silence.<br>No wisdom found.</div>';
                 return;
             }
-            // Logic: if only 1 card, create it as current. If >1, create next then current.
             const idxNext = getNextCardIndex();
             const idxCurr = getCurrentCardIndex();
             
@@ -691,7 +681,6 @@
             if(type === 'current') attachPhysics(card);
         }
 
-        // --- CORE FUNCTIONS (Physics, Toggles, etc) ---
         function revealBlind(el) {
             if (settings.blind) el.closest('.quote-card').classList.remove('blind-mode');
         }
@@ -767,7 +756,6 @@
                 attachPhysics(nextCard);
                 setTimeout(() => nextCard.classList.remove('resetting'), 500);
             }
-            // Always ensure next card exists if queue > 1
             const nextIdx = getNextCardIndex();
             if (nextIdx !== -1 && nextIdx !== getCurrentCardIndex()) {
                 createCardElement(nextIdx, 'next');
