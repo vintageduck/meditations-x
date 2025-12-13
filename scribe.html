@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Scribe</title>
+    
+    <!-- PWA Manifest & Icons -->
+    <link rel="manifest" href="manifest_scribe.json">
+    <link rel="apple-touch-icon" href="quill.png"> 
+    <link rel="icon" href="quill.png" type="image/png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=GFS+Didot&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #f4f1ea;
+            --text-color: #2c2c2c;
+            --accent-color: #8c7b75;
+            --card-bg: #fffbf6;
+            --border-color: #dcd6ce;
+            --input-bg: #e6e2d8;
+            --danger-color: #a35d5d;
+            --font-main: 'Playfair Display', serif;
+            --font-ui: 'Lato', sans-serif;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #1a1a1a;
+                --text-color: #e0e0e0;
+                --accent-color: #a89f91;
+                --card-bg: #262626;
+                --border-color: #444;
+                --input-bg: #333;
+                --danger-color: #d97575;
+            }
+        }
+
+        body {
+            background-color: var(--bg-color); color: var(--text-color);
+            font-family: var(--font-main); margin: 0; height: 100vh;
+            display: flex; flex-direction: column; padding: 20px;
+            box-sizing: border-box; overscroll-behavior: none;
+            padding-top: max(20px, env(safe-area-inset-top));
+        }
+
+        /* --- HEADER --- */
+        .scribe-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; font-family: var(--font-ui); text-transform: uppercase;
+            font-size: 0.8rem; letter-spacing: 2px; color: var(--accent-color); font-weight: 700;
+        }
+        
+        .status-light {
+            width: 8px; height: 8px; border-radius: 50%; background: var(--border-color);
+            transition: background 0.3s;
+        }
+        .status-light.online { background: #6b9c6b; box-shadow: 0 0 5px #6b9c6b; }
+        .status-light.offline { background: var(--danger-color); }
+
+        /* --- INPUTS --- */
+        .input-group { margin-bottom: 15px; position: relative; }
+        
+        input, textarea {
+            width: 100%; border: none; background: transparent;
+            font-family: var(--font-main); color: var(--text-color);
+            box-sizing: border-box; outline: none; transition: 0.2s;
+        }
+        
+        #input-title {
+            font-size: 1.2rem; font-weight: 700; border-bottom: 1px solid var(--border-color);
+            padding: 10px 0; border-radius: 0;
+        }
+        #input-title::placeholder { opacity: 0.4; font-family: var(--font-ui); text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; font-weight: 400; }
+
+        #input-body {
+            font-size: 1.1rem; line-height: 1.6; resize: none; flex-grow: 1;
+            padding: 15px 0; min-height: 200px;
+        }
+        #input-body::placeholder { opacity: 0.4; font-style: italic; }
+
+        #input-tags {
+            font-family: var(--font-ui); font-size: 0.8rem; 
+            padding: 10px 15px; background: var(--input-bg); border-radius: 6px;
+        }
+        #input-tags::placeholder { text-transform: uppercase; letter-spacing: 1px; opacity: 0.5; }
+
+        /* --- PRETTY CHECKBOX (Inner Citadel) --- */
+        .pretty-checkbox {
+            display: flex; align-items: center; gap: 12px;
+            padding: 15px; background: var(--input-bg);
+            border-radius: 8px; cursor: pointer; margin-bottom: 20px;
+            transition: background 0.2s, transform 0.1s; border: 1px solid transparent;
+        }
+        .pretty-checkbox:active { transform: scale(0.98); }
+        .pretty-checkbox.checked {
+            background: var(--card-bg); border: 1px solid var(--accent-color);
+        }
+        .checkbox-visual {
+            width: 22px; height: 22px; border: 2px solid var(--text-color);
+            border-radius: 6px; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; opacity: 0.6;
+        }
+        .pretty-checkbox.checked .checkbox-visual {
+            background: var(--accent-color); border-color: var(--accent-color); opacity: 1;
+        }
+        .checkbox-visual svg {
+            width: 14px; height: 14px; color: var(--bg-color); opacity: 0; transition: 0.2s; stroke-width: 3px;
+        }
+        .pretty-checkbox.checked .checkbox-visual svg { opacity: 1; }
+        .checkbox-label {
+            font-family: var(--font-ui); font-size: 0.8rem; text-transform: uppercase;
+            letter-spacing: 1px; font-weight: 700; color: var(--text-color);
+        }
+
+        /* --- ACTION BAR --- */
+        .action-bar {
+            margin-top: auto; display: flex; gap: 10px;
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+        }
+        
+        button {
+            border: none; border-radius: 50px; font-family: var(--font-ui);
+            text-transform: uppercase; font-weight: 700; letter-spacing: 1px;
+            padding: 15px; cursor: pointer; font-size: 0.8rem; transition: transform 0.1s;
+        }
+        button:active { transform: scale(0.95); }
+        
+        .btn-submit {
+            background: var(--text-color); color: var(--bg-color); flex: 2;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-clear {
+            background: transparent; color: var(--danger-color); flex: 1;
+            border: 1px solid var(--danger-color);
+        }
+
+        /* --- AUTOCOMPLETE --- */
+        .autocomplete-items {
+            position: absolute; border: 1px solid var(--border-color);
+            background: var(--card-bg); z-index: 99; bottom: 100%; left: 0; right: 0;
+            margin-bottom: 5px; border-radius: 6px; overflow: hidden;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+        }
+        .autocomplete-items div {
+            padding: 12px; cursor: pointer; border-bottom: 1px solid var(--border-color);
+            font-family: var(--font-ui); font-size: 0.8rem;
+        }
+        .autocomplete-items div:hover { background-color: var(--input-bg); }
+
+        /* LOADING SPINNER */
+        .spinner {
+            width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; display: none;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        #sync-badge {
+            position: absolute; top: 20px; right: 20px;
+            background: var(--accent-color); color: #fff;
+            font-family: var(--font-ui); font-size: 0.6rem;
+            padding: 4px 8px; border-radius: 4px; display: none;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="scribe-header">
+        <span>Scribe Slate</span>
+        <div class="status-light" id="status-indicator"></div>
+    </div>
+    <div id="sync-badge">Offline Mode (Saved)</div>
+
+    <div class="input-group">
+        <input type="text" id="input-title" placeholder="Title (e.g., On Patience)">
+    </div>
+
+    <textarea id="input-body" placeholder="Start writing..."></textarea>
+
+    <!-- Pretty Toggle -->
+    <div class="pretty-checkbox" id="pretty-private-toggle" onclick="togglePrivacy()">
+        <div class="checkbox-visual">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <span class="checkbox-label">Inner Citadel</span>
+    </div>
+    <input type="checkbox" id="input-private" style="display:none;">
+
+    <div class="input-group" style="position:relative">
+        <input type="text" id="input-tags" placeholder="Tags (comma separated)" autocomplete="off">
+        <div id="tag-autocomplete-list" class="autocomplete-items"></div>
+    </div>
+
+    <div class="action-bar">
+        <button class="btn-clear" onclick="clearForm()">Clear</button>
+        <button class="btn-submit" onclick="submitEntry()">
+            <span id="btn-text">Scribe</span>
+            <div class="spinner" id="btn-spinner"></div>
+        </button>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const API_URL = "https://script.google.com/macros/s/AKfycbyeAgXo2SCcJOToWgbM2O3qdhsxz67NrMotSWjDWbEJafKJ7tLSMm7siu0t278bPqxe/exec";
+        // ---------------------
+
+        let allTags = new Set();
+        let isOffline = !navigator.onLine;
+
+        // --- SERVICE WORKER REGISTRATION ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Scribe Service Worker Registered'))
+                    .catch(err => console.log('Service Worker Failed', err));
+            });
+        }
+
+        function init() {
+            document.getElementById('input-body').focus();
+            
+            updateNetworkStatus();
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
+
+            fetchTags();
+            checkDrafts();
+            setupAutocomplete();
+        }
+
+        function updateNetworkStatus() {
+            isOffline = !navigator.onLine;
+            const el = document.getElementById('status-indicator');
+            if(isOffline) {
+                el.className = 'status-light offline';
+                document.getElementById('btn-text').innerText = "Save (Offline)";
+            } else {
+                el.className = 'status-light online';
+                document.getElementById('btn-text').innerText = "Scribe";
+                syncDrafts();
+            }
+        }
+
+        async function fetchTags() {
+            if(isOffline) return;
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                data.forEach(item => {
+                    if(item.tags) {
+                        item.tags.split(',').forEach(t => allTags.add(t.trim()));
+                    }
+                });
+            } catch (e) { console.log("Tag fetch failed"); }
+        }
+
+        async function submitEntry() {
+            const title = document.getElementById('input-title').value;
+            const body = document.getElementById('input-body').value;
+            const tags = document.getElementById('input-tags').value;
+            const isPrivate = document.getElementById('input-private').checked;
+
+            if(!body) {
+                document.getElementById('input-body').placeholder = "You must write something first...";
+                return;
+            }
+
+            setLoading(true);
+
+            const payload = { action: 'create', title, body, tags, isPrivate };
+
+            if (isOffline) {
+                saveDraft(payload);
+                setLoading(false);
+                clearForm();
+                showToast("Saved to Disk (Offline)");
+            } else {
+                try {
+                    await fetch(API_URL, {
+                        method: 'POST', mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    setLoading(false);
+                    clearForm();
+                    document.body.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color');
+                    setTimeout(() => { document.body.style.backgroundColor = ''; }, 300);
+                } catch (error) {
+                    // If fetch fails (even if nav says online), fallback to offline
+                    saveDraft(payload);
+                    setLoading(false);
+                    clearForm();
+                    showToast("Saved to Disk (Connection Error)");
+                }
+            }
+        }
+
+        function saveDraft(payload) {
+            let drafts = JSON.parse(localStorage.getItem('scribe_drafts') || "[]");
+            drafts.push(payload);
+            localStorage.setItem('scribe_drafts', JSON.stringify(drafts));
+            checkDrafts();
+        }
+
+        function checkDrafts() {
+            let drafts = JSON.parse(localStorage.getItem('scribe_drafts') || "[]");
+            const badge = document.getElementById('sync-badge');
+            if(drafts.length > 0) {
+                badge.style.display = 'block';
+                badge.innerText = `${drafts.length} Unsynced Note${drafts.length > 1 ? 's' : ''}`;
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        async function syncDrafts() {
+            let drafts = JSON.parse(localStorage.getItem('scribe_drafts') || "[]");
+            if(drafts.length === 0) return;
+
+            document.getElementById('sync-badge').innerText = "Syncing...";
+            
+            for (let note of drafts) {
+                await fetch(API_URL, {
+                    method: 'POST', mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(note)
+                });
+            }
+            
+            localStorage.removeItem('scribe_drafts');
+            checkDrafts();
+        }
+
+        function togglePrivacy() {
+            const checkbox = document.getElementById('input-private');
+            const visual = document.getElementById('pretty-private-toggle');
+            checkbox.checked = !checkbox.checked;
+            if (checkbox.checked) visual.classList.add('checked');
+            else visual.classList.remove('checked');
+        }
+
+        function clearForm() {
+            document.getElementById('input-title').value = "";
+            document.getElementById('input-body').value = "";
+            document.getElementById('input-tags').value = "";
+            document.getElementById('input-private').checked = false;
+            document.getElementById('pretty-private-toggle').classList.remove('checked');
+            document.getElementById('input-body').focus();
+        }
+
+        function setLoading(isLoading) {
+            const spinner = document.getElementById('btn-spinner');
+            const text = document.getElementById('btn-text');
+            if(isLoading) {
+                spinner.style.display = 'block';
+                text.style.display = 'none';
+            } else {
+                spinner.style.display = 'none';
+                text.style.display = 'block';
+            }
+        }
+        
+        function showToast(msg) {
+            alert(msg);
+        }
+
+        function setupAutocomplete() {
+            const tagInput = document.getElementById('input-tags');
+            tagInput.addEventListener('input', function(e) {
+                const val = this.value;
+                document.getElementById('tag-autocomplete-list').innerHTML = '';
+                if (!val) return false;
+                
+                const terms = val.split(',');
+                const currentTerm = terms[terms.length - 1].trim().toLowerCase();
+                if (currentTerm.length === 0) return;
+
+                const listDiv = document.getElementById('tag-autocomplete-list');
+                let count = 0;
+                Array.from(allTags).forEach(tag => {
+                    if (tag.toLowerCase().startsWith(currentTerm) && count < 3) { 
+                        const itemDiv = document.createElement("div");
+                        itemDiv.innerHTML = tag;
+                        itemDiv.addEventListener("click", function(e) {
+                            terms.pop();
+                            terms.push(tag);
+                            tagInput.value = terms.join(', ') + ', ';
+                            document.getElementById('tag-autocomplete-list').innerHTML = '';
+                            tagInput.focus();
+                        });
+                        listDiv.appendChild(itemDiv);
+                        count++;
+                    }
+                });
+            });
+            
+            document.addEventListener("click", function (e) {
+                document.getElementById('tag-autocomplete-list').innerHTML = '';
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
