@@ -1,0 +1,20 @@
+{
+  "name": "Scribe",
+  "short_name": "Scribe",
+  "start_url": "./scribe.html",
+  "display": "standalone",
+  "background_color": "#f4f1ea",
+  "theme_color": "#f4f1ea",
+  "icons": [
+    {
+      "src": "quill.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "quill.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
