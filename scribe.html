@@ -42,19 +42,29 @@
             }
         }
 
+        /* --- ANTI-BOUNCE CORE --- */
+        html {
+            height: 100%;
+            overflow: hidden; /* Prevent html scroll */
+        }
         body {
             background-color: var(--bg-color); color: var(--text-color);
-            font-family: var(--font-main); margin: 0; height: 100vh;
+            font-family: var(--font-main); margin: 0; 
+            height: 100%; width: 100%;
             display: flex; flex-direction: column; padding: 20px;
-            box-sizing: border-box; overscroll-behavior: none;
+            box-sizing: border-box; 
+            position: fixed; /* The Nuclear Option: Locks body in place */
+            overflow: hidden;
             padding-top: max(20px, env(safe-area-inset-top));
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
         }
 
         /* --- HEADER --- */
         .scribe-header {
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 20px; font-family: var(--font-ui); text-transform: uppercase;
-            font-size: 0.8rem; letter-spacing: 2px; color: var(--accent-color); font-weight: 700;
+            font-size: 0.75rem; letter-spacing: 2px; color: var(--accent-color); font-weight: 700;
+            flex-shrink: 0;
         }
         
         .status-light {
@@ -65,7 +75,7 @@
         .status-light.offline { background: var(--danger-color); }
 
         /* --- INPUTS --- */
-        .input-group { margin-bottom: 15px; position: relative; }
+        .input-group { margin-bottom: 10px; position: relative; flex-shrink: 0; }
         
         input, textarea {
             width: 100%; border: none; background: transparent;
@@ -79,23 +89,32 @@
         }
         #input-title::placeholder { opacity: 0.4; font-family: var(--font-ui); text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; font-weight: 400; }
 
+        /* Textarea needs specific scrolling rules */
         #input-body {
-            font-size: 1.1rem; line-height: 1.6; resize: none; flex-grow: 1;
-            padding: 15px 0; min-height: 200px;
+            font-size: 1.15rem; line-height: 1.6; resize: none; 
+            flex-grow: 1; /* Fills remaining space */
+            padding: 15px 0; 
+            overflow-y: auto; /* Only this element scrolls */
+            -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
         }
-        #input-body::placeholder { opacity: 0.4; font-style: italic; }
+        #input-body::placeholder { opacity: 0.3; font-style: italic; }
 
         #input-tags {
             font-family: var(--font-ui); font-size: 0.8rem; 
-            padding: 10px 15px; background: var(--input-bg); border-radius: 6px;
+            padding: 12px 15px; background: var(--input-bg); border-radius: 6px;
         }
         #input-tags::placeholder { text-transform: uppercase; letter-spacing: 1px; opacity: 0.5; }
 
-        /* --- PRETTY CHECKBOX (Inner Citadel) --- */
+        /* --- FOOTER AREA --- */
+        .footer-controls {
+            flex-shrink: 0; margin-top: 10px;
+        }
+
+        /* Pretty Toggle */
         .pretty-checkbox {
             display: flex; align-items: center; gap: 12px;
-            padding: 15px; background: var(--input-bg);
-            border-radius: 8px; cursor: pointer; margin-bottom: 20px;
+            padding: 12px; background: var(--input-bg);
+            border-radius: 8px; cursor: pointer; margin-bottom: 15px;
             transition: background 0.2s, transform 0.1s; border: 1px solid transparent;
         }
         .pretty-checkbox:active { transform: scale(0.98); }
@@ -103,32 +122,32 @@
             background: var(--card-bg); border: 1px solid var(--accent-color);
         }
         .checkbox-visual {
-            width: 22px; height: 22px; border: 2px solid var(--text-color);
-            border-radius: 6px; display: flex; align-items: center; justify-content: center;
+            width: 20px; height: 20px; border: 2px solid var(--text-color);
+            border-radius: 5px; display: flex; align-items: center; justify-content: center;
             transition: all 0.2s; opacity: 0.6;
         }
         .pretty-checkbox.checked .checkbox-visual {
             background: var(--accent-color); border-color: var(--accent-color); opacity: 1;
         }
         .checkbox-visual svg {
-            width: 14px; height: 14px; color: var(--bg-color); opacity: 0; transition: 0.2s; stroke-width: 3px;
+            width: 12px; height: 12px; color: var(--bg-color); opacity: 0; transition: 0.2s; stroke-width: 3px;
         }
         .pretty-checkbox.checked .checkbox-visual svg { opacity: 1; }
         .checkbox-label {
-            font-family: var(--font-ui); font-size: 0.8rem; text-transform: uppercase;
-            letter-spacing: 1px; font-weight: 700; color: var(--text-color);
+            font-family: var(--font-ui); font-size: 0.75rem; text-transform: uppercase;
+            letter-spacing: 1px; font-weight: 700; color: var(--text-color); flex-grow: 1;
+        }
+        .word-count {
+            font-family: var(--font-ui); font-size: 0.65rem; opacity: 0.5; font-weight: 400;
         }
 
         /* --- ACTION BAR --- */
-        .action-bar {
-            margin-top: auto; display: flex; gap: 10px;
-            padding-bottom: max(20px, env(safe-area-inset-bottom));
-        }
+        .action-bar { display: flex; gap: 10px; }
         
         button {
             border: none; border-radius: 50px; font-family: var(--font-ui);
             text-transform: uppercase; font-weight: 700; letter-spacing: 1px;
-            padding: 15px; cursor: pointer; font-size: 0.8rem; transition: transform 0.1s;
+            padding: 16px; cursor: pointer; font-size: 0.8rem; transition: transform 0.1s;
         }
         button:active { transform: scale(0.95); }
         
@@ -161,50 +180,57 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        #sync-badge {
-            position: absolute; top: 20px; right: 20px;
-            background: var(--accent-color); color: #fff;
-            font-family: var(--font-ui); font-size: 0.6rem;
-            padding: 4px 8px; border-radius: 4px; display: none;
-            text-transform: uppercase; letter-spacing: 1px;
+        /* TOAST NOTIFICATION */
+        #toast {
+            position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
+            background: var(--text-color); color: var(--bg-color);
+            padding: 12px 25px; border-radius: 30px; font-family: var(--font-ui);
+            font-size: 0.8rem; pointer-events: none; z-index: 300;
+            transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); text-transform: uppercase; letter-spacing: 1px;
         }
+        #toast.visible { top: 20px; }
 
     </style>
 </head>
 <body>
 
+    <div id="toast">Entry Scribed</div>
+
     <div class="scribe-header">
-        <span>Scribe Slate</span>
+        <span id="greeting">Scribe</span>
         <div class="status-light" id="status-indicator"></div>
     </div>
-    <div id="sync-badge">Offline Mode (Saved)</div>
 
     <div class="input-group">
-        <input type="text" id="input-title" placeholder="Title (e.g., On Patience)">
+        <input type="text" id="input-title" placeholder="Title">
     </div>
 
-    <textarea id="input-body" placeholder="Start writing..."></textarea>
+    <textarea id="input-body" placeholder="Start writing..." oninput="updateWordCount()"></textarea>
 
-    <!-- Pretty Toggle -->
-    <div class="pretty-checkbox" id="pretty-private-toggle" onclick="togglePrivacy()">
-        <div class="checkbox-visual">
-            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    <div class="footer-controls">
+        <!-- Pretty Toggle -->
+        <div class="pretty-checkbox" id="pretty-private-toggle" onclick="togglePrivacy()">
+            <div class="checkbox-visual">
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <span class="checkbox-label">Inner Citadel</span>
+            <span class="word-count" id="word-count">0 Words</span>
         </div>
-        <span class="checkbox-label">Inner Citadel</span>
-    </div>
-    <input type="checkbox" id="input-private" style="display:none;">
+        <input type="checkbox" id="input-private" style="display:none;">
 
-    <div class="input-group" style="position:relative">
-        <input type="text" id="input-tags" placeholder="Tags (comma separated)" autocomplete="off">
-        <div id="tag-autocomplete-list" class="autocomplete-items"></div>
-    </div>
+        <div class="input-group" style="position:relative; margin-bottom:15px;">
+            <input type="text" id="input-tags" placeholder="Tags (comma separated)" autocomplete="off">
+            <div id="tag-autocomplete-list" class="autocomplete-items"></div>
+        </div>
 
-    <div class="action-bar">
-        <button class="btn-clear" onclick="clearForm()">Clear</button>
-        <button class="btn-submit" onclick="submitEntry()">
-            <span id="btn-text">Scribe</span>
-            <div class="spinner" id="btn-spinner"></div>
-        </button>
+        <div class="action-bar">
+            <button class="btn-clear" onclick="clearForm()">Clear</button>
+            <button class="btn-submit" onclick="submitEntry()">
+                <span id="btn-text">Scribe</span>
+                <div class="spinner" id="btn-spinner"></div>
+            </button>
+        </div>
     </div>
 
     <script>
@@ -214,8 +240,19 @@
 
         let allTags = new Set();
         let isOffline = !navigator.onLine;
+        
+        const prompts = [
+            "What is troubling you?",
+            "What did you learn today?",
+            "The obstacle is the way...",
+            "Memento Mori.",
+            "Start writing...",
+            "Amor Fati.",
+            "Define your principles.",
+            "What would Aurelius do?"
+        ];
 
-        // --- SERVICE WORKER REGISTRATION ---
+        // --- SERVICE WORKER ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
@@ -226,6 +263,8 @@
 
         function init() {
             document.getElementById('input-body').focus();
+            setGreeting();
+            setRandomPlaceholder();
             
             updateNetworkStatus();
             window.addEventListener('online', updateNetworkStatus);
@@ -235,16 +274,32 @@
             checkDrafts();
             setupAutocomplete();
         }
+        
+        function setGreeting() {
+            const hour = new Date().getHours();
+            let greeting = "Scribe";
+            if (hour < 12) greeting = "Good Morning, Marston";
+            else if (hour < 18) greeting = "Good Afternoon, Marston";
+            else greeting = "Good Evening, Marston";
+            document.getElementById('greeting').innerText = greeting;
+        }
+        
+        function setRandomPlaceholder() {
+            const prompt = prompts[Math.floor(Math.random() * prompts.length)];
+            document.getElementById('input-body').placeholder = prompt;
+        }
 
         function updateNetworkStatus() {
             isOffline = !navigator.onLine;
             const el = document.getElementById('status-indicator');
+            const btnText = document.getElementById('btn-text');
+            
             if(isOffline) {
                 el.className = 'status-light offline';
-                document.getElementById('btn-text').innerText = "Save (Offline)";
+                btnText.innerText = "Save (Offline)";
             } else {
                 el.className = 'status-light online';
-                document.getElementById('btn-text').innerText = "Scribe";
+                btnText.innerText = "Scribe";
                 syncDrafts();
             }
         }
@@ -262,14 +317,21 @@
             } catch (e) { console.log("Tag fetch failed"); }
         }
 
+        function updateWordCount() {
+            const text = document.getElementById('input-body').value;
+            const count = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+            document.getElementById('word-count').innerText = count + (count === 1 ? " Word" : " Words");
+        }
+
         async function submitEntry() {
+            vibrate();
             const title = document.getElementById('input-title').value;
             const body = document.getElementById('input-body').value;
             const tags = document.getElementById('input-tags').value;
             const isPrivate = document.getElementById('input-private').checked;
 
             if(!body) {
-                document.getElementById('input-body').placeholder = "You must write something first...";
+                document.getElementById('input-body').placeholder = "Silence is not an entry...";
                 return;
             }
 
@@ -291,14 +353,12 @@
                     });
                     setLoading(false);
                     clearForm();
-                    document.body.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color');
-                    setTimeout(() => { document.body.style.backgroundColor = ''; }, 300);
+                    showToast("Scribed to Archives");
                 } catch (error) {
-                    // If fetch fails (even if nav says online), fallback to offline
                     saveDraft(payload);
                     setLoading(false);
                     clearForm();
-                    showToast("Saved to Disk (Connection Error)");
+                    showToast("Connection Failed. Saved Locally.");
                 }
             }
         }
@@ -312,20 +372,15 @@
 
         function checkDrafts() {
             let drafts = JSON.parse(localStorage.getItem('scribe_drafts') || "[]");
-            const badge = document.getElementById('sync-badge');
-            if(drafts.length > 0) {
-                badge.style.display = 'block';
-                badge.innerText = `${drafts.length} Unsynced Note${drafts.length > 1 ? 's' : ''}`;
-            } else {
-                badge.style.display = 'none';
-            }
+            // If we wanted a badge, we could add it back, but let's keep it clean
+            // Maybe just log it or show a subtle indicator if needed.
         }
 
         async function syncDrafts() {
             let drafts = JSON.parse(localStorage.getItem('scribe_drafts') || "[]");
             if(drafts.length === 0) return;
-
-            document.getElementById('sync-badge').innerText = "Syncing...";
+            
+            showToast(`Syncing ${drafts.length} Notes...`);
             
             for (let note of drafts) {
                 await fetch(API_URL, {
@@ -336,10 +391,12 @@
             }
             
             localStorage.removeItem('scribe_drafts');
-            checkDrafts();
+            showToast("Sync Complete");
         }
 
+        // --- UI HELPERS ---
         function togglePrivacy() {
+            vibrate();
             const checkbox = document.getElementById('input-private');
             const visual = document.getElementById('pretty-private-toggle');
             checkbox.checked = !checkbox.checked;
@@ -348,11 +405,14 @@
         }
 
         function clearForm() {
+            vibrate();
             document.getElementById('input-title').value = "";
             document.getElementById('input-body').value = "";
             document.getElementById('input-tags').value = "";
             document.getElementById('input-private').checked = false;
             document.getElementById('pretty-private-toggle').classList.remove('checked');
+            document.getElementById('word-count').innerText = "0 Words";
+            setRandomPlaceholder();
             document.getElementById('input-body').focus();
         }
 
@@ -369,9 +429,19 @@
         }
         
         function showToast(msg) {
-            alert(msg);
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('visible');
+            setTimeout(() => {
+                toast.classList.remove('visible');
+            }, 3000);
+        }
+        
+        function vibrate() {
+            if (navigator.vibrate) navigator.vibrate(10);
         }
 
+        // --- AUTOCOMPLETE LOGIC ---
         function setupAutocomplete() {
             const tagInput = document.getElementById('input-tags');
             tagInput.addEventListener('input', function(e) {
