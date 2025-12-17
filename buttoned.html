@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Temperance</title>
+    
+    <!-- PWA Settings -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Temperance">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/ios-filled/180/000000/greek-pillar.png">
+    
+    <!-- Dynamic Manifest for PWA Installability -->
+    <link rel="manifest" href='data:application/manifest+json,{"name":"Temperance Tracker","short_name":"Temperance","start_url":".","display":"standalone","background_color":"#fdfcf8","theme_color":"#fdfcf8","icons":[{"src":"https://img.icons8.com/ios-filled/192/000000/greek-pillar.png","sizes":"192x192","type":"image/png"}]}'>
+
+    <!-- React & Libraries -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        stone: { 50: '#fafaf9', 100: '#f5f5f4', 800: '#292524', 900: '#1c1917' },
+                        marble: '#fdfcf8',
+                    },
+                    fontFamily: {
+                        serif: ['Merriweather', 'serif'],
+                        display: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-marble text-stone-800 dark:bg-stone-900 dark:text-stone-100 transition-colors duration-300 select-none">
+    <div id="root"></div>
+
+    <!-- Service Worker Registration for Offline Capability -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                const CACHE_NAME = 'stoic-v3';
+                const urlsToCache = [
+                    '.',
+                    'index.html',
+                    'https://unpkg.com/react@18/umd/react.production.min.js',
+                    'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',
+                    'https://unpkg.com/@babel/standalone/babel.min.js',
+                    'https://cdn.tailwindcss.com',
+                    'https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap'
+                ];
+
+                self.addEventListener('install', event => {
+                    event.waitUntil(
+                        caches.open(CACHE_NAME)
+                            .then(cache => cache.addAll(urlsToCache))
+                    );
+                });
+
+                self.addEventListener('fetch', event => {
+                    event.respondWith(
+                        caches.match(event.request)
+                            .then(response => {
+                                if (response) return response;
+                                return fetch(event.request);
+                            })
+                    );
+                });
+            `;
+            
+            const blob = new Blob([swCode], {type: 'application/javascript'});
+            const swUrl = URL.createObjectURL(blob);
+            
+            navigator.serviceWorker.register(swUrl).catch(err => console.log('SW fail: ', err));
+        }
+    </script>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- INLINE ICONS ---
+        const IconSun = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
+        const IconMoon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>;
+        const IconChevronLeft = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>;
+        const IconChevronRight = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>;
+        const IconReset = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>;
+        const IconSettings = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.39a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>;
+        const IconClose = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>;
+        const IconTimer = () => <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/></svg>;
+
+        // --- DATA ---
+        const quotes = [
+            { text: "No man is free who is not master of himself.", author: "Epictetus" },
+            { text: "We must not indulge the body more than is necessary to keep the soul in good health.", author: "Seneca" },
+            { text: "Think of your many years of procrastination; how the gods have repeatedly granted you further periods of grace, of which you have taken no advantage.", author: "Marcus Aurelius" },
+            { text: "The body should be treated more rigorously, that it may not be disobedient to the mind.", author: "Seneca" },
+            { text: "It is not what happens to you, but how you react to it that matters.", author: "Epictetus" },
+            { text: "Discipline is the bridge between goals and accomplishment.", author: "Jim Rohn" },
+            { text: "If you seek tranquility, do less.", author: "Marcus Aurelius" },
+            { text: "Gluttony is a lust of the mind, not just the stomach.", author: "Seneca" },
+            { text: "How long are you going to wait before you demand the best for yourself?", author: "Epictetus" }
+        ];
+
+        const sugarData = [
+            { type: 'Standard "Small" Bag', weight: '~40g', cubes: '~6 cubes' },
+            { type: 'Medium Bag', weight: '~119g', cubes: '~17 cubes' },
+            { type: '"Share" Bag', weight: '175g', cubes: '~25 cubes' },
+            { type: 'Large "Share" Bag', weight: '184.8g', cubes: '~26 cubes' },
+            { type: '"Mega" Bag', weight: '290g', cubes: '~41 cubes' },
+            { type: 'Two Large Bags', weight: '369.6g', cubes: '~53 cubes' },
+        ];
+
+        const exerciseData = [
+            { type: 'Standard "Small" Bag', cal: '~214', run: '~20 mins' },
+            { type: 'Medium Bag', cal: '~636', run: '~1 hour' },
+            { type: '"Share" Bag', cal: '~935', run: '~1h 25m' },
+            { type: 'Large "Share" Bag', cal: '~988', run: '~1h 30m' },
+            { type: '"Mega" Bag', cal: '~1,550', run: '~2h 20m' },
+            { type: 'Two Large Bags', cal: '1,977', run: '~3 hours' },
+        ];
+
+        const costData = [
+            { habit: 'Daily Binge (2 Bags/Day)', week: '£35.00', year: '£1,825', opp: 'Car / Deposit' },
+            { habit: 'Daily Habit (1 Bag/Day)', week: '£17.50', year: '£912.50', opp: 'High-end Laptop' },
+            { habit: 'Weekly Habit (2 Bags/Week)', week: '£5.00', year: '£260', opp: 'Festival Ticket' },
+        ];
+
+        // --- COMPONENTS ---
+
+        const Modal = ({ isOpen, onClose, title, children, darkMode }) => {
+            if (!isOpen) return null;
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className={`w-full max-w-sm rounded-xl shadow-2xl p-6 ${darkMode ? 'bg-stone-800 text-stone-100 border border-stone-600' : 'bg-white text-stone-800'}`}>
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold font-display">{title}</h3>
+                            <button onClick={onClose} className="p-1 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-full transition">
+                                <IconClose />
+                            </button>
+                        </div>
+                        {children}
+                    </div>
+                </div>
+            );
+        };
+
+        const SobrietyCounter = ({ darkMode }) => {
+            const [startDate, setStartDate] = useState(() => {
+                const saved = localStorage.getItem('chocolateFreeDate');
+                return saved ? new Date(parseInt(saved)) : new Date();
+            });
+            const [timeElapsed, setTimeElapsed] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+            const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+            const [editDateValue, setEditDateValue] = useState("");
+
+            useEffect(() => {
+                const timer = setInterval(() => {
+                    const now = new Date();
+                    const diff = now - startDate;
+                    
+                    if (diff < 0) {
+                        // Future date handling
+                        setTimeElapsed({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+                        return;
+                    }
+
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                    const minutes = Math.floor((diff / 1000 / 60) % 60);
+                    const seconds = Math.floor((diff / 1000) % 60);
+
+                    setTimeElapsed({ days, hours, minutes, seconds });
+                }, 1000);
+
+                return () => clearInterval(timer);
+            }, [startDate]);
+
+            const handleReset = () => {
+                if (window.confirm("Reset the counter to NOW? Only do this if you've truly slipped.")) {
+                    const now = new Date();
+                    updateDate(now);
+                }
+            };
+
+            const openSettings = () => {
+                // Convert current startDate to local datetime string for the input
+                // Format required: YYYY-MM-DDThh:mm
+                const tzOffset = startDate.getTimezoneOffset() * 60000; // offset in milliseconds
+                const localISOTime = (new Date(startDate - tzOffset)).toISOString().slice(0, 16);
+                setEditDateValue(localISOTime);
+                setIsSettingsOpen(true);
+            };
+
+            const saveSettings = () => {
+                if (editDateValue) {
+                    const newDate = new Date(editDateValue);
+                    updateDate(newDate);
+                    setIsSettingsOpen(false);
+                }
+            };
+
+            const updateDate = (date) => {
+                setStartDate(date);
+                localStorage.setItem('chocolateFreeDate', date.getTime().toString());
+            };
+
+            return (
+                <>
+                    <div className={`mb-8 p-6 rounded-lg border shadow-sm transition-all duration-300 relative overflow-hidden ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}>
+                        <div className={`absolute -top-4 -right-4 opacity-5 pointer-events-none ${darkMode ? 'text-white' : 'text-black'}`}>
+                            <IconTimer />
+                        </div>
+
+                        <div className="flex justify-between items-start relative z-10">
+                            <div>
+                                <h2 className={`text-xs uppercase tracking-[0.2em] font-bold mb-3 ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>Abstinence Streak</h2>
+                                <div className="flex items-baseline space-x-3">
+                                    <div className="flex flex-col">
+                                        <span className={`text-4xl font-display font-bold leading-none ${darkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>{timeElapsed.days}</span>
+                                        <span className={`text-[10px] uppercase mt-1 ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>Days</span>
+                                    </div>
+                                    <span className={`text-2xl font-light ${darkMode ? 'text-stone-600' : 'text-stone-300'}`}>:</span>
+                                    <div className="flex flex-col">
+                                        <span className={`text-2xl font-display font-semibold leading-none ${darkMode ? 'text-stone-200' : 'text-stone-600'}`}>{timeElapsed.hours}</span>
+                                        <span className={`text-[10px] uppercase mt-1 ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>Hr</span>
+                                    </div>
+                                    <span className={`text-2xl font-light ${darkMode ? 'text-stone-600' : 'text-stone-300'}`}>:</span>
+                                    <div className="flex flex-col">
+                                        <span className={`text-2xl font-display font-semibold leading-none ${darkMode ? 'text-stone-200' : 'text-stone-600'}`}>{timeElapsed.minutes}</span>
+                                        <span className={`text-[10px] uppercase mt-1 ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>Min</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="flex space-x-2">
+                                <button 
+                                    onClick={openSettings}
+                                    className={`p-3 rounded-full transition-all duration-300 ${darkMode ? 'bg-stone-700 text-stone-400 hover:bg-stone-600 hover:text-stone-200' : 'bg-stone-50 text-stone-400 hover:bg-stone-200 hover:text-stone-600'}`}
+                                    title="Adjust Date"
+                                >
+                                    <IconSettings />
+                                </button>
+                                <button 
+                                    onClick={handleReset}
+                                    className={`p-3 rounded-full transition-all duration-300 ${darkMode ? 'bg-stone-700 text-stone-400 hover:bg-red-900/30 hover:text-red-400' : 'bg-stone-50 text-stone-400 hover:bg-red-50 hover:text-red-600'}`}
+                                    title="Reset Timer to Now"
+                                >
+                                    <IconReset />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Settings Modal */}
+                    <Modal 
+                        isOpen={isSettingsOpen} 
+                        onClose={() => setIsSettingsOpen(false)} 
+                        title="Adjust Start Date"
+                        darkMode={darkMode}
+                    >
+                        <div className="flex flex-col space-y-4">
+                            <p className={`text-sm ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
+                                Set the exact time you stopped.
+                            </p>
+                            <input 
+                                type="datetime-local" 
+                                value={editDateValue}
+                                onChange={(e) => setEditDateValue(e.target.value)}
+                                className={`w-full p-3 rounded-lg border ${darkMode ? 'bg-stone-900 border-stone-700 text-white' : 'bg-stone-50 border-stone-200 text-stone-900'} focus:outline-none focus:ring-2 focus:ring-stone-500`}
+                            />
+                            <div className="flex space-x-3 pt-2">
+                                <button 
+                                    onClick={() => setIsSettingsOpen(false)}
+                                    className={`flex-1 py-2 px-4 rounded-lg font-bold text-sm ${darkMode ? 'bg-stone-700 hover:bg-stone-600 text-stone-300' : 'bg-stone-200 hover:bg-stone-300 text-stone-700'}`}
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    onClick={saveSettings}
+                                    className={`flex-1 py-2 px-4 rounded-lg font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg`}
+                                >
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </Modal>
+                </>
+            );
+        };
+
+        const App = () => {
+            const [activeTab, setActiveTab] = useState(0);
+            const [activeQuote, setActiveQuote] = useState(0);
+            const [darkMode, setDarkMode] = useState(false);
+            
+            const touchStart = useRef(null);
+            const touchEnd = useRef(null);
+            const minSwipeDistance = 50;
+
+            useEffect(() => {
+                setActiveQuote(Math.floor(Math.random() * quotes.length));
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    setDarkMode(true);
+                }
+            }, []);
+
+            const nextTab = () => setActiveTab((prev) => (prev === 2 ? 0 : prev + 1));
+            const prevTab = () => setActiveTab((prev) => (prev === 0 ? 2 : prev - 1));
+
+            const nextQuote = () => setActiveQuote((prev) => (prev === quotes.length - 1 ? 0 : prev + 1));
+            const prevQuote = () => setActiveQuote((prev) => (prev === 0 ? quotes.length - 1 : prev - 1));
+
+            const createSwipeHandler = (nextFn, prevFn) => {
+                return {
+                    onTouchStart: (e) => {
+                        touchEnd.current = null; 
+                        touchStart.current = e.targetTouches[0].clientX;
+                    },
+                    onTouchMove: (e) => {
+                        touchEnd.current = e.targetTouches[0].clientX;
+                    },
+                    onTouchEnd: () => {
+                        if (!touchStart.current || !touchEnd.current) return;
+                        const distance = touchStart.current - touchEnd.current;
+                        const isLeftSwipe = distance > minSwipeDistance;
+                        const isRightSwipe = distance < -minSwipeDistance;
+                        
+                        if (isLeftSwipe) nextFn();
+                        if (isRightSwipe) prevFn();
+                    }
+                };
+            };
+
+            const tabSwipeHandlers = createSwipeHandler(nextTab, prevTab);
+            const quoteSwipeHandlers = createSwipeHandler(nextQuote, prevQuote);
+
+            return (
+                <div className={`flex flex-col min-h-screen transition-colors duration-500 ${darkMode ? 'bg-stone-900 text-stone-100' : 'bg-[#fdfcf8] text-stone-800'}`}>
+                    <div className="flex-1 flex flex-col max-w-lg mx-auto w-full p-6">
+                        
+                        <header className="flex justify-between items-center mb-8 mt-4">
+                            <div className="flex flex-col">
+                                <h1 className="text-3xl font-bold tracking-tight font-display">
+                                    Temperance
+                                </h1>
+                                <p className={`text-sm italic mt-1 font-serif ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>
+                                    Control your desires.
+                                </p>
+                            </div>
+                            <button 
+                                onClick={() => setDarkMode(!darkMode)}
+                                className={`p-3 rounded-full transition-colors duration-300 ${darkMode ? 'bg-stone-800 hover:bg-stone-700 text-stone-300' : 'bg-stone-100 hover:bg-stone-200 text-stone-600'}`}
+                            >
+                                {darkMode ? <IconSun /> : <IconMoon />}
+                            </button>
+                        </header>
+
+                        <SobrietyCounter darkMode={darkMode} />
+
+                        <section 
+                            className={`mb-10 relative p-8 rounded-lg border-l-4 shadow-sm transition-all duration-300 min-h-[180px] flex flex-col justify-center items-center text-center select-none ${darkMode ? 'bg-stone-800 border-stone-600' : 'bg-stone-100 border-stone-400'}`}
+                            {...quoteSwipeHandlers}
+                        >
+                            <div className="absolute top-2 left-2 opacity-10 font-display text-6xl leading-none">“</div>
+                            
+                            <p className={`font-display text-xl italic leading-relaxed px-2 ${darkMode ? 'text-stone-200' : 'text-stone-800'}`}>
+                                {quotes[activeQuote].text}
+                            </p>
+                            <p className={`mt-4 text-xs font-bold uppercase tracking-widest ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
+                                — {quotes[activeQuote].author}
+                            </p>
+
+                            <div className="absolute bottom-4 flex space-x-1">
+                                {quotes.map((_, i) => (
+                                    <div key={i} className={`h-1 w-1 rounded-full transition-all ${i === activeQuote ? (darkMode ? 'bg-stone-400 w-3' : 'bg-stone-600 w-3') : 'bg-stone-400/30'}`} />
+                                ))}
+                            </div>
+                        </section>
+
+                        <main className="flex-1 relative" {...tabSwipeHandlers}>
+                            <div className="flex justify-between items-center mb-4 px-2 select-none">
+                                <button onClick={prevTab} className={`p-2 rounded-full ${darkMode ? 'hover:bg-stone-800 text-stone-500' : 'hover:bg-stone-100 text-stone-400'}`}>
+                                    <IconChevronLeft />
+                                </button>
+                                
+                                <div className="flex space-x-1.5">
+                                    {[0, 1, 2].map((i) => (
+                                        <button 
+                                            key={i} 
+                                            onClick={() => setActiveTab(i)}
+                                            className={`h-1.5 rounded-full transition-all duration-300 ${activeTab === i ? (darkMode ? 'bg-stone-100 w-6' : 'bg-stone-800 w-6') : (darkMode ? 'bg-stone-700 w-1.5' : 'bg-stone-300 w-1.5')}`}
+                                        />
+                                    ))}
+                                </div>
+
+                                <button onClick={nextTab} className={`p-2 rounded-full ${darkMode ? 'hover:bg-stone-800 text-stone-500' : 'hover:bg-stone-100 text-stone-400'}`}>
+                                    <IconChevronRight />
+                                </button>
+                            </div>
+
+                            <div className="relative min-h-[400px]">
+                                
+                                {/* CARD 1: SUGAR */}
+                                <div className={`transition-all duration-500 absolute w-full ${activeTab === 0 ? 'opacity-100 translate-x-0 z-10' : 'translate-x-full opacity-0 pointer-events-none'}`}>
+                                    <div className={`rounded-xl shadow-lg border overflow-hidden ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}>
+                                        <div className={`p-5 text-center border-b ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-stone-50 border-stone-100'}`}>
+                                            <h2 className="text-xl font-bold font-display">The Sugar Reality</h2>
+                                        </div>
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-sm text-left">
+                                                <tbody className={`divide-y ${darkMode ? 'divide-stone-700' : 'divide-stone-100'}`}>
+                                                    {sugarData.map((row, i) => (
+                                                        <tr key={i} className={`group ${darkMode ? 'hover:bg-stone-700/30' : 'hover:bg-stone-50'}`}>
+                                                            <td className={`px-5 py-4 font-medium ${darkMode ? 'text-stone-300' : 'text-stone-700'}`}>{row.type}</td>
+                                                            <td className={`px-5 py-4 text-right font-bold ${darkMode ? 'text-red-400' : 'text-red-700'}`}>{row.cubes}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* CARD 2: EXERCISE */}
+                                <div className={`transition-all duration-500 absolute w-full ${activeTab === 1 ? 'opacity-100 translate-x-0 z-10' : 'translate-x-full opacity-0 pointer-events-none'}`}>
+                                <div className={`rounded-xl shadow-lg border overflow-hidden ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}>
+                                        <div className={`p-5 text-center border-b ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-stone-50 border-stone-100'}`}>
+                                            <h2 className="text-xl font-bold font-display">The Sweat Equity</h2>
+                                        </div>
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-sm text-left">
+                                                <tbody className={`divide-y ${darkMode ? 'divide-stone-700' : 'divide-stone-100'}`}>
+                                                    {exerciseData.map((row, i) => (
+                                                        <tr key={i} className={`group ${darkMode ? 'hover:bg-stone-700/30' : 'hover:bg-stone-50'}`}>
+                                                            <td className={`px-5 py-4 font-medium ${darkMode ? 'text-stone-300' : 'text-stone-700'}`}>{row.type}</td>
+                                                            <td className={`px-5 py-4 text-right font-bold ${darkMode ? 'text-orange-400' : 'text-orange-700'}`}>{row.run}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* CARD 3: COST */}
+                                <div className={`transition-all duration-500 absolute w-full ${activeTab === 2 ? 'opacity-100 translate-x-0 z-10' : 'translate-x-full opacity-0 pointer-events-none'}`}>
+                                    <div className={`rounded-xl shadow-lg border overflow-hidden ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}>
+                                        <div className={`p-5 text-center border-b ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-stone-50 border-stone-100'}`}>
+                                            <h2 className="text-xl font-bold font-display">The Financial Toll</h2>
+                                        </div>
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-sm text-left">
+                                                <tbody className={`divide-y ${darkMode ? 'divide-stone-700' : 'divide-stone-100'}`}>
+                                                    {costData.map((row, i) => (
+                                                        <tr key={i} className={`group ${darkMode ? 'hover:bg-stone-700/30' : 'hover:bg-stone-50'}`}>
+                                                            <td className={`px-5 py-4 font-medium ${darkMode ? 'text-stone-300' : 'text-stone-700'}`}>
+                                                                <div>{row.habit}</div>
+                                                                <div className={`text-xs mt-0.5 font-normal ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>{row.week}/week</div>
+                                                            </td>
+                                                            <td className={`px-5 py-4 text-right font-bold ${darkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>{row.opp}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </main>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
